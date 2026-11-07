@@ -1,6 +1,6 @@
 ---
 name: cornetta
-description: Develop, debug, and verify the privacy-clean Cornetta fork across Swift/Core Audio, Windows C#, audio/video capture, local transcription, manual GitHub updates, and its static website. Use whenever working in this repository on recording reliability, platform behavior, privacy, localization, or UI changes.
+description: Develop, debug, and verify the privacy-clean Cornetta fork across Swift/Core Audio, Windows C#, audio/video capture, HTTP transcription, manual GitHub updates, and its static website. Use whenever working in this repository on recording reliability, platform behavior, privacy, localization, or UI changes.
 compatibility: Full verification requires macOS with Xcode, .NET 10, Python 3, and a Chromium browser. Native audio and Windows checks require their respective platforms.
 ---
 
@@ -19,8 +19,11 @@ compatibility: Full verification requires macOS with Xcode, .NET 10, Python 3, a
 
 - Start with a focused reproduction and the smallest responsible change.
 - Preserve the privacy boundary: no background network connections, no telemetry, no analytics.
-  The only network actions are the user-triggered signed update feed and opening a GitHub issue.
-- Audio, transcripts, file names, device names, contacts and diagnostics must never be uploaded.
+  The only network actions are the user-triggered signed update feed, opening a GitHub issue and a
+  transcription request to the endpoint the user configured.
+- Audio leaves only on a user-started transcription, only to that endpoint, and only with the file name
+  and the configured model/language fields. Transcripts, device names, contacts and diagnostics stay
+  local. The default endpoint is loopback.
 - Keep local-first behavior: recordings and transcripts stay in the user's folders.
 - Update `site/privacy/index.html`, `site/en/privacy/index.html`, and `site/llms.txt` before adding any
   outbound request.
@@ -43,10 +46,13 @@ For capture changes, unit tests are insufficient. Select the relevant real check
 - `--record` with `--debug-tracks` for microphone/system audio and synchronization.
 - `--record-screen` for video, audio tracks, fragmentation, and final merge behavior.
 - `--probe` for Core Audio routing failures.
-- `--transcribe` for transcription and `--demo-library` for library UI.
+- `--transcribe` with a local mock or Whisper-compatible service for transcription, and `--demo-library`
+  for library UI.
+- `--transcription-settings` for the transcription settings window.
 - Windows CI plus `--selftest`, `--render-ui`, and `--smoke-tray` for Windows changes.
 
-Test transcription on macOS 26 or newer. Test Windows WASAPI and installer behavior on real Windows when
+Test transcription against a local mock or real Whisper-compatible server, including `verbose_json`,
+the `json` fallback and an HTTP error. Test Windows WASAPI and installer behavior on real Windows when
 possible, and state any unverified platform coverage plainly.
 
 ## Respect platform lessons

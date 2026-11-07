@@ -116,7 +116,7 @@ final class RecorderModel: ObservableObject {
         Diagnostics.log("Permesso microfono: \(micAllowed)")
         let url = FileNaming.newRecordingURL(in: FileNaming.defaultDirectory, workingRoot: Library.shared.workingRoot)
         let recorder = CallRecorder(outputURL: url, workingDirectory: Library.shared.workingDirectory(for: url),
-                                    tracksDirectory: SpeechEngine.isAvailable ? Library.shared.tracksDirectory(for: url) : nil)
+                                    tracksDirectory: TranscriptionService.isConfigured ? Library.shared.tracksDirectory(for: url) : nil)
         recorder.onEvent = { [weak self] event in
             Task { @MainActor in self?.handle(event) }
         }

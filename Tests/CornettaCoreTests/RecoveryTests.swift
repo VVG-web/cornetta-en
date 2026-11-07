@@ -233,7 +233,7 @@ struct RecoveryTests {
         let samples = (0..<10_000).map { Float(sin(Double($0) * 0.01)) * Float($0 % 7) * 0.01 }
         let window = VoiceActivity.windowSize(sampleRate: 16_000)
         let whole = VoiceActivity.levels(count: samples.count, window: window) { samples[$0] }
-        // Come SpeechEngine: blocchi da 50 finestre, l'ultimo più corto.
+        // Come VoiceActivity: blocchi da 50 finestre, l'ultimo più corto.
         var blocks: [Float] = []
         var start = 0
         while start < samples.count {

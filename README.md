@@ -8,7 +8,8 @@ based on the original [Cornetta](https://github.com/stellakamikaze/cornetta) by 
   (macOS 14.4+, Apple Silicon and Intel · Windows 10 and 11, beta)
 - Site: [vvg-web.github.io/cornetta-en](https://vvg-web.github.io/cornetta-en/)
 - Privacy: no telemetry, no analytics, no cookies, no feedback server.
-  Recordings and transcripts stay on the computer.
+  Recordings stay on the computer. Audio is sent only to the transcription service you configure,
+  and only when you start a transcription. The default service is on localhost.
 - Updates: manual check against a signed feed on GitHub Pages. Nothing is downloaded or installed automatically.
 - Security review: [macOS Intel safety and uninstall](docs/SECURITY-REVIEW.md).
 - Stack: Swift and Core Audio process taps (`Sources/`), C# .NET Framework 4.8 with NAudio (`windows/`),
@@ -34,16 +35,23 @@ feedback. L'app non apre connessioni in background.
 
 Le uniche connessioni possibili sono quelle avviate dall'utente:
 
+- **Trascrizione**: quando premi **Trascrivi** o attivi la trascrizione automatica, Cornetta invia
+  l'audio della registrazione al servizio HTTP che hai configurato. Il valore predefinito è
+  `http://127.0.0.1:8080/v1/audio/transcriptions`: se il servizio gira sullo stesso Mac, l'audio non
+  esce dal computer. Cornetta non include un modello vocale e non contatta alcun servizio di
+  trascrizione in background.
 - **Controlla gli aggiornamenti su GitHub…** scarica il feed firmato da GitHub Pages, verifica la firma
   ECDSA P-256 e solo allora legge la versione. La richiesta contiene la versione dell'app e un normale
   User-Agent, mai audio, testi o nomi di file.
 - **Feedback** apre una nuova segnalazione pubblica su GitHub nel browser. Non c'è nessun invio automatico.
 
-Audio e trascrizioni non lasciano mai il computer. La trascrizione usa il riconoscimento vocale di Apple
-sul Mac. Il sito in `site/` è statico e non usa Plausible, Telegram o altri servizi di analisi.
+Le registrazioni e i file Markdown restano nelle cartelle dell'utente. L'audio lascia il computer solo
+quando avvii una trascrizione e solo verso l'indirizzo che hai scelto. Il sito in `site/` è statico e non
+usa Plausible, Telegram o altri servizi di analisi.
 
 Dettagli: [privacy in italiano](site/privacy/index.html) e
-[privacy in English](site/en/privacy/index.html).
+[privacy in English](site/en/privacy/index.html). Il formato del servizio di trascrizione è descritto in
+[docs/TRANSCRIPTION.md](docs/TRANSCRIPTION.md).
 
 ## Sicurezza e rimozione
 
@@ -69,6 +77,7 @@ Non fa merge, cherry-pick o push automatici. Il rapporto è generato da
 
 - macOS 14.4 o successivo.
 - Mac con Apple Silicon o Intel (app universale).
+- Per la trascrizione, un servizio HTTP compatibile con l'API OpenAI Whisper. Non è incluso nel pacchetto.
 - Per lo sviluppo: Xcode completo o Command Line Tools, .NET SDK 10, Python 3 e un browser Chromium.
 
 ## Installazione macOS
@@ -92,6 +101,8 @@ oppure **→ Registrazione schermo e audio di sistema**.
 - **Controlla gli aggiornamenti su GitHub…**: confronta la versione installata con l'ultima release e apre
   GitHub se ce n'è una nuova.
 - **Apri una segnalazione su GitHub…**: apre il browser sulla pagina delle issue del fork.
+- **Impostazioni trascrizione…**: scegli protocollo, indirizzo, porta, percorso, modello e lingua del
+  servizio HTTP. La stessa finestra contiene l'opzione per trascrivere subito dopo ogni registrazione.
 
 Se a metà chiamata cambi microfono (per esempio colleghi le AirPods), Cornetta passa al nuovo microfono e
 continua sullo stesso file.
@@ -111,18 +122,32 @@ Prova da riga di comando:
 
 ## Trascrizione
 
-Da macOS 26 Cornetta trascrive ogni chiamata sul Mac, con il riconoscimento vocale di Apple (SpeechAnalyzer).
+Cornetta non include un motore vocale: usa un servizio HTTP esterno compatibile con l'API OpenAI Whisper.
+La trascrizione parte solo quando scegli **Trascrivi**, oppure dopo una registrazione se hai attivato
+**Trascrivi subito dopo la registrazione**.
 
 - Durante la registrazione salva due tracce separate in `~/Library/Application Support/Cornetta/Tracce/`:
-  «Tu» (microfono) e «Altri» (audio di sistema).
-- Allo stop la trascrizione parte da sola.
+  «Tu» (microfono) e «Altri» (audio di sistema). Le tracce permettono di etichettare le battute; se
+  mancano, la trascrizione usa il file misto e le righe compaiono come «Voce».
+- In **Impostazioni trascrizione…** imposta indirizzo, porta, percorso, modello e lingua. Il valore
+  predefinito è `http://127.0.0.1:8080/v1/audio/transcriptions`, con modello `whisper-1` e lingua
+  automatica. Per un servizio su un altro computer usa HTTPS.
+- Cornetta invia il file audio con una richiesta `multipart/form-data`; il servizio risponde con
+  `verbose_json` (segmenti con orari) o, se non lo supporta, con `json` o testo semplice.
 - Il testo si salva in JSON (`~/Library/Application Support/Cornetta/Trascrizioni/`) e come `.md` accanto
   all'audio.
 - La finestra **Registrazioni** (⌘T dal menu) ha l'elenco, la ricerca, il testo diviso per voce e l'ascolto
   dal punto scelto.
 
+La trascrizione automatica è disattivata per impostazione predefinita. Se il servizio non è raggiungibile,
+la registrazione resta disponibile e lo stato passa a «Errore» con il pulsante **Riprova**. Chi
+aggiorna da 0.7.0 trova l'opzione spenta anche se prima era attiva: il passaggio a un servizio di rete
+richiede un consenso nuovo.
+
 Prova da riga di comando:
 `build/Cornetta.app/Contents/MacOS/Cornetta --transcribe file.m4a [--tracks cartella]`.
+
+Contratto dell'endpoint ed esempi: [docs/TRANSCRIPTION.md](docs/TRANSCRIPTION.md).
 
 ## Come funziona
 

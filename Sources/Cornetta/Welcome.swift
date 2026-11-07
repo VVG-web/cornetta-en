@@ -104,9 +104,7 @@ struct WelcomeView: View {
                 Text("Come si usa").font(.headline)
                 Label("Quando parte una chiamata, Cornetta ti chiede se registrarla.", systemImage: "phone.fill")
                 Label("Oppure apri il menu della cornetta e scegli Avvia registrazione (⌘R).", systemImage: "record.circle")
-                if SpeechEngine.isAvailable {
-                    Label("A fine chiamata trovi la trascrizione in Registrazioni (⌘T).", systemImage: "text.bubble")
-                }
+                Label(L10n.text(.welcomeStepTranscript, language: language), systemImage: "text.bubble")
             }
             .foregroundStyle(.secondary)
 

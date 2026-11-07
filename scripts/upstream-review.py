@@ -18,7 +18,7 @@ SENSITIVE = re.compile(
 CORE = re.compile(
     r"(CallRecorder|RecordingFinalizer|Mixer|AudioRouting|CallDetector|ScreenRecorder|"
     r"ScreenAudio|ScreenEncoding|Transcript|VoiceActivity|VoiceLeveler|TapSilence|"
-    r"RecorderModel|SpeechEngine|Library|FileNaming|WorkingRecording|RecordingPipeline|"
+    r"RecorderModel|SpeechEngine|Transcription(Service|Config)|Library|FileNaming|WorkingRecording|RecordingPipeline|"
     r"PathPrivacy|windows/src/Cornetta\.Core/|windows/src/Cornetta\.App/(Recorder|Audio|"
     r"Recording|Overlay|TrayApp|Call))",
     re.IGNORECASE,

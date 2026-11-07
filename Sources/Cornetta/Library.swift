@@ -29,7 +29,7 @@ final class Library: ObservableObject {
         didSet { searchText = [:]; turnsCache = [:] }
     }
     @Published private(set) var statuses: [String: Status] = [:]
-    @AppStorage("autoTranscribe") var autoTranscribe = true
+    @AppStorage(TranscriptionPreferences.autoTranscribeKey) var autoTranscribe = false
     @AppStorage("saveMarkdown") var saveMarkdown = true
 
     /// Chiamato quando una trascrizione è pronta (per l'avviso).
@@ -284,7 +284,7 @@ final class Library: ObservableObject {
     /// Registrazioni con tracce ma senza trascrizione (app chiusa a metà): tornano in coda.
     /// Quelle già fallite due volte no: un errore che si ripete non si rifà a ogni accensione.
     func resumePendingTranscriptions() {
-        guard autoTranscribe, SpeechEngine.isAvailable else { return }
+        guard autoTranscribe, TranscriptionService.isConfigured else { return }
         for recording in recordings where recording.hasTracks && transcripts[recording.id] == nil
             && (failure(for: recording.url)?.count ?? 0) < Self.automaticAttempts {
             enqueue(recording.url)
@@ -294,11 +294,11 @@ final class Library: ObservableObject {
     /// Dopo lo stop: la registrazione entra nella libreria e, se l'opzione è attiva, in coda.
     func recordingFinished(_ url: URL) {
         reload()
-        if autoTranscribe { enqueue(url) }
+        if autoTranscribe, TranscriptionService.isConfigured { enqueue(url) }
     }
 
     func enqueue(_ url: URL) {
-        guard SpeechEngine.isAvailable else { return }
+        guard TranscriptionService.isConfigured else { return }
         guard url != current, !queue.contains(url) else { return }
         queue.append(url)
         statuses[url.lastPathComponent] = .queued
@@ -317,39 +317,42 @@ final class Library: ObservableObject {
     }
 
     private func transcribe(_ url: URL) async {
-        guard #available(macOS 26.0, *) else { return }
+        let config = TranscriptionService.config
+        guard config.isConfigured else {
+            statuses[url.lastPathComponent] = .failed(tr(.libraryUnavailableMessage))
+            return
+        }
         let id = url.lastPathComponent
         let me = track(RecordingFinalizer.meTrack, raw: RecordingFinalizer.meName, of: url)
         let others = track(RecordingFinalizer.othersTrack, raw: RecordingFinalizer.othersName, of: url)
         Diagnostics.log("Trascrizione avviata: \(id) (tracce separate: \(others != nil))")
         let started = Date()
         do {
-            let locale = await SpeechEngine.locale()
-            try await SpeechEngine.prepare(locale: locale) { [weak self] _ in
-                Task { @MainActor in
-                    self?.report(id, 0, L10n.text(.speechPreparing, language: Localization.shared.language))
-                }
-            }
             statuses[id] = .transcribing(0, tr(.libraryTranscribing))
             let segments: [Transcript.Segment]
-            if let others {
-                let theirs = try await SpeechEngine.transcribe(others, speaker: .others, locale: locale) { [weak self] p in
-                    Task { @MainActor in self?.report(id, p * 0.5, tr(.libraryTranscribingOthers)) }
-                }
+            if me != nil || others != nil {
                 var mine: [Transcript.Segment] = []
+                var theirs: [Transcript.Segment] = []
+                if let others {
+                    theirs = try await TranscriptionService.transcribe(url: others, speaker: .others, config: config) { [weak self] p in
+                        Task { @MainActor in self?.report(id, p * 0.5, tr(.libraryTranscribingOthers)) }
+                    }
+                }
                 if let me {
-                    mine = try await SpeechEngine.transcribe(me, speaker: .me, locale: locale) { [weak self] p in
+                    mine = try await TranscriptionService.transcribe(url: me, speaker: .me, config: config) { [weak self] p in
                         Task { @MainActor in self?.report(id, 0.5 + p * 0.5, tr(.libraryTranscribingMe)) }
                     }
                 }
                 segments = TranscriptMerger.merge(me: mine, others: theirs)
             } else {
-                segments = try await SpeechEngine.transcribe(url, speaker: .mixed, locale: locale) { [weak self] p in
+                segments = try await TranscriptionService.transcribe(url: url, speaker: .mixed, config: config) { [weak self] p in
                     Task { @MainActor in self?.report(id, p, tr(.libraryTranscribing)) }
                 }
             }
             guard recordings.contains(where: { $0.id == id }) else { return }   // eliminata nel frattempo
-            let transcript = Transcript(recording: id, engine: SpeechEngine.engineName, language: locale.identifier, segments: segments)
+            let transcript = Transcript(recording: id, engine: TranscriptionService.engineName,
+                                        language: config.effectiveLanguage.isEmpty ? "auto" : config.effectiveLanguage,
+                                        segments: segments)
             try save(transcript, for: url)
             try? FileManager.default.removeItem(at: failureURL(for: url))
             transcripts[id] = transcript

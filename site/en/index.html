@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Cornetta: free, open-source call recorder for Mac and Windows</title>
-<meta name="description" content="Cornetta records calls on your Mac in any app. Your voice and theirs in one file, with local transcription. Free, open source, no account. Windows version in beta.">
+<meta name="description" content="Cornetta records calls on your Mac in any app. Your voice and theirs in one file, with on-demand transcription. Free, open source, no account. Windows version in beta.">
 <meta name="robots" content="index, follow, max-image-preview:large">
 <meta name="author" content="VVG-web">
 <meta name="theme-color" content="#ffffff">
@@ -37,7 +37,7 @@
   <section class="hero" aria-labelledby="titolo">
     <div class="wrap">
       <h1 id="titolo">Record calls on your <span data-os="mac">Mac.</span><span data-os="windows" hidden>PC.</span></h1>
-      <p class="lede" data-os="mac">In <strong>any app</strong>: WhatsApp, FaceTime, Meet, Zoom, Teams. Your voice and theirs in one file, with <strong>local transcription</strong>. <strong>Free</strong> and open source, no account.</p>
+      <p class="lede" data-os="mac">In <strong>any app</strong>: WhatsApp, FaceTime, Meet, Zoom, Teams. Your voice and theirs in one file, with <strong>on-demand transcription</strong>. <strong>Free</strong> and open source, no account.</p>
       <p class="lede" data-os="windows" hidden>In <strong>any app</strong>: WhatsApp, Meet, Zoom, Teams. Your voice and theirs in one file. <strong>Free</strong> and open source, no account.</p>
       <div class="cta">
         <a class="btn btn-primary" href="https://github.com/VVG-web/cornetta-en/releases/latest" data-download-primary>
@@ -58,13 +58,13 @@
   <section class="section" id="features" aria-labelledby="features-title">
     <div class="wrap">
       <div class="section-head">
-        <h2 id="features-title">One file, two voices, no cloud.</h2>
-        <p class="intro">Cornetta records the microphone and call audio on your computer, with no audio driver and no upload.</p>
+        <h2 id="features-title">One file, two voices, under your control.</h2>
+        <p class="intro">Cornetta records the microphone and call audio on your computer, with no audio driver. The recording stays on your computer; audio goes to the transcription service only when you start a transcription.</p>
       </div>
       <ul class="details">
         <li><h3>Any app</h3><p>WhatsApp, FaceTime, Google Meet, Zoom, Teams, Slack, Discord, Skype or the browser. Nothing to configure.</p></li>
         <li><h3>Your voice and theirs</h3><p>Microphone and system audio become one <strong>.m4a</strong> file, with a limiter that prevents clipping when you speak at the same time.</p></li>
-        <li><h3>Local transcription</h3><p>On macOS 26 or later, Apple speech recognition transcribes on the Mac. No audio or text is sent to a server.</p></li>
+        <li><h3>On-demand transcription</h3><p>You choose the Whisper-compatible HTTP service, for example one running locally on <code>127.0.0.1</code>. Audio leaves only when you press <strong>Transcribe</strong> or enable automatic transcription.</p></li>
         <li><h3>Recovery after a crash</h3><p>During a call Cornetta writes recoverable working files. If the app closes abruptly, the recording is recovered on the next launch.</p></li>
         <li><h3>Apple Silicon and Intel</h3><p>One universal app for macOS 14.4 or later. The Windows 10 and 11 version is in beta and installs without administrator rights.</p></li>
         <li><h3>Free and open source</h3><p>No subscription, no ads, no account. The code is public <a href="https://github.com/VVG-web/cornetta-en">on GitHub</a> under the MIT license.</p></li>
@@ -79,7 +79,8 @@
         <p class="intro">This version sends no usage data, uses no analytics and has no feedback server.</p>
       </div>
       <ul class="details">
-        <li><h3>Recordings and transcripts</h3><p>They stay in a folder on your computer. They are never uploaded.</p></li>
+        <li><h3>Recordings</h3><p>They stay in a folder on your computer. Audio is sent only to the transcription service you configure, and only when you start a transcription.</p></li>
+        <li><h3>Transcription</h3><p>Cornetta ships no speech model. The default is a service on this Mac; if you choose a remote one, the recording's audio is sent to that address over HTTPS. There is no background upload.</p></li>
         <li><h3>Update check</h3><p>Only when you choose “Check for updates on GitHub”. The app downloads a feed and its ECDSA signature from GitHub Pages, verifies the signature, and only then reads the version. The request contains no audio, text or file names. Cornetta does not install updates automatically.</p></li>
         <li><h3>Feedback</h3><p>The button opens a public GitHub issue in your browser. There is no automatic submission and the app collects nothing.</p></li>
         <li><h3>No cookies</h3><p>This is a static site: no cookies, Plausible, Telegram or other analytics services.</p></li>
@@ -114,10 +115,11 @@
       <div class="faq">
         <details><summary>Is Cornetta free?</summary><div class="answer"><p>Yes. Free, with no account, no subscription and no ads.</p></div></details>
         <details><summary>Which apps does it work with?</summary><div class="answer"><p>Any app that uses your computer's microphone and audio: WhatsApp, FaceTime, Google Meet, Zoom, Microsoft Teams, Slack, Discord, Skype and calls in the browser.</p></div></details>
-        <details><summary>Does Cornetta collect data?</summary><div class="answer"><p>No. This version has no telemetry, analytics, cookies or feedback server. The only connection is one you start: the manual GitHub release check or opening a GitHub issue.</p><p>Audio and transcripts never leave your computer.</p></div></details>
+        <details><summary>Does Cornetta collect data?</summary><div class="answer"><p>No. This version has no telemetry, analytics, cookies or feedback server. Connections are only the ones you start: the manual GitHub release check, opening a GitHub issue and transcription.</p><p>Audio goes only to the transcription service you configure, and only when you press Transcribe or enable automatic transcription. The default is a service on this Mac.</p></div></details>
         <details><summary>Are updates automatic?</summary><div class="answer"><p>No. Choose <strong>Check for updates on GitHub…</strong> from the menu: Cornetta downloads a signed feed from GitHub Pages, verifies its ECDSA P-256 signature with the public key embedded in the app, compares the version and, if there is a new one, opens the GitHub page. It does not download or install anything automatically.</p></div></details>
         <details><summary>Where are recordings saved?</summary><div class="answer"><p>In <strong>Music › Cornetta</strong>, as .m4a files (AAC, 48 kHz, stereo) named with date and time. They stay on your computer.</p></div></details>
-        <details><summary>Does transcription use the internet?</summary><div class="answer"><p>No. On macOS 26 or later it uses Apple speech recognition on the Mac. The system may download a language model once, but the call content is never sent to Cornetta.</p></div></details>
+        <details><summary>Does transcription use the internet?</summary><div class="answer"><p>It depends on the service you configure. The default is <code>http://127.0.0.1:8080/v1/audio/transcriptions</code>: if the service runs on this Mac, audio does not leave the computer. If you choose a service on another computer, the recording's audio is sent there only when you start a transcription. Cornetta ships no speech model and contacts nothing in the background.</p></div></details>
+        <details><summary>How do I configure transcription?</summary><div class="answer"><p>Open <strong>Transcription settings…</strong> from the handset menu. Enter the address, port and full endpoint path (usually <code>/v1/audio/transcriptions</code>), then the model and language. The service is not included: the default is a server on this Mac. Audio leaves only when you press Transcribe or enable automatic transcription.</p></div></details>
         <details><summary>Is it legal to record a call?</summary><div class="answer"><p>It depends on where you live. In Italy and other one-party-consent places you may record a conversation you take part in for personal use; sharing it without consent is not allowed. Other countries and some US states require everyone's consent. Check your local law before recording.</p></div></details>
         <details><summary>Does it work on iPhone or Android?</summary><div class="answer"><p>No. iOS gives no app access to call audio, and Android blocks it for regular apps since Android 10. Cornetta runs on your computer.</p></div></details>
         <details><summary>Why does macOS say it cannot verify the developer?</summary><div class="answer"><p>This fork does not have a notarized Apple signature. On first launch open <strong>System Settings › Privacy &amp; Security</strong> and click <span class="key">Open Anyway</span>. You only do this once.</p></div></details>

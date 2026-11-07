@@ -20,9 +20,10 @@ scripts/sign-feed.py --sign site/update/feed.json
 
 - Privacy prima di tutto: niente telemetria, analytics, cookie, crash reporting, server di feedback o
   aggiornamenti automatici. L'app non apre connessioni in background.
-- Le uniche connessioni sono quelle avviate dall'utente: feed firmato su GitHub Pages e apertura di una
-  issue su GitHub. La firma ECDSA P-256 va verificata prima di leggere la versione. Audio e trascrizioni
-  non lasciano il computer.
+- Le uniche connessioni sono quelle avviate dall'utente: feed firmato su GitHub Pages, apertura di una
+  issue su GitHub e trascrizione verso l'endpoint HTTP configurato. La firma ECDSA P-256 va verificata
+  prima di leggere la versione. L'audio parte solo quando l'utente avvia una trascrizione e solo verso
+  l'indirizzo scelto; il predefinito è localhost.
 - Ogni nuovo testo dell'interfaccia entra in `localization/strings.json`, poi si rigenera con
   `scripts/localization.py`. Italiano e inglese devono restare completi.
 - Ogni guasto trovato su una macchina vera diventa un controllo in CI o nei test prima del rilascio

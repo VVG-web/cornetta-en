@@ -86,14 +86,14 @@ struct TranscriptTests {
         #expect(t.plainText(language: .english) == "You: Ciao\nOthers: Hello\nUnattributed voice: Mixed")
         let md = TranscriptFormatter.markdown(t, title: "Call on Monday", duration: 75, language: .english)
         #expect(md.contains("Duration 01:15"))
-        #expect(md.contains("Cornetta local transcript"))
+        #expect(md.contains("Cornetta transcript"))
         #expect(md.contains("**You**"))
         #expect(md.contains("**Others**"))
         #expect(md.contains("**Unattributed voice**"))
     }
 
     @Test func roundTripsThroughJSON() throws {
-        let t = Transcript(recording: "x.m4a", engine: "SpeechTranscriber", language: "it_IT",
+        let t = Transcript(recording: "x.m4a", engine: "Whisper HTTP", language: "it_IT",
                            segments: [S(speaker: .mixed, start: 0, end: 1, text: "Prova")])
         // Il formato su disco usa date ISO 8601: scrittura e lettura devono usare la stessa coppia.
         let data = try Transcript.encoder.encode(t)

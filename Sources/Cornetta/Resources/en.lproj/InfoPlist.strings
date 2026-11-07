@@ -1,3 +1,4 @@
 "NSMicrophoneUsageDescription" = "Cornetta records your voice during calls.";
 "NSAudioCaptureUsageDescription" = "Cornetta records call audio, meaning the voices of the other people.";
+"NSLocalNetworkUsageDescription" = "Cornetta sends audio to the configured transcription service only when you start a transcription.";
 "NSHumanReadableCopyright" = "Free software, MIT license.";

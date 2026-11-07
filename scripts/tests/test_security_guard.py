@@ -76,6 +76,15 @@ class MacSecurityGuardTests(unittest.TestCase):
         keys = set(re.findall(r"<key>([^<]+)</key>", text))
         self.assertEqual({"com.apple.security.device.audio-input"}, keys)
 
+    def test_transcription_network_is_local_by_default(self):
+        plist = (ROOT / "Resources/Info.plist").read_text(encoding="utf-8")
+        self.assertIn("<key>NSAllowsLocalNetworking</key>", plist)
+        self.assertNotIn("NSAllowsArbitraryLoads", plist)
+        config = (ROOT / "Sources/CornettaCore/TranscriptionConfig.swift").read_text(encoding="utf-8")
+        self.assertIn('defaultHost = "127.0.0.1"', config)
+        self.assertIn('defaultPort = "8080"', config)
+        self.assertIn('defaultPath = "/v1/audio/transcriptions"', config)
+
 
 if __name__ == "__main__":
     unittest.main()

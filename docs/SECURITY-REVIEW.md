@@ -32,7 +32,10 @@ kernel itself.
 - No `.pkg` installer and no installer receipt. The DMG is drag-and-drop.
 - The only entitlement is `com.apple.security.device.audio-input`.
 - The bundle contains one executable, its icon and localization files. It links only Apple system
-  frameworks. `Speech.framework` is weak-linked and transcription is guarded by `#available(macOS 26.0, *)`.
+  frameworks. There is no `Speech.framework`: transcription is an HTTP client built on `URLSession`.
+- The transcription client uses an ephemeral `URLSession`, accepts no cookies, has explicit request and
+  resource timeouts, and contacts only the endpoint stored in preferences. The default is loopback.
+  App Transport Security allows local networking only, not arbitrary HTTP loads.
 - The only optional persistence is `SMAppService.mainApp`, used by “Open at login”. It has both
   `register()` and `unregister()` paths and is not a background daemon.
 - The app is universal (`x86_64` and `arm64`) with minimum macOS 14.4.
@@ -71,6 +74,9 @@ Results:
 - No Cornetta file under `/Library`.
 - No new Cornetta file under `~/Library` beyond the files that already existed from previous runs.
 - A copied app was launched from a temporary directory, removed, and left no process or system item.
+- The HTTP transcription client was exercised against a local mock Whisper server: `verbose_json`
+  segments, the `json` fallback, a plain-text response, an HTTP 500 error, and two separate speaker
+  tracks all behaved as documented. No remote transcription service was contacted.
 - `codesign --verify --deep --strict` passed. `spctl` rejects the ad-hoc signature, as expected:
   first launch requires **Open Anyway**.
 - The bundle binary has `minos 14.4` for both `x86_64` and `arm64`.
@@ -79,9 +85,9 @@ Results:
 
 | Version | Intel status | Notes |
 |---|---|---|
-| macOS 14.4 Sonoma | supported by code, not executed here | Core Audio process taps are available from 14.2. Screen recording with microphone is hidden because it requires macOS 15. Transcription is hidden because it requires macOS 26. |
-| macOS 15 Sequoia | executed on 15.8.1 Intel | Recording and probe passed. Screen recording with microphone is available. Transcription is hidden. |
-| macOS 26 Tahoe | supported by code, not executed on an Intel host | `Speech.framework` is weak-linked and the transcription API is availability-guarded. On a Mac without the required speech assets, transcription fails in the app without affecting audio capture. |
+| macOS 14.4 Sonoma | supported by code, not executed here | Core Audio process taps are available from 14.2. Screen recording with microphone is hidden because it requires macOS 15. HTTP transcription is available when a service is configured. |
+| macOS 15 Sequoia | executed on 15.8.1 Intel | Recording and probe passed. Screen recording with microphone is available. The HTTP transcription client passed against a local mock. |
+| macOS 26 Tahoe | supported by code, not executed on an Intel host | Uses the same recording and HTTP transcription paths; there is no OS-specific speech API to guard. |
 
 The app does not have a separate Apple Silicon path that bypasses guards. The Intel `x86_64` slice was
 built and exercised directly.
@@ -109,8 +115,10 @@ No kext, system extension, launch daemon, package receipt or driver remains afte
   SHA-256 in the signed update feed or GitHub release notes.
 - The app is not sandboxed. It can access files with the user's normal permissions by design. The code
   reviewed here does not use that access to modify system locations.
-- macOS 26 Intel transcription was not executed on a physical Intel macOS 26 machine. The API is
-  availability-guarded and a failure is contained to transcription.
+- Transcription was not exercised against a third-party remote service. The client and its failure
+  paths were tested with a local mock; a remote endpoint is the user's configuration and trust choice.
+- If the user configures a remote endpoint, the audio file, its filename and the model/language fields
+  leave the Mac. The privacy pages and `docs/TRANSCRIPTION.md` state this explicitly.
 - A user who forces the app to crash during capture may leave a working audio file; macOS cleans up the
   private aggregate device when the process exits. No driver or system setting is involved.
 

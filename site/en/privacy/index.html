@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Privacy – Cornetta</title>
-<meta name="description" content="Cornetta uses no telemetry, analytics or cookies. Recordings and transcripts stay on your computer.">
+<meta name="description" content="Cornetta uses no telemetry, analytics or cookies. Recordings stay on your computer; audio goes to the transcription service only when you start a transcription.">
 <meta name="robots" content="index, follow">
 <meta name="author" content="VVG-web">
 <meta name="theme-color" content="#ffffff">
@@ -32,17 +32,21 @@
 <main id="main" class="prose-page">
   <article class="wrap prose">
     <h1>No telemetry. No tracking.</h1>
-    <p class="lede-small">This version of Cornetta sends no usage data, uses no analytics and has no feedback server. Recordings and transcripts stay on your computer.</p>
+    <p class="lede-small">This version of Cornetta sends no usage data, uses no analytics and has no feedback server. Recordings and transcripts stay on your computer; audio goes to the transcription service you configure only when you start a transcription.</p>
     <p class="updated">Updated 7 November 2026.</p>
 
-    <h2>Recordings and transcripts</h2>
-    <p>They stay on your computer, in the Music › Cornetta folder. Transcription uses the Mac's speech recognition and runs on the Mac. Cornetta does not send audio, text, file names, device names or contacts to any server.</p>
+    <h2>Recordings</h2>
+    <p>They stay on your computer, in the Music › Cornetta folder. Cornetta does not upload them and does not send file names, device names or contacts to any server.</p>
+
+    <h2>Transcription</h2>
+    <p>Cornetta ships no speech model and does not contact a transcription service in the background. When you press <strong>Transcribe</strong>, or when automatic transcription is enabled after a recording, it sends the audio file to the HTTP endpoint you configured. The default is <code>http://127.0.0.1:8080/v1/audio/transcriptions</code>: if the service runs on this Mac, audio does not leave the computer.</p>
+    <p>The service receives the audio file, its filename and the <code>model</code>, <code>language</code> and <code>response_format</code> fields. It does not receive the transcript, other recordings, app logs, contacts or device names. If you choose a service on another computer, that operator also receives your IP address: use HTTPS and a service you trust. Cornetta sends no API key.</p>
 
     <h2>Usage data</h2>
     <p>There is no telemetry, installation identifier, analytics or automatic crash report. The app opens no background connections.</p>
 
     <h2>GitHub update check</h2>
-    <p>The only possible network connection is the one you start from the menu with <strong>Check for updates on GitHub…</strong>. At that moment the app downloads two static files from GitHub Pages: <code>update/feed.json</code> and its signature <code>update/feed.json.sig</code>. The request contains the app version and a normal User-Agent; it contains no audio, text or file names. GitHub sees your IP address and applies its own privacy policy.</p>
+    <p>One of the network connections is the one you start from the menu with <strong>Check for updates on GitHub…</strong>. At that moment the app downloads two static files from GitHub Pages: <code>update/feed.json</code> and its signature <code>update/feed.json.sig</code>. The request contains the app version and a normal User-Agent; it contains no audio, text or file names. GitHub sees your IP address and applies its own privacy policy.</p>
     <p>The ECDSA P-256 signature is verified with a public key embedded in the app before the version is read. If the signature is invalid, Cornetta shows no update. It does not download or install updates automatically.</p>
 
     <h2>Feedback</h2>
@@ -52,7 +56,7 @@
     <p>This is a static site. It uses no cookies, Plausible, Telegram or other analytics, and it does not count visits. The only network requests are the ones needed to load pages and images from the server hosting the site.</p>
 
     <h2>Other services</h2>
-    <p>macOS may download Apple speech models once when you use transcription. That is a system operation, not Cornetta, and it does not send the call content. GitHub is the only external service used by the app, and only for actions you choose.</p>
+    <p>The external services used by the app are GitHub, for actions you choose, and the transcription service you configure. If the transcription service is on another computer, that provider receives the recording's audio when you start a transcription. If it is on your Mac, the audio stays on the Mac. There are no other services, telemetry or automatic reports.</p>
 
     <h2>Who maintains this version</h2>
     <p>This is an open-source fork maintained by <a href="https://github.com/VVG-web/cornetta-en">VVG-web</a>, based on the original project by <a href="https://github.com/stellakamikaze/cornetta">Federico Nejrotti</a>. For problems or questions, open a GitHub issue.</p>
@@ -61,7 +65,7 @@
 
 <footer>
   <div class="wrap">
-    <div>Fork maintained by <a href="https://github.com/VVG-web/cornetta-en">VVG-web</a>.<small>Recordings stay on your computer. No telemetry, no cookies. <a href="./">Privacy</a></small></div>
+    <div>Fork maintained by <a href="https://github.com/VVG-web/cornetta-en">VVG-web</a>.<small>Recordings stay on your computer; audio goes only to the transcription service you configure. No telemetry, no cookies. <a href="./">Privacy</a></small></div>
     <ul>
       <li><a href="../#features">Features</a></li>
       <li><a href="../#install">Install</a></li>

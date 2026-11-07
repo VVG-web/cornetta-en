@@ -173,6 +173,9 @@ struct LibraryView: View {
         .onAppear {
             if selection.selected == nil { selection.selected = library.recordings.first?.id }
         }
+        .onReceive(NotificationCenter.default.publisher(for: .cornettaTranscriptionSettingsChanged)) { _ in
+            library.objectWillChange.send()
+        }
     }
 }
 
@@ -234,7 +237,7 @@ struct StatusLabel: View {
                              String(Int(p * 100)))).monospacedDigit()
         case .failed: Text("Errore").foregroundStyle(.red)
         case .notTranscribed:
-            Text(L10n.text(SpeechEngine.isAvailable ? .libraryStatusNotTranscribed : .libraryStatusAudioOnly,
+            Text(L10n.text(TranscriptionService.isConfigured ? .libraryStatusNotTranscribed : .libraryStatusAudioOnly,
                            language: language))
         }
     }
@@ -295,7 +298,7 @@ struct RecordingDetail: View {
             }
             Menu {
                 Button("Mostra nel Finder") { NSWorkspace.shared.activateFileViewerSelecting([recording.url]) }
-                if transcript != nil, SpeechEngine.isAvailable, !inProgress {
+                if transcript != nil, TranscriptionService.isConfigured, !inProgress {
                     Button("Trascrivi di nuovo") { library.enqueue(recording.url) }
                 }
                 Divider()
@@ -354,10 +357,15 @@ struct RecordingDetail: View {
             } description: {
                 Text(shown)
             } actions: {
-                Button("Riprova") { library.enqueue(recording.url) }
+                HStack {
+                    Button("Riprova") { library.enqueue(recording.url) }
+                    Button(L10n.text(.libraryTranscriptionSettings, language: language)) {
+                        TranscriptionSettingsWindow.show()
+                    }
+                }
             }
         case .notTranscribed:
-            if SpeechEngine.isAvailable {
+            if TranscriptionService.isConfigured {
                 ContentUnavailableView {
                     Label("Non ancora trascritta", systemImage: "text.bubble")
                 } description: {
@@ -368,8 +376,16 @@ struct RecordingDetail: View {
                     Button("Trascrivi") { library.enqueue(recording.url) }.buttonStyle(.borderedProminent)
                 }
             } else {
-                ContentUnavailableView("Trascrizione non disponibile", systemImage: "text.bubble",
-                                       description: Text("La trascrizione sul Mac richiede macOS 26 o successivo. L'audio resta disponibile."))
+                ContentUnavailableView {
+                    Label(L10n.text(.libraryUnavailableTitle, language: language), systemImage: "text.bubble")
+                } description: {
+                    Text(L10n.text(.libraryUnavailableMessage, language: language))
+                } actions: {
+                    Button(L10n.text(.libraryTranscriptionSettings, language: language)) {
+                        TranscriptionSettingsWindow.show()
+                    }
+                    .buttonStyle(.borderedProminent)
+                }
             }
         }
     }

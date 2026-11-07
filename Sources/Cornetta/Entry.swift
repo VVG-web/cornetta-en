@@ -4,6 +4,7 @@ import Foundation
 @main
 enum Entry {
     static func main() {
+        TranscriptionPreferences.migrateIfNeeded()
         if let index = CommandLine.arguments.firstIndex(of: "--probe"), index + 1 < CommandLine.arguments.count {
             let report = Probe.run().joined(separator: "\n") + "\n"
             try? report.write(toFile: CommandLine.arguments[index + 1], atomically: true, encoding: .utf8)

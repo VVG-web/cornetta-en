@@ -69,7 +69,9 @@ The app must not open background connections. The only allowed network actions a
 - a user-triggered fetch of the ECDSA-signed update feed in
   `Sources/Cornetta/UpdateManager.swift` and `windows/src/Cornetta.App/Updates.cs`;
 - opening GitHub Issues in the browser when the user chooses Feedback;
-- system services such as Apple speech model downloads, which are outside app code.
+- a user-triggered transcription request from `Sources/Cornetta/TranscriptionService.swift` to the
+  endpoint stored in preferences. The default is loopback; the request carries one audio file and the
+  configured model, language and response format. It never runs at launch or in the background.
 
 Do not add telemetry, analytics, crash reporting, ad SDKs, a feedback server, or an automatic updater.
 `python3 -m unittest discover -s scripts/tests -p 'test_privacy_guard.py'` checks that the old endpoints
@@ -78,8 +80,8 @@ covered by a test. The update feed and its key procedure are documented in `docs
 
 ## Real application checks
 
-Unit tests do not cover microphones, system audio permissions, ScreenCaptureKit, transcription on
-macOS 26, Windows WASAPI, tray startup, or installer behavior. Use the existing headless modes when
+Unit tests do not cover microphones, system audio permissions, ScreenCaptureKit, the HTTP transcription
+client, Windows WASAPI, tray startup, or installer behavior. Use the existing headless modes when
 changing those areas:
 
 ```bash
@@ -87,9 +89,15 @@ open -W -n build/Cornetta.app --args --record 10 --out /tmp/prova.m4a --debug-tr
 open -n build/Cornetta.app --args --record-screen 30 --out esito.json
 open -W -n build/Cornetta.app --args --probe /tmp/sonda.txt
 build/Cornetta.app/Contents/MacOS/Cornetta --transcribe file.m4a
+open -n build/Cornetta.app --args --transcription-settings
 python3 site-src/make-demo-library.py /tmp/demo
 open -n build/Cornetta.app --args --demo-library /tmp/demo
 ```
+
+For transcription, run a local Whisper-compatible mock or server and point the app at it with the
+`-transcriptionHost`, `-transcriptionPort`, `-transcriptionScheme` and `-transcriptionPath` arguments.
+Exercise a valid `verbose_json` response, the `json` fallback and an HTTP error. The endpoint contract is
+in `docs/TRANSCRIPTION.md`.
 
 Run real recording tests only with permission to capture the selected audio and screen. Windows changes
 also require the existing Windows CI and preferably a real Windows 10/11 machine for `--selftest`,

@@ -78,6 +78,7 @@ public enum L10nKey: String, CaseIterable, Sendable {
     case libraryTranscribingMe = "library.transcribing.me"
     case libraryTranscribingOthers = "library.transcribing.others"
     case libraryTranscriptionFailed = "library.transcriptionFailed"
+    case libraryTranscriptionSettings = "library.transcriptionSettings"
     case libraryUnavailableMessage = "library.unavailable.message"
     case libraryUnavailableTitle = "library.unavailable.title"
     case libraryWindow = "library.window"
@@ -108,6 +109,7 @@ public enum L10nKey: String, CaseIterable, Sendable {
     case menuScreenTitle = "menu.screen.title"
     case menuScreenWithoutMicrophone = "menu.screen.withoutMicrophone"
     case menuTranscribe = "menu.transcribe"
+    case menuTranscriptionSettings = "menu.transcriptionSettings"
     case menuUpdates = "menu.updates"
     case noticeCallMessage = "notice.call.message"
     case noticeCallTitle = "notice.call.title"
@@ -183,7 +185,29 @@ public enum L10nKey: String, CaseIterable, Sendable {
     case speakerMe = "speaker.me"
     case speakerMixed = "speaker.mixed"
     case speakerOthers = "speaker.others"
-    case speechPreparing = "speech.preparing"
+    case transcriptionSettingsAuto = "transcription.settings.auto"
+    case transcriptionSettingsDescription = "transcription.settings.description"
+    case transcriptionSettingsHost = "transcription.settings.host"
+    case transcriptionSettingsHostPlaceholder = "transcription.settings.host.placeholder"
+    case transcriptionSettingsHttp = "transcription.settings.http"
+    case transcriptionSettingsHttps = "transcription.settings.https"
+    case transcriptionSettingsInvalid = "transcription.settings.invalid"
+    case transcriptionSettingsLanguage = "transcription.settings.language"
+    case transcriptionSettingsLanguagePlaceholder = "transcription.settings.language.placeholder"
+    case transcriptionSettingsModel = "transcription.settings.model"
+    case transcriptionSettingsModelPlaceholder = "transcription.settings.model.placeholder"
+    case transcriptionSettingsPath = "transcription.settings.path"
+    case transcriptionSettingsPathHelp = "transcription.settings.path.help"
+    case transcriptionSettingsPathPlaceholder = "transcription.settings.path.placeholder"
+    case transcriptionSettingsPort = "transcription.settings.port"
+    case transcriptionSettingsPortHelp = "transcription.settings.port.help"
+    case transcriptionSettingsPortPlaceholder = "transcription.settings.port.placeholder"
+    case transcriptionSettingsPrivacy = "transcription.settings.privacy"
+    case transcriptionSettingsReset = "transcription.settings.reset"
+    case transcriptionSettingsScheme = "transcription.settings.scheme"
+    case transcriptionSettingsTitle = "transcription.settings.title"
+    case transcriptionSettingsTransport = "transcription.settings.transport"
+    case transcriptionSettingsWindow = "transcription.settings.window"
     case welcomeAllow = "welcome.allow"
     case welcomeCallAudio = "welcome.callAudio"
     case welcomeCallAudioDetail = "welcome.callAudio.detail"
@@ -276,13 +300,13 @@ public enum L10n {
         .libraryListenFrom: "Ascolta da qui",
         .libraryListenFromAccessibility: "Ascolta da {0}",
         .libraryMarkdownDuration: "Durata {0}",
-        .libraryMarkdownOrigin: "Trascrizione locale di Cornetta",
+        .libraryMarkdownOrigin: "Trascrizione di Cornetta",
         .libraryNoResultsMessage: "Nessuna registrazione contiene «{0}».",
         .libraryNoResultsTitle: "Nessun risultato",
         .libraryNoSpeechMessage: "La registrazione sembra vuota o troppo bassa.",
         .libraryNoSpeechTitle: "Nessuna voce riconosciuta",
-        .libraryNotTranscribedAvailable: "La trascrizione avviene sul Mac: niente esce dal computer.",
-        .libraryNotTranscribedOld: "Registrazione fatta prima della trascrizione: le voci non saranno separate.",
+        .libraryNotTranscribedAvailable: "L'audio verrà inviato al servizio di trascrizione configurato.",
+        .libraryNotTranscribedOld: "Registrazione senza tracce separate: le voci non saranno separate.",
         .libraryPause: "Pausa",
         .libraryPlay: "Ascolta",
         .libraryQueuedMessage: "La trascrizione parte appena finisce quella in corso.",
@@ -305,8 +329,9 @@ public enum L10n {
         .libraryTranscribingMe: "Trascrivo la tua voce…",
         .libraryTranscribingOthers: "Trascrivo la voce degli altri…",
         .libraryTranscriptionFailed: "Trascrizione non riuscita.",
-        .libraryUnavailableMessage: "La trascrizione sul Mac richiede macOS 26 o successivo. L'audio resta disponibile.",
-        .libraryUnavailableTitle: "Trascrizione non disponibile",
+        .libraryTranscriptionSettings: "Apri impostazioni trascrizione",
+        .libraryUnavailableMessage: "Apri Impostazioni trascrizione e indica indirizzo, porta e percorso del servizio HTTP.",
+        .libraryUnavailableTitle: "Servizio di trascrizione non configurato",
         .libraryWindow: "Registrazioni",
         .menuFeedback: "Apri una segnalazione su GitHub…",
         .menuLanguage: "Lingua",
@@ -334,7 +359,8 @@ public enum L10n {
         .menuScreenStop: "Ferma il video dello schermo",
         .menuScreenTitle: "Video dello schermo",
         .menuScreenWithoutMicrophone: "Senza microfono: serve macOS 15",
-        .menuTranscribe: "Trascrivi ogni chiamata sul Mac",
+        .menuTranscribe: "Trascrivi subito dopo la registrazione",
+        .menuTranscriptionSettings: "Impostazioni trascrizione…",
         .menuUpdates: "Controlla gli aggiornamenti su GitHub…",
         .noticeCallMessage: "Vuoi registrarla? Registro la tua voce e quella delle altre persone in un file.",
         .noticeCallTitle: "Chiamata in corso su {0}",
@@ -410,7 +436,29 @@ public enum L10n {
         .speakerMe: "Tu",
         .speakerMixed: "Voce",
         .speakerOthers: "Altri",
-        .speechPreparing: "Preparo il modello della lingua…",
+        .transcriptionSettingsAuto: "Trascrivi subito dopo ogni registrazione",
+        .transcriptionSettingsDescription: "Cornetta invia l'audio a un servizio HTTP compatibile con Whisper. Configura indirizzo, porta e percorso del servizio.",
+        .transcriptionSettingsHost: "Indirizzo",
+        .transcriptionSettingsHostPlaceholder: "127.0.0.1",
+        .transcriptionSettingsHttp: "HTTP",
+        .transcriptionSettingsHttps: "HTTPS",
+        .transcriptionSettingsInvalid: "Indirizzo o porta non validi.",
+        .transcriptionSettingsLanguage: "Lingua (facoltativa)",
+        .transcriptionSettingsLanguagePlaceholder: "Auto",
+        .transcriptionSettingsModel: "Modello (facoltativo)",
+        .transcriptionSettingsModelPlaceholder: "whisper-1",
+        .transcriptionSettingsPath: "Percorso",
+        .transcriptionSettingsPathHelp: "Percorso completo dopo l'indirizzo, di solito /v1/audio/transcriptions.",
+        .transcriptionSettingsPathPlaceholder: "/v1/audio/transcriptions",
+        .transcriptionSettingsPort: "Porta",
+        .transcriptionSettingsPortHelp: "Porta del servizio, per esempio 8080.",
+        .transcriptionSettingsPortPlaceholder: "8080",
+        .transcriptionSettingsPrivacy: "L'audio viene inviato solo al servizio configurato, quando premi Trascrivi o quando la trascrizione automatica è attiva. Usa un servizio locale o di cui ti fidi.",
+        .transcriptionSettingsReset: "Ripristina predefiniti",
+        .transcriptionSettingsScheme: "Protocollo",
+        .transcriptionSettingsTitle: "Servizio di trascrizione",
+        .transcriptionSettingsTransport: "HTTP va bene per un servizio sul Mac o sulla rete locale; per un servizio su Internet usa HTTPS.",
+        .transcriptionSettingsWindow: "Trascrizione",
         .welcomeAllow: "Consenti",
         .welcomeCallAudio: "Audio delle chiamate",
         .welcomeCallAudioDetail: "Per registrare la voce degli altri. macOS lo chiama «Registrazione audio di sistema».",
@@ -425,7 +473,7 @@ public enum L10n {
         .welcomeStart: "Inizia",
         .welcomeStepCall: "Quando parte una chiamata, Cornetta ti chiede se registrarla.",
         .welcomeStepStart: "Oppure apri il menu della cornetta e scegli Avvia registrazione (⌘R).",
-        .welcomeStepTranscript: "A fine chiamata trovi la trascrizione in Registrazioni (⌘T).",
+        .welcomeStepTranscript: "A fine chiamata puoi trascriverla da Registrazioni (⌘T).",
         .welcomeWait: "Attendi…",
         .welcomeWindow: "Benvenuto in Cornetta",
         .windowsLanguageChanged: "Lingua dell'interfaccia",
@@ -502,13 +550,13 @@ public enum L10n {
         .libraryListenFrom: "Play from here",
         .libraryListenFromAccessibility: "Play from {0}",
         .libraryMarkdownDuration: "Duration {0}",
-        .libraryMarkdownOrigin: "Cornetta local transcript",
+        .libraryMarkdownOrigin: "Cornetta transcript",
         .libraryNoResultsMessage: "No recording contains “{0}”.",
         .libraryNoResultsTitle: "No results",
         .libraryNoSpeechMessage: "The recording appears empty or too quiet.",
         .libraryNoSpeechTitle: "No speech recognized",
-        .libraryNotTranscribedAvailable: "Transcription happens on this Mac: nothing leaves the computer.",
-        .libraryNotTranscribedOld: "This recording predates transcription: the voices will not be separated.",
+        .libraryNotTranscribedAvailable: "The audio will be sent to the configured transcription service.",
+        .libraryNotTranscribedOld: "Recording without separate tracks: voices will not be separated.",
         .libraryPause: "Pause",
         .libraryPlay: "Play",
         .libraryQueuedMessage: "Transcription starts as soon as the current one finishes.",
@@ -531,8 +579,9 @@ public enum L10n {
         .libraryTranscribingMe: "Transcribing your voice…",
         .libraryTranscribingOthers: "Transcribing the other people…",
         .libraryTranscriptionFailed: "Transcription failed.",
-        .libraryUnavailableMessage: "Transcription on this Mac requires macOS 26 or later. The audio remains available.",
-        .libraryUnavailableTitle: "Transcription unavailable",
+        .libraryTranscriptionSettings: "Open transcription settings",
+        .libraryUnavailableMessage: "Open Transcription settings and enter the HTTP service address, port and path.",
+        .libraryUnavailableTitle: "Transcription service not configured",
         .libraryWindow: "Recordings",
         .menuFeedback: "Open a GitHub issue…",
         .menuLanguage: "Language",
@@ -560,7 +609,8 @@ public enum L10n {
         .menuScreenStop: "Stop screen recording",
         .menuScreenTitle: "Screen recording",
         .menuScreenWithoutMicrophone: "Without microphone: requires macOS 15",
-        .menuTranscribe: "Transcribe every call on this Mac",
+        .menuTranscribe: "Transcribe immediately after recording",
+        .menuTranscriptionSettings: "Transcription settings…",
         .menuUpdates: "Check for updates on GitHub…",
         .noticeCallMessage: "Do you want to record it? I will put your voice and the other people in one file.",
         .noticeCallTitle: "Call in progress on {0}",
@@ -636,7 +686,29 @@ public enum L10n {
         .speakerMe: "You",
         .speakerMixed: "Unattributed voice",
         .speakerOthers: "Others",
-        .speechPreparing: "Preparing the language model…",
+        .transcriptionSettingsAuto: "Transcribe immediately after each recording",
+        .transcriptionSettingsDescription: "Cornetta sends audio to a Whisper-compatible HTTP service. Configure the service address, port and path.",
+        .transcriptionSettingsHost: "Address",
+        .transcriptionSettingsHostPlaceholder: "127.0.0.1",
+        .transcriptionSettingsHttp: "HTTP",
+        .transcriptionSettingsHttps: "HTTPS",
+        .transcriptionSettingsInvalid: "The address or port is invalid.",
+        .transcriptionSettingsLanguage: "Language (optional)",
+        .transcriptionSettingsLanguagePlaceholder: "Auto",
+        .transcriptionSettingsModel: "Model (optional)",
+        .transcriptionSettingsModelPlaceholder: "whisper-1",
+        .transcriptionSettingsPath: "Path",
+        .transcriptionSettingsPathHelp: "Full path after the address, usually /v1/audio/transcriptions.",
+        .transcriptionSettingsPathPlaceholder: "/v1/audio/transcriptions",
+        .transcriptionSettingsPort: "Port",
+        .transcriptionSettingsPortHelp: "Service port, for example 8080.",
+        .transcriptionSettingsPortPlaceholder: "8080",
+        .transcriptionSettingsPrivacy: "Audio is sent only to the configured service, when you press Transcribe or when automatic transcription is enabled. Use a local service or one you trust.",
+        .transcriptionSettingsReset: "Restore defaults",
+        .transcriptionSettingsScheme: "Protocol",
+        .transcriptionSettingsTitle: "Transcription service",
+        .transcriptionSettingsTransport: "HTTP works for a service on this Mac or the local network; use HTTPS for a service on the internet.",
+        .transcriptionSettingsWindow: "Transcription",
         .welcomeAllow: "Allow",
         .welcomeCallAudio: "Call audio",
         .welcomeCallAudioDetail: "To record the other people. macOS calls this “System Audio Recording”.",
@@ -651,7 +723,7 @@ public enum L10n {
         .welcomeStart: "Get started",
         .welcomeStepCall: "When a call starts, Cornetta asks whether to record it.",
         .welcomeStepStart: "Or open the handset menu and choose Start recording (⌘R).",
-        .welcomeStepTranscript: "After the call, find the transcript in Recordings (⌘T).",
+        .welcomeStepTranscript: "After the call, you can transcribe it from Recordings (⌘T).",
         .welcomeWait: "Waiting…",
         .welcomeWindow: "Welcome to Cornetta",
         .windowsLanguageChanged: "Interface language",

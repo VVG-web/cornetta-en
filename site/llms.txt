@@ -4,14 +4,14 @@
 
 Key facts:
 - Price: free. No account, no ads. Open source under the MIT license.
-- Privacy: recordings and transcripts never leave the computer. This version has no telemetry, no analytics, no cookies, no installation identifier and no feedback server. The app opens no background connections.
+- Privacy: recordings and transcripts stay on the computer. Audio is sent only to the HTTP transcription service the user configures, and only when the user starts a transcription. The default endpoint is localhost. This version has no telemetry, no analytics, no cookies, no installation identifier and no feedback server. The app opens no background connections.
 - Update check: only when the user chooses "Check for updates on GitHub". The app downloads `update/feed.json` and `update/feed.json.sig` from GitHub Pages, verifies the ECDSA P-256 signature with the public key embedded in the app, and only then reads the version. The request carries the app version and a normal User-Agent, never audio, text or file names. The app does not download or install updates automatically.
 - Feedback: the button opens a new public GitHub issue in the browser. Nothing is submitted automatically by the app.
 - Website: static. No Plausible, Telegram, cookies or visit counting.
 - How it works: Core Audio process taps (macOS 14.2+) capture system audio; the microphone and the tap share one private aggregate device, so both voices stay in sync. No BlackHole or virtual driver.
 - Output: .m4a (AAC, 48 kHz, stereo) in ~/Music/Cornetta, file named "Chiamata YYYY-MM-DD HH.MM.m4a".
 - Your voice is levelled up to +24 dB to match the call; the boost pauses while the other person talks so speaker echo is not amplified.
-- Local transcription (macOS 26+): when a recording ends, Cornetta transcribes it on the Mac with Apple speech recognition, labels lines as "Tu" (you) or "Altri" (others) from the separate tracks, removes speaker echo, and saves a Markdown file next to the audio. Recordings window with search and playback from any timestamp.
+- On-demand transcription (Mac): the user configures scheme, address, port, path, model and language for a Whisper-compatible HTTP endpoint. The default is `http://127.0.0.1:8080/v1/audio/transcriptions` with model `whisper-1`; automatic transcription is off by default. Cornetta sends each audio file as multipart/form-data, labels lines as "Tu" (you) or "Altri" (others) from the separate tracks, removes speaker echo, and saves a Markdown file next to the audio. It ships no speech model and contacts no service in the background. The Windows build does not transcribe. Endpoint contract: https://github.com/VVG-web/cornetta-en/blob/master/docs/TRANSCRIPTION.md
 - Screen recording (Mac): pick a display, window or app in the macOS picker; the video is saved already compressed (HEVC up to 1920 px, 30 fps, AAC audio) in ~/Movies/Cornetta, optionally with the microphone (macOS 15+) and Mac audio. No Screen Recording permission is needed with the system picker.
 - Detects when an app starts using the microphone and offers to record; suggests stopping when the call ends.
 - Floating panel while recording: elapsed time, level meters for you and the others, Stop, Feedback.
@@ -24,7 +24,7 @@ Key facts:
 ## Pages
 - [Cornetta (Italiano)](https://github.com/VVG-web/cornetta-en): repository and download page
 - [Cornetta (English)](https://github.com/VVG-web/cornetta-en): repository and download page
-- [Privacy (English)](/en/privacy/): what stays on the computer and the only GitHub actions
+- [Privacy (English)](/en/privacy/): what stays on the computer, transcription uploads and the GitHub actions
 - [Privacy (Italiano)](/privacy/): the same details in Italian
 - [Source code](https://github.com/VVG-web/cornetta-en): Swift (Mac), C# (Windows), static site
 

@@ -22,8 +22,8 @@ telefono, scaricano un DMG o un installer e installano un'app non notarizzata. [
 
 Cornetta registra le chiamate dal computer con qualunque app (WhatsApp, FaceTime, Meet, Zoom, Teams): la
 voce di chi registra dal microfono e la voce degli altri dall'audio di sistema, in un file `.m4a`. Sul Mac
-trascrive la chiamata sul computer. Gratuita, open source (MIT). Successo della pagina: la persona
-installa e concede i permessi senza chiamare nessuno.
+può trascrivere la chiamata con un servizio HTTP scelto dall'utente. Gratuita, open source (MIT). Successo
+della pagina: la persona installa e concede i permessi senza chiamare nessuno.
 
 ## Positioning
 
@@ -37,8 +37,9 @@ di rilascio, parte da questo taglio: niente toni da prodotto premium.
 - Mac: macOS 14.4 o successivo, Apple Silicon e Intel. App non notarizzata: al primo avvio macOS la blocca
   e serve «Apri comunque» in Impostazioni di Sistema → Privacy e sicurezza. Due permessi: Microfono,
   Registrazione audio di sistema. Download solo da GitHub Releases.
-- Trascrizione sul Mac, solo con macOS 26: righe «Tu» e «Altri» dalle due tracce, file Markdown accanto
-  all'audio.
+- Trascrizione on demand sul Mac: servizio HTTP compatibile con Whisper, predefinito su localhost. Righe
+  «Tu» e «Altri» dalle due tracce, file Markdown accanto all'audio. L'audio parte solo quando l'utente
+  avvia una trascrizione; nessun modello vocale è incluso nell'app.
 - Windows (beta): Windows 10 e 11, installer per utente senza permessi di amministratore. L'installer non
   è firmato: SmartScreen chiede «Ulteriori informazioni → Esegui comunque». Niente trascrizione.
 - Telefoni esclusi: iOS non dà l'audio delle chiamate, Android lo blocca dalla 10.
@@ -46,9 +47,10 @@ di rilascio, parte da questo taglio: niente toni da prodotto premium.
   la firma e apre la pagina della release. Non esiste Sparkle, Velopack UpdateManager o installazione
   automatica.
 - Nessun feedback server: il pulsante apre una issue pubblica su GitHub nel browser.
-- Dati che partono: nessuno in background. Solo il controllo manuale delle release su GitHub e
-  l'apertura di una issue. Nessuna telemetria, analytics, cookie o identificativo di installazione.
-  Le pagine privacy e `llms.txt` devono restare allineate.
+- Dati che partono: nessuno in background. Solo il controllo manuale delle release su GitHub, l'apertura
+  di una issue e la trascrizione avviata dall'utente verso l'endpoint configurato. Nessuna telemetria,
+  analytics, cookie o identificativo di installazione. Le pagine privacy e `llms.txt` devono restare
+  allineate.
 
 ## Evidence on Hand
 
@@ -59,8 +61,8 @@ telemetria: non inventare numeri di utenti, download o avvii.
 
 - Chi installa non deve sapere cos'è un DMG: ogni passo dice cosa vedrà sullo schermo.
 - Onestà sul blocco di macOS: lo si spiega prima che spaventi.
-- La privacy è un fatto: registrazioni e trascrizioni restano sul computer, e l'app non apre connessioni
-  in background.
+- La privacy è un fatto: registrazioni e trascrizioni restano sul computer, l'app non apre connessioni
+  in background e l'audio va solo al servizio di trascrizione scelto dall'utente.
 
 ## Accessibility & Inclusion
 

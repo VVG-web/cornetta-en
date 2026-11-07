@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Privacy – Cornetta</title>
-<meta name="description" content="Cornetta non usa telemetria, analytics o cookie. Registrazioni e trascrizioni restano sul computer.">
+<meta name="description" content="Cornetta non usa telemetria, analytics o cookie. Le registrazioni restano sul computer; l'audio va al servizio di trascrizione solo quando avvii una trascrizione.">
 <meta name="robots" content="index, follow">
 <meta name="author" content="VVG-web">
 <meta name="theme-color" content="#ffffff">
@@ -32,17 +32,21 @@
 <main id="main" class="prose-page">
   <article class="wrap prose">
     <h1>Nessuna telemetria. Nessun tracciamento.</h1>
-    <p class="lede-small">Questa versione di Cornetta non manda dati di funzionamento, non usa analytics e non ha un server di feedback. Registrazioni e trascrizioni restano sul computer.</p>
+    <p class="lede-small">Questa versione di Cornetta non manda dati di funzionamento, non usa analytics e non ha un server di feedback. Le registrazioni e le trascrizioni restano sul computer; l'audio va al servizio di trascrizione che configuri solo quando avvii una trascrizione.</p>
     <p class="updated">Aggiornata il 7 novembre 2026.</p>
 
-    <h2>Registrazioni e trascrizioni</h2>
-    <p>Restano sul tuo computer, nella cartella Musica › Cornetta. La trascrizione usa il riconoscimento vocale del Mac e gira sul Mac. Cornetta non invia audio, testo, nomi di file, nomi di dispositivi o contatti a nessun server.</p>
+    <h2>Registrazioni</h2>
+    <p>Restano sul tuo computer, nella cartella Musica › Cornetta. Cornetta non le carica online e non invia nomi di file, nomi di dispositivi o contatti a nessun server.</p>
+
+    <h2>Trascrizione</h2>
+    <p>Cornetta non include un modello vocale e non contatta un servizio di trascrizione in background. Quando premi <strong>Trascrivi</strong>, o quando è attiva la trascrizione automatica dopo una registrazione, invia il file audio all'endpoint HTTP che hai configurato. Il valore predefinito è <code>http://127.0.0.1:8080/v1/audio/transcriptions</code>: se il servizio gira sullo stesso Mac, l'audio non esce dal computer.</p>
+    <p>Il servizio riceve il file audio, il nome del file e i campi <code>model</code>, <code>language</code> e <code>response_format</code>. Non riceve la trascrizione, altre registrazioni, i log dell'app, i contatti o i nomi dei dispositivi. Se scegli un servizio su un altro computer, quel gestore riceve anche il tuo indirizzo IP: usa HTTPS e un servizio di cui ti fidi. Cornetta non invia chiavi API.</p>
 
     <h2>Dati di funzionamento</h2>
     <p>Non ci sono telemetria, identificativi di installazione, analytics o rapporti automatici di errore. L'app non apre connessioni in background.</p>
 
     <h2>Controllo aggiornamenti su GitHub</h2>
-    <p>L'unica connessione di rete possibile è quella che avvii tu dal menu con <strong>Controlla gli aggiornamenti su GitHub…</strong>. In quel momento l'app scarica due file statici da GitHub Pages: <code>update/feed.json</code> e la sua firma <code>update/feed.json.sig</code>. La richiesta contiene la versione dell'app e un normale User-Agent, non contiene audio, testi o nomi di file. GitHub vede l'indirizzo IP e applica la propria informativa.</p>
+    <p>Una delle connessioni di rete è quella che avvii tu dal menu con <strong>Controlla gli aggiornamenti su GitHub…</strong>. In quel momento l'app scarica due file statici da GitHub Pages: <code>update/feed.json</code> e la sua firma <code>update/feed.json.sig</code>. La richiesta contiene la versione dell'app e un normale User-Agent, non contiene audio, testi o nomi di file. GitHub vede l'indirizzo IP e applica la propria informativa.</p>
     <p>La firma ECDSA P-256 viene verificata con una chiave pubblica incorporata nell'app prima di leggere la versione. Se la firma non è valida, Cornetta non mostra alcun aggiornamento. Non scarica e non installa aggiornamenti da sola.</p>
 
     <h2>Feedback</h2>
@@ -52,7 +56,7 @@
     <p>Questo sito è statico. Non usa cookie, Plausible, Telegram o altri servizi di analisi, e non conta le visite. Le uniche richieste di rete sono quelle necessarie a caricare le pagine e le immagini dal server che ospita il sito.</p>
 
     <h2>Altri servizi</h2>
-    <p>MacOS può scaricare una volta i modelli vocali di Apple quando usi la trascrizione. È un'operazione del sistema, non di Cornetta, e non invia il contenuto della chiamata. GitHub è l'unico servizio esterno usato dall'app, e solo per le azioni che scegli tu.</p>
+    <p>I servizi esterni usati dall'app sono GitHub, per le azioni che scegli tu, e il servizio di trascrizione che configuri. Se il servizio di trascrizione è su un altro computer, quel fornitore riceve l'audio della registrazione quando avvii una trascrizione. Se è sul tuo Mac, l'audio resta sul Mac. Non ci sono altri servizi, telemetria o rapporti automatici.</p>
 
     <h2>Chi mantiene questa versione</h2>
     <p>Questo è un fork open source mantenuto da <a href="https://github.com/VVG-web/cornetta-en">VVG-web</a>, basato sul progetto originale di <a href="https://github.com/stellakamikaze/cornetta">Federico Nejrotti</a>. Per problemi o domande apri una segnalazione su GitHub.</p>
@@ -61,7 +65,7 @@
 
 <footer>
   <div class="wrap">
-    <div>Fork mantenuto da <a href="https://github.com/VVG-web/cornetta-en">VVG-web</a>.<small>Le registrazioni restano sul tuo computer. Nessuna telemetria, nessun cookie. <a href="./">Privacy</a></small></div>
+    <div>Fork mantenuto da <a href="https://github.com/VVG-web/cornetta-en">VVG-web</a>.<small>Le registrazioni restano sul tuo computer; l'audio va solo al servizio di trascrizione che configuri. Nessuna telemetria, nessun cookie. <a href="./">Privacy</a></small></div>
     <ul>
       <li><a href="../#funzioni">Funzioni</a></li>
       <li><a href="../#installazione">Installazione</a></li>

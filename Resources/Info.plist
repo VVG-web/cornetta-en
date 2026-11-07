@@ -37,6 +37,13 @@
 	<string>Cornetta registra la tua voce durante le chiamate.</string>
 	<key>NSAudioCaptureUsageDescription</key>
 	<string>Cornetta registra l'audio delle chiamate, cioè la voce delle altre persone.</string>
+	<key>NSLocalNetworkUsageDescription</key>
+	<string>Cornetta invia l'audio al servizio di trascrizione configurato solo quando avvii una trascrizione.</string>
+	<key>NSAppTransportSecurity</key>
+	<dict>
+		<key>NSAllowsLocalNetworking</key>
+		<true/>
+	</dict>
 	<key>NSHumanReadableCopyright</key>
 	<string>Software libero, licenza MIT.</string>
 </dict>
