@@ -18,7 +18,7 @@ feed. A future release must then embed a new public key.
 The signature covers the exact bytes of `feed.json`. Any whitespace change requires a new signature.
 
 ```json
-{"schema":1,"version":"0.7.0","release_url":"https://github.com/VVG-web/cornetta-en/releases/tag/v0.7.0","published":"2026-11-07","mac":{"filename":"Cornetta-0.7.0.dmg","sha256":"..."},"windows":{"filename":"CornettaSetup.exe","sha256":"..."}}
+{"schema":1,"version":"0.8.0","release_url":"https://github.com/VVG-web/cornetta-en/releases/tag/v0.8.0","published":"2026-11-07","mac":{"filename":"Cornetta-0.8.0.dmg","sha256":"..."},"windows":{"filename":"CornettaSetup.exe","sha256":"..."}}
 ```
 
 Both apps verify the signature and require `schema == 1`. The release URL must point to a release in
