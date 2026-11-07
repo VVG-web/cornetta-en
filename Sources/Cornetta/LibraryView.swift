@@ -149,8 +149,11 @@ struct LibraryView: View {
                         prompt: L10n.text(.librarySearch, language: language))
             .overlay {
                 if library.recordings.isEmpty {
-                    ContentUnavailableView("Nessuna registrazione", systemImage: "phone",
-                                           description: Text("Avvia una registrazione dalla cornetta nella barra dei menu."))
+                    ContentUnavailableView {
+                        Label(L10n.text(.libraryEmptyTitle, language: language), systemImage: "phone")
+                    } description: {
+                        Text(L10n.text(.libraryEmptyMessage, language: language))
+                    }
                 } else if filtered.isEmpty {
                     ContentUnavailableView {
                         Label(L10n.text(.libraryNoResultsTitle, language: language), systemImage: "magnifyingglass")
@@ -165,8 +168,11 @@ struct LibraryView: View {
                 RecordingDetail(recording: recording, library: library, player: .shared)
                     .id(recording.id)
             } else {
-                ContentUnavailableView("Scegli una registrazione", systemImage: "waveform",
-                                       description: Text("La trascrizione compare qui, divisa fra la tua voce e quella degli altri."))
+                ContentUnavailableView {
+                    Label(L10n.text(.librarySelectTitle, language: language), systemImage: "waveform")
+                } description: {
+                    Text(L10n.text(.librarySelectMessage, language: language))
+                }
             }
         }
         .frame(minWidth: 760, minHeight: 480)
@@ -230,12 +236,13 @@ struct StatusLabel: View {
 
     var body: some View {
         switch status {
-        case .done: Label("Trascritta", systemImage: "text.bubble").labelStyle(.titleOnly)
-        case .queued: Text("In coda")
+        case .done: Label(L10n.text(.libraryStatusTranscribed, language: language), systemImage: "text.bubble")
+            .labelStyle(.titleOnly)
+        case .queued: Text(L10n.text(.libraryQueuedTitle, language: language))
         case .transcribing(let p, _):
             Text(L10n.format(.libraryStatusTranscribing, language: language,
                              String(Int(p * 100)))).monospacedDigit()
-        case .failed: Text("Errore").foregroundStyle(.red)
+        case .failed: Text(L10n.text(.libraryStatusFailed, language: language)).foregroundStyle(.red)
         case .notTranscribed:
             Text(L10n.text(TranscriptionService.isConfigured ? .libraryStatusNotTranscribed : .libraryStatusAudioOnly,
                            language: language))
@@ -261,11 +268,13 @@ struct RecordingDetail: View {
             content.frame(maxWidth: .infinity, maxHeight: .infinity)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-        .confirmationDialog("Eliminare questa registrazione?", isPresented: $confirmDelete) {
-            Button("Sposta nel Cestino", role: .destructive) { library.delete(recording) }
-            Button("Annulla", role: .cancel) {}
+        .confirmationDialog(L10n.text(.libraryDeleteTitle, language: language), isPresented: $confirmDelete) {
+            Button(L10n.text(.libraryDeleteButton, language: language), role: .destructive) {
+                library.delete(recording)
+            }
+            Button(L10n.text(.libraryDeleteCancel, language: language), role: .cancel) {}
         } message: {
-            Text("L'audio e la trascrizione vanno nel Cestino. Puoi recuperarli da lì.")
+            Text(L10n.text(.libraryDeleteMessage, language: language))
         }
     }
 
@@ -294,15 +303,17 @@ struct RecordingDetail: View {
                     copied = true
                     DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) { copied = false }
                 }
-                Button("Esporta…") { export() }
+                Button(L10n.text(.libraryExport, language: language)) { export() }
             }
             Menu {
-                Button("Mostra nel Finder") { NSWorkspace.shared.activateFileViewerSelecting([recording.url]) }
+                Button(L10n.text(.commonShowInFinder, language: language)) {
+                    NSWorkspace.shared.activateFileViewerSelecting([recording.url])
+                }
                 if transcript != nil, TranscriptionService.isConfigured, !inProgress {
-                    Button("Trascrivi di nuovo") { library.enqueue(recording.url) }
+                    Button(L10n.text(.libraryTranscribeAgain, language: language)) { library.enqueue(recording.url) }
                 }
                 Divider()
-                Button("Elimina…", role: .destructive) { confirmDelete = true }
+                Button(L10n.text(.libraryDelete, language: language), role: .destructive) { confirmDelete = true }
             } label: {
                 Image(systemName: "ellipsis.circle")
             }
@@ -339,8 +350,11 @@ struct RecordingDetail: View {
             if let transcript, !transcript.segments.isEmpty {
                 TranscriptView(turns: library.turns(for: recording), recording: recording, player: player)
             } else {
-                ContentUnavailableView("Nessuna voce riconosciuta", systemImage: "waveform.slash",
-                                       description: Text("La registrazione sembra vuota o troppo bassa."))
+                ContentUnavailableView {
+                    Label(L10n.text(.libraryNoSpeechTitle, language: language), systemImage: "waveform.slash")
+                } description: {
+                    Text(L10n.text(.libraryNoSpeechMessage, language: language))
+                }
             }
         case .transcribing(let progress, let message):
             VStack(spacing: 12) {
@@ -349,16 +363,20 @@ struct RecordingDetail: View {
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
         case .queued:
-            ContentUnavailableView("In coda", systemImage: "clock", description: Text("La trascrizione parte appena finisce quella in corso."))
+            ContentUnavailableView {
+                Label(L10n.text(.libraryQueuedTitle, language: language), systemImage: "clock")
+            } description: {
+                Text(L10n.text(.libraryQueuedMessage, language: language))
+            }
         case .failed:
             let shown = L10n.text(.libraryTranscriptionFailed, language: language)
             ContentUnavailableView {
-                Label("Trascrizione non riuscita", systemImage: "exclamationmark.triangle")
+                Label(L10n.text(.libraryFailedTitle, language: language), systemImage: "exclamationmark.triangle")
             } description: {
                 Text(shown)
             } actions: {
                 HStack {
-                    Button("Riprova") { library.enqueue(recording.url) }
+                    Button(L10n.text(.commonRetry, language: language)) { library.enqueue(recording.url) }
                     Button(L10n.text(.libraryTranscriptionSettings, language: language)) {
                         TranscriptionSettingsWindow.show()
                     }
@@ -367,13 +385,14 @@ struct RecordingDetail: View {
         case .notTranscribed:
             if TranscriptionService.isConfigured {
                 ContentUnavailableView {
-                    Label("Non ancora trascritta", systemImage: "text.bubble")
+                    Label(L10n.text(.libraryStatusNotYet, language: language), systemImage: "text.bubble")
                 } description: {
                     Text(L10n.text(recording.hasTracks ? .libraryNotTranscribedAvailable
                                                        : .libraryNotTranscribedOld,
                                    language: language))
                 } actions: {
-                    Button("Trascrivi") { library.enqueue(recording.url) }.buttonStyle(.borderedProminent)
+                    Button(L10n.text(.libraryTranscribe, language: language)) { library.enqueue(recording.url) }
+                        .buttonStyle(.borderedProminent)
                 }
             } else {
                 ContentUnavailableView {

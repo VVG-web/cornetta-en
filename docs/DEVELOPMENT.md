@@ -72,6 +72,9 @@ The app must not open background connections. The only allowed network actions a
 - a user-triggered transcription request from `Sources/Cornetta/TranscriptionService.swift` to the
   endpoint stored in preferences. The default is loopback; the request carries one audio file and the
   configured model, language and response format. It never runs at launch or in the background.
+- a user-triggered **Check service** request to `<baseURL>/models` from
+  `Sources/Cornetta/ProviderCheck.swift`. It carries the optional API key, no audio, and does not save
+  settings. The key itself is stored only in the macOS Keychain (`TranscriptionCredential.swift`).
 
 Do not add telemetry, analytics, crash reporting, ad SDKs, a feedback server, or an automatic updater.
 `python3 -m unittest discover -s scripts/tests -p 'test_privacy_guard.py'` checks that the old endpoints
@@ -121,9 +124,9 @@ The automated tests reject missing translations, mismatched placeholders, and UI
 represented in the catalog. A new interface string therefore requires an Italian and an English entry
 before the gate can pass.
 
-The saved key is `appLanguage` (`it` or `en`). New installs choose English when the first supported
-system language is English and Italian otherwise. Existing installs remain Italian until the user
-chooses another language. This choice is independent from the speech-recognition language.
+The saved key is `appLanguage` (`it` or `en`). English is the default for new installs and for installs
+without a saved choice. An explicit saved choice always wins. This choice is independent from the
+speech-recognition language.
 
 ## Releases
 
@@ -131,6 +134,17 @@ There is no automatic updater and no production deployment script. The static si
 `.github/workflows/pages.yml`. Build and verify locally, update and sign `site/update/feed.json`, then
 create a GitHub Release manually with the DMG or Windows installer. Users check the signed feed from the
 app menu and download from the GitHub Release page. Record SHA-256 fingerprints in the release notes.
+
+Before creating a tag or release, run every automated TC and manual TS in `docs/QA-TEST-PLAN.md`. The
+required sequence is:
+
+```bash
+VERSION=<version> ./scripts/check.sh
+# execute the manual TS list for the current platform
+QA_MANUAL_SIGNOFF=all RELEASE_VERSION=<version> ./scripts/qa-release.sh
+```
+
+An incomplete `QA_MANUAL_SIGNOFF`, a failed TC, or a hash mismatch blocks the release.
 
 ## Upstream review
 

@@ -16,22 +16,13 @@ public enum AppLanguage: String, CaseIterable, Sendable {
         }
     }
 
-    /// Italian unless English is the first supported system language.
-    public static func systemDefault(preferredLanguages: [String] = Locale.preferredLanguages) -> AppLanguage {
-        guard let primary = preferredLanguages.first?.lowercased() else { return .italian }
-        return primary == "en" || primary.hasPrefix("en-") || primary.hasPrefix("en_") ? .english : .italian
-    }
-
-    /// Reads the saved choice. On first launch, legacy installs stay Italian and new installs follow
-    /// the system once; the result is saved immediately so later system changes do not alter it.
-    public static func initial(defaults: UserDefaults = .standard,
-                               preferredLanguages: [String] = Locale.preferredLanguages,
-                               existingInstall: Bool) -> AppLanguage {
+    /// Reads the saved choice. Without one, English is the default for every installation;
+    /// the result is saved immediately so a later system change does not alter it.
+    public static func initial(defaults: UserDefaults = .standard) -> AppLanguage {
         if let raw = defaults.string(forKey: storageKey), let saved = AppLanguage(rawValue: raw) {
             return saved
         }
-        let selected: AppLanguage = existingInstall ? .italian : systemDefault(preferredLanguages: preferredLanguages)
-        defaults.set(selected.rawValue, forKey: storageKey)
-        return selected
+        defaults.set(AppLanguage.english.rawValue, forKey: storageKey)
+        return .english
     }
 }

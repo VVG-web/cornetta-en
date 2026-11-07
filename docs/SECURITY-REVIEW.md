@@ -36,6 +36,11 @@ kernel itself.
 - The transcription client uses an ephemeral `URLSession`, accepts no cookies, has explicit request and
   resource timeouts, and contacts only the endpoint stored in preferences. The default is loopback.
   App Transport Security allows local networking only, not arbitrary HTTP loads.
+- An optional transcription API key is stored as a generic-password item in the macOS Keychain, never in
+  `UserDefaults`, source files or logs. It is sent only to the configured endpoint as a Bearer token and
+  is removed when the field is cleared and saved.
+- The **Check service** button sends one user-initiated `GET <baseURL>/models` with the draft key. It
+  sends no audio and does not save the settings.
 - The only optional persistence is `SMAppService.mainApp`, used by “Open at login”. It has both
   `register()` and `unregister()` paths and is not a background daemon.
 - The app is universal (`x86_64` and `arm64`) with minimum macOS 14.4.

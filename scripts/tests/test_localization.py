@@ -10,7 +10,7 @@ ROOT = Path(__file__).resolve().parents[2]
 CATALOG = ROOT / "localization" / "strings.json"
 
 SWIFT_UI = re.compile(
-    r'\b(?:Text|Button|Toggle|Label|Menu|TextField|Picker|DisclosureGroup|ContentUnavailableView)'
+    r'\b(?:Text|Button|Toggle|Label|Menu|TextField|SecureField|Picker|DisclosureGroup|ContentUnavailableView)'
     r'\(\s*"((?:\\.|[^"\\])*)"'
 )
 SWIFT_MODIFIER = re.compile(r'\.(?:help|accessibilityLabel)\(\s*"((?:\\.|[^"\\])*)"')
@@ -70,17 +70,24 @@ class LocalizationTests(unittest.TestCase):
                                 capture_output=True, text=True)
         self.assertEqual(result.returncode, 0, result.stderr or result.stdout)
 
-    def test_swift_ui_literals_are_catalogued(self):
-        values = catalog_values()
+    def test_swift_ui_literals_are_localized(self):
         missing = []
         for path in (ROOT / "Sources" / "Cornetta").rglob("*.swift"):
             text = path.read_text(encoding="utf-8")
             for pattern in (SWIFT_UI, SWIFT_MODIFIER, SWIFT_WINDOW_OR_ALERT, SWIFT_ALERT_BUTTON):
                 for literal in pattern.findall(text):
-                    if (literal not in values and literal not in SWIFT_ALLOWED
-                            and "number" not in literal):
+                    if literal not in SWIFT_ALLOWED and "number" not in literal:
                         missing.append(f"{path.relative_to(ROOT)}: {literal}")
-        self.assertEqual(missing, [], "UI strings missing from localization/strings.json:\n" + "\n".join(missing))
+        self.assertEqual(missing, [], "UI literals must go through L10n/tr:\n" + "\n".join(missing))
+
+    def test_macos_auto_transcription_menu_uses_its_own_storage(self):
+        text = (ROOT / "Sources" / "Cornetta" / "CornettaApp.swift").read_text(encoding="utf-8")
+        self.assertIn("@AppStorage(TranscriptionPreferences.autoTranscribeKey)", text)
+        self.assertIn("Toggle(isOn: $autoTranscribe)", text)
+        self.assertIn(".menuTranscribeState", text)
+        self.assertIn(".commonOn", text)
+        self.assertIn(".commonOff", text)
+        self.assertNotIn("Library.shared.$autoTranscribe", text)
 
     def test_language_controls_are_present_on_both_platforms(self):
         mac = (ROOT / "Sources" / "Cornetta" / "CornettaApp.swift").read_text(encoding="utf-8")

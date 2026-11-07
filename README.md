@@ -25,8 +25,8 @@ Cornetta vive nella barra dei menu. Un clic avvia la registrazione, un clic la f
 `~/Music/Cornetta/` con il nome `Chiamata AAAA-MM-GG HH.MM.m4a`.
 
 **Italiano o inglese.** Dal menu della cornetta, in **Lingua / Language**, scegli l'interfaccia.
-La scelta resta salvata; una nuova installazione segue la lingua di sistema e tutte le altre lingue usano
-l'italiano. Su Windows la stessa voce è nel menu dell'area di notifica.
+La scelta resta salvata; l'inglese è il valore predefinito per ogni nuova installazione e per un'installazione
+senza una scelta salvata. Su Windows la stessa voce è nel menu dell'area di notifica.
 
 ## Privacy e rete
 
@@ -52,6 +52,9 @@ usa Plausible, Telegram o altri servizi di analisi.
 Dettagli: [privacy in italiano](site/privacy/index.html) e
 [privacy in English](site/en/privacy/index.html). Il formato del servizio di trascrizione è descritto in
 [docs/TRANSCRIPTION.md](docs/TRANSCRIPTION.md).
+
+Prima di ogni release si eseguono tutti i casi e gli scenari di [docs/QA-TEST-PLAN.md](docs/QA-TEST-PLAN.md)
+e si chiude il gate con `QA_MANUAL_SIGNOFF=all ./scripts/qa-release.sh`.
 
 ## Sicurezza e rimozione
 
@@ -101,8 +104,9 @@ oppure **→ Registrazione schermo e audio di sistema**.
 - **Controlla gli aggiornamenti su GitHub…**: confronta la versione installata con l'ultima release e apre
   GitHub se ce n'è una nuova.
 - **Apri una segnalazione su GitHub…**: apre il browser sulla pagina delle issue del fork.
-- **Impostazioni trascrizione…**: scegli protocollo, indirizzo, porta, percorso, modello e lingua del
-  servizio HTTP. La stessa finestra contiene l'opzione per trascrivere subito dopo ogni registrazione.
+- **Impostazioni trascrizione…**: incolla l'indirizzo base, modello, lingua e chiave API del servizio
+  HTTP. La stessa finestra contiene **Verifica servizio** e l'opzione per trascrivere subito dopo ogni
+  registrazione.
 
 Se a metà chiamata cambi microfono (per esempio colleghi le AirPods), Cornetta passa al nuovo microfono e
 continua sullo stesso file.
@@ -129,9 +133,12 @@ La trascrizione parte solo quando scegli **Trascrivi**, oppure dopo una registra
 - Durante la registrazione salva due tracce separate in `~/Library/Application Support/Cornetta/Tracce/`:
   «Tu» (microfono) e «Altri» (audio di sistema). Le tracce permettono di etichettare le battute; se
   mancano, la trascrizione usa il file misto e le righe compaiono come «Voce».
-- In **Impostazioni trascrizione…** imposta indirizzo, porta, percorso, modello e lingua. Il valore
-  predefinito è `http://127.0.0.1:8080/v1/audio/transcriptions`, con modello `whisper-1` e lingua
-  automatica. Per un servizio su un altro computer usa HTTPS.
+- In **Impostazioni trascrizione…** incolla l'indirizzo base del servizio, per esempio
+  `https://api.example.com/v1`. Cornetta aggiunge `/audio/transcriptions`. Il valore predefinito è
+  `http://127.0.0.1:8080/v1`, con modello `whisper-1` e lingua automatica. Per un servizio su un altro
+  computer usa HTTPS. **Verifica servizio** controlla connessione e modello senza inviare audio.
+- Se il servizio richiede una chiave, incollala nel campo **Chiave API**. Resta nel Portachiavi di macOS,
+  viene inviata solo come `Authorization: Bearer` all'endpoint configurato e non compare nei log.
 - Cornetta invia il file audio con una richiesta `multipart/form-data`; il servizio risponde con
   `verbose_json` (segmenti con orari) o, se non lo supporta, con `json` o testo semplice.
 - Il testo si salva in JSON (`~/Library/Application Support/Cornetta/Trascrizioni/`) e come `.md` accanto

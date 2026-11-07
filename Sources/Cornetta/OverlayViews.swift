@@ -12,9 +12,10 @@ struct RecordingOverlayView: View {
             if model.callEndedSuggestion {
                 HStack(spacing: 8) {
                     Image(systemName: "phone.down.fill").foregroundStyle(.orange)
-                    Text("La chiamata sembra finita").font(.callout.weight(.semibold))
+                    Text(L10n.text(.overlayCallEndedTitle, language: language)).font(.callout.weight(.semibold))
                     Spacer()
-                    Button("Continua") { model.dismissCallEnded() }.controlSize(.small)
+                    Button(L10n.text(.commonContinue, language: language)) { model.dismissCallEnded() }
+                        .controlSize(.small)
                 }
                 Divider()
             }
@@ -31,10 +32,11 @@ struct RecordingOverlayView: View {
                 Button {
                     model.stop()
                 } label: {
-                    Label("Ferma", systemImage: "stop.fill").labelStyle(.titleAndIcon)
+                    Label(L10n.text(.commonStop, language: language), systemImage: "stop.fill")
+                        .labelStyle(.titleAndIcon)
                 }
                 .buttonStyle(FilledButtonStyle(color: .red))
-                .help("Ferma e salva la registrazione")
+                .help(L10n.text(.overlayStopHelp, language: language))
             }
             HStack {
                 Label(model.microphoneName ?? L10n.text(.windowsOverlayNoMicrophone, language: language),
@@ -42,12 +44,13 @@ struct RecordingOverlayView: View {
                     .font(.caption)
                     .foregroundStyle(.secondary)
                     .lineLimit(1)
-                    .help("Microfono in uso")
+                    .help(L10n.text(.overlayMicrophoneInUse, language: language))
                 Spacer()
                 Button {
                     model.openFeedback()
                 } label: {
-                    Label("Feedback", systemImage: "bubble.left.and.exclamationmark.bubble.right")
+                    Label(L10n.text(.commonFeedback, language: language),
+                          systemImage: "bubble.left.and.exclamationmark.bubble.right")
                 }
                 .controlSize(.small)
                 .help(tr(.overlayFeedbackHelp))
@@ -60,6 +63,7 @@ struct RecordingOverlayView: View {
 
 struct RecordingDot: View {
     @State private var on = true
+    @Environment(\.appLanguage) private var language
 
     var body: some View {
         Circle()
@@ -68,7 +72,7 @@ struct RecordingDot: View {
             .opacity(on ? 1 : 0.3)
             .animation(.easeInOut(duration: 0.8).repeatForever(), value: on)
             .onAppear { on = false }
-            .accessibilityLabel("In registrazione")
+            .accessibilityLabel(L10n.text(.accessibilityRecording, language: language))
     }
 }
 

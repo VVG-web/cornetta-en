@@ -9,15 +9,9 @@ final class Localization: ObservableObject {
     @Published private(set) var language: AppLanguage
     private let defaults: UserDefaults
 
-    init(defaults: UserDefaults = .standard,
-         preferredLanguages: [String] = Locale.preferredLanguages,
-         existingInstall: Bool? = nil) {
+    init(defaults: UserDefaults = .standard) {
         self.defaults = defaults
-        let legacyKeys = ["welcomeDone", "telemetryInstallID", "telemetryLastVersion", "showOverlay",
-                          "proposeOnCall", "screenMicrophone", "screenSystemAudio", "feedbackName", "feedbackEmail"]
-        let legacy = existingInstall ?? legacyKeys.contains { defaults.object(forKey: $0) != nil }
-        language = AppLanguage.initial(defaults: defaults, preferredLanguages: preferredLanguages,
-                                       existingInstall: legacy)
+        language = AppLanguage.initial(defaults: defaults)
     }
 
     var locale: Locale { language.locale }
@@ -54,7 +48,7 @@ func tr(_ key: L10nKey, _ arguments: String...) -> String {
 }
 
 private struct AppLanguageEnvironmentKey: EnvironmentKey {
-    static let defaultValue = AppLanguage.italian
+    static let defaultValue = AppLanguage.english
 }
 
 extension EnvironmentValues {

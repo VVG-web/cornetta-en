@@ -88,8 +88,13 @@ class MacSecurityGuardTests(unittest.TestCase):
         self.check("Resources/Info.plist", present=("<key>NSAllowsLocalNetworking</key>",),
                    absent=("NSAllowsArbitraryLoads",))
         self.check("Sources/CornettaCore/TranscriptionConfig.swift",
-                   present=('defaultHost = "127.0.0.1"', 'defaultPort = "8080"',
-                            'defaultPath = "/v1/audio/transcriptions"'))
+                   present=('defaultBaseURL = "http://127.0.0.1:8080/v1"',))
+
+    def test_transcription_key_is_keychain_only(self):
+        self.check("Sources/CornettaCore/TranscriptionCredential.swift",
+                   present=("kSecClassGenericPassword", "kSecAttrService", "Bearer"))
+        self.check("Sources/CornettaCore/TranscriptionConfig.swift",
+                   absent=("apiKeyKey", "transcriptionApiKey"))
 
 
 if __name__ == "__main__":

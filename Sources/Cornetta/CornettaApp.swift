@@ -45,6 +45,7 @@ struct MenuContent: View {
     @ObservedObject var updates: UpdateManager
     @ObservedObject var screen: ScreenRecordingModel
     @ObservedObject private var localization = Localization.shared
+    @AppStorage(TranscriptionPreferences.autoTranscribeKey) private var autoTranscribe = false
 
     var body: some View {
         Button(localization.text(model.isRecording ? .menuRecordStop : .menuRecordStart)) { model.toggle() }
@@ -69,27 +70,31 @@ struct MenuContent: View {
             }
         }
         Divider()
-        Button("Registrazioni e trascrizioni…") { LibraryWindow.show() }
+        Button(localization.text(.menuRecordingsOpen)) { LibraryWindow.show() }
             .keyboardShortcut("t")
-        Button("Apri cartella registrazioni") { model.openFolder() }
-        Menu("Video dello schermo") {
-            Toggle("Registra anche il microfono", isOn: $screen.includeMicrophone)
+        Button(localization.text(.menuRecordingsOpenFolder)) { model.openFolder() }
+        Menu(localization.text(.screenOverlayTitle)) {
+            Toggle(localization.text(.menuScreenIncludeMicrophone), isOn: $screen.includeMicrophone)
                 .disabled(!ScreenRecorder.supportsMicrophone)
-            Toggle("Registra anche l'audio del Mac", isOn: $screen.includeSystemAudio)
-            Toggle("Mostra il pannello durante il video", isOn: $screen.showOverlay)
+            Toggle(localization.text(.menuScreenIncludeSystemAudio), isOn: $screen.includeSystemAudio)
+            Toggle(localization.text(.menuScreenShowOverlay), isOn: $screen.showOverlay)
             Divider()
-            Button("Apri cartella video") { screen.openFolder() }
+            Button(localization.text(.menuScreenOpenFolder)) { screen.openFolder() }
         }
         if model.lastFile != nil {
-            Button("Mostra l'ultima registrazione") { model.revealLastFile() }
+            Button(localization.text(.menuLastRecording)) { model.revealLastFile() }
         }
         Divider()
         Button(localization.text(.menuFeedback)) { model.openFeedback() }
-        Toggle("Mostra il pannello durante la registrazione", isOn: $model.showOverlay)
-        Toggle("Proponi di registrare quando inizia una chiamata", isOn: $model.proposeOnCall)
-        Toggle(localization.text(.menuTranscribe), isOn: Library.shared.$autoTranscribe)
+        Toggle(localization.text(.menuOverlay), isOn: $model.showOverlay)
+        Toggle(localization.text(.menuPropose), isOn: $model.proposeOnCall)
+        Toggle(isOn: $autoTranscribe) {
+            Text(localization.format(.menuTranscribeState,
+                                     localization.text(autoTranscribe ? .commonOn : .commonOff)))
+        }
         Button(localization.text(.menuTranscriptionSettings)) { TranscriptionSettingsWindow.show() }
-        Toggle("Apri all'accensione del Mac", isOn: Binding(get: { LaunchAtLogin.isEnabled }, set: { LaunchAtLogin.set($0) }))
+        Toggle(localization.text(.menuLaunchAtLoginMac),
+               isOn: Binding(get: { LaunchAtLogin.isEnabled }, set: { LaunchAtLogin.set($0) }))
         Button(localization.text(.menuUpdates)) { model.checkForUpdates() }
             .disabled(updates.isChecking)
         Divider()
@@ -102,7 +107,7 @@ struct MenuContent: View {
         }
         Divider()
         // Ferma e salva lo fa applicationShouldTerminate, senza convertire: la conversione la uccide l'uscita.
-        Button("Esci da Cornetta") { NSApp.terminate(nil) }
+        Button(localization.text(.menuQuit)) { NSApp.terminate(nil) }
         .keyboardShortcut("q")
     }
 }

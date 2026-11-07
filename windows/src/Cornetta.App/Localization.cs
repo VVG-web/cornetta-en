@@ -1,5 +1,4 @@
 using System;
-using System.Globalization;
 
 namespace Cornetta.App
 {
@@ -21,8 +20,7 @@ namespace Cornetta.App
             get
             {
                 if (current.HasValue) return current.Value;
-                current = Resolve(Settings.Language, Settings.HasExistingPreferences,
-                    CultureInfo.CurrentUICulture.TwoLetterISOLanguageName);
+                current = Resolve(Settings.Language);
                 Settings.Language = Raw(current.Value);
                 return current.Value;
             }
@@ -36,13 +34,11 @@ namespace Cornetta.App
             LanguageChanged?.Invoke();
         }
 
-        internal static AppLanguage Resolve(string saved, bool existingPreferences, string systemLanguage)
+        internal static AppLanguage Resolve(string saved)
         {
             if (saved == "en") return AppLanguage.English;
             if (saved == "it") return AppLanguage.Italian;
-            // Existing installations keep the Italian interface they already know.
-            if (existingPreferences) return AppLanguage.Italian;
-            return systemLanguage == "en" ? AppLanguage.English : AppLanguage.Italian;
+            return AppLanguage.English;
         }
 
         private static string Raw(AppLanguage language) => language == AppLanguage.English ? "en" : "it";

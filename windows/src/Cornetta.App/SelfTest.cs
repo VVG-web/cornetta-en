@@ -256,10 +256,9 @@ namespace Cornetta.App
                     || string.IsNullOrWhiteSpace(L10n.Text(key, AppLanguage.English)))
                     throw new InvalidOperationException("Traduzione mancante: " + key);
             }
-            if (AppLanguageSettings.Resolve("en", true, "it") != AppLanguage.English
-                || AppLanguageSettings.Resolve("", true, "en") != AppLanguage.Italian
-                || AppLanguageSettings.Resolve("", false, "en") != AppLanguage.English
-                || AppLanguageSettings.Resolve("", false, "de") != AppLanguage.Italian)
+            if (AppLanguageSettings.Resolve("en") != AppLanguage.English
+                || AppLanguageSettings.Resolve("it") != AppLanguage.Italian
+                || AppLanguageSettings.Resolve("") != AppLanguage.English)
                 throw new InvalidOperationException("Scelta della lingua non valida");
             Line("Lingue: italiano e inglese complete");
         }

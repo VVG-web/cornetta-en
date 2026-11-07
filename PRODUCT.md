@@ -40,6 +40,8 @@ di rilascio, parte da questo taglio: niente toni da prodotto premium.
 - Trascrizione on demand sul Mac: servizio HTTP compatibile con Whisper, predefinito su localhost. Righe
   «Tu» e «Altri» dalle due tracce, file Markdown accanto all'audio. L'audio parte solo quando l'utente
   avvia una trascrizione; nessun modello vocale è incluso nell'app.
+- La chiave API facoltativa del servizio resta nel Portachiavi di macOS e viene inviata solo a
+  quell'endpoint come token Bearer.
 - Windows (beta): Windows 10 e 11, installer per utente senza permessi di amministratore. L'installer non
   è firmato: SmartScreen chiede «Ulteriori informazioni → Esegui comunque». Niente trascrizione.
 - Telefoni esclusi: iOS non dà l'audio delle chiamate, Android lo blocca dalla 10.

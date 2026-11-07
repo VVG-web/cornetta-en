@@ -1,7 +1,7 @@
 # Cornetta
 
 Registratore di chiamate gratuito e open source: app Mac (Swift, `Sources/`), app Windows in beta
-(.NET Framework 4.8, `windows/`), sito statico (`site/`). Testi e commenti in italiano.
+(.NET Framework 4.8, `windows/`), sito statico (`site/`). Interfaccia in italiano e inglese, commenti in italiano.
 Il taglio di prodotto sta in `PRODUCT.md`; la verifica e l'ambiente in `docs/DEVELOPMENT.md`.
 
 ## Comandi
@@ -26,6 +26,9 @@ scripts/sign-feed.py --sign site/update/feed.json
   l'indirizzo scelto; il predefinito è localhost.
 - Ogni nuovo testo dell'interfaccia entra in `localization/strings.json`, poi si rigenera con
   `scripts/localization.py`. Italiano e inglese devono restare completi.
+- Prima di ogni tag o release: `./scripts/check.sh` verde, poi eseguire tutti i TC e i TS in
+  `docs/QA-TEST-PLAN.md` e chiudere il gate con `QA_MANUAL_SIGNOFF=all ./scripts/qa-release.sh`.
+  Nessun rilascio se un TC o un TS non è passato.
 - Ogni guasto trovato su una macchina vera diventa un controllo in CI o nei test prima del rilascio
   successivo.
 - I test del sito usano `site/`; non esistono Worker, D1, KV, Plausible o Telegram in questo fork.

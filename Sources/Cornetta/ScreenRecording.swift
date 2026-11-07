@@ -290,12 +290,14 @@ extension ScreenRecordingModel: SCContentSharingPickerObserver {
 /// Pannello piccolo durante il video: tempo e pulsante per fermare.
 struct ScreenOverlayView: View {
     @ObservedObject var model: ScreenRecordingModel
+    @Environment(\.appLanguage) private var language
 
     var body: some View {
         HStack(spacing: 12) {
             RecordingDot()
             VStack(alignment: .leading, spacing: 2) {
-                Text("Video dello schermo").font(.caption.weight(.medium)).foregroundStyle(.secondary)
+                Text(L10n.text(.screenOverlayTitle, language: language))
+                    .font(.caption.weight(.medium)).foregroundStyle(.secondary)
                 Text(model.elapsedText)
                     .font(.system(.title3, design: .rounded).monospacedDigit().weight(.semibold))
             }
@@ -303,10 +305,11 @@ struct ScreenOverlayView: View {
             Button {
                 model.stop()
             } label: {
-                Label("Ferma", systemImage: "stop.fill").labelStyle(.titleAndIcon)
+                Label(L10n.text(.commonStop, language: language), systemImage: "stop.fill")
+                    .labelStyle(.titleAndIcon)
             }
             .buttonStyle(FilledButtonStyle(color: .red))
-            .help("Ferma e salva il video")
+            .help(L10n.text(.screenStopHelp, language: language))
         }
         .panelStyle()
     }

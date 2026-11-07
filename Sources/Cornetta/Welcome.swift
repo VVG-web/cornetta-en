@@ -65,15 +65,15 @@ struct WelcomeView: View {
             HStack(spacing: 16) {
                 Image(nsImage: NSApp.applicationIconImage).resizable().frame(width: 64, height: 64)
                 VStack(alignment: .leading, spacing: 4) {
-                    Text("Cornetta è pronta").font(.title.weight(.bold))
-                    Text("La trovi in alto a destra, nella barra dei menu: è l'icona della cornetta.")
+                    Text(L10n.text(.welcomeReady, language: language)).font(.title.weight(.bold))
+                    Text(L10n.text(.welcomeMenuBar, language: language))
                         .foregroundStyle(.secondary)
                         .fixedSize(horizontal: false, vertical: true)
                 }
             }
 
             VStack(alignment: .leading, spacing: 14) {
-                Text("Due permessi, una volta sola").font(.headline)
+                Text(L10n.text(.welcomePermissions, language: language)).font(.headline)
                 PermissionRow(number: 1, title: L10n.text(.welcomeMicrophone, language: language),
                               detail: L10n.text(.welcomeMicrophoneDetail, language: language),
                               granted: micStatus == .authorized, denied: micStatus == .denied || micStatus == .restricted,
@@ -96,23 +96,23 @@ struct WelcomeView: View {
                         askingSystemAudio = false
                     }
                 }
-                Text("Se per errore hai premuto «Non consentire», riattiva Cornetta in Impostazioni di Sistema › Privacy e sicurezza.")
+                Text(L10n.text(.welcomeDeniedInstruction, language: language))
                     .font(.caption).foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)
             }
 
             VStack(alignment: .leading, spacing: 8) {
-                Text("Come si usa").font(.headline)
-                Label("Quando parte una chiamata, Cornetta ti chiede se registrarla.", systemImage: "phone.fill")
-                Label("Oppure apri il menu della cornetta e scegli Avvia registrazione (⌘R).", systemImage: "record.circle")
+                Text(L10n.text(.welcomeHowToUse, language: language)).font(.headline)
+                Label(L10n.text(.welcomeStepCall, language: language), systemImage: "phone.fill")
+                Label(L10n.text(.welcomeStepStart, language: language), systemImage: "record.circle")
                 Label(L10n.text(.welcomeStepTranscript, language: language), systemImage: "text.bubble")
             }
             .foregroundStyle(.secondary)
 
-            Toggle("Apri Cornetta all'accensione del Mac, così è sempre pronta", isOn: $launchAtLogin)
+            Toggle(L10n.text(.welcomeLaunchAtLogin, language: language), isOn: $launchAtLogin)
 
             HStack {
                 Spacer()
-                Button("Inizia") {
+                Button(L10n.text(.welcomeStart, language: language)) {
                     LaunchAtLogin.set(launchAtLogin)
                     done()
                 }

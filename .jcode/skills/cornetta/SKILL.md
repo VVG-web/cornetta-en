@@ -24,6 +24,8 @@ compatibility: Full verification requires macOS with Xcode, .NET 10, Python 3, a
 - Audio leaves only on a user-started transcription, only to that endpoint, and only with the file name
   and the configured model/language fields. Transcripts, device names, contacts and diagnostics stay
   local. The default endpoint is loopback.
+- **Check service** is a user-initiated `GET /models`; it sends the draft API key but no audio and does
+  not save settings.
 - Keep local-first behavior: recordings and transcripts stay in the user's folders.
 - Update `site/privacy/index.html`, `site/en/privacy/index.html`, and `site/llms.txt` before adding any
   outbound request.
@@ -36,7 +38,9 @@ compatibility: Full verification requires macOS with Xcode, .NET 10, Python 3, a
 
 ## Verify changes
 
-Run focused tests first, then require a green `./scripts/check.sh`. The gate covers macOS tests and a
+Run focused tests first, then require a green `./scripts/check.sh`. Before any tag or release, run every
+TC and TS in `docs/QA-TEST-PLAN.md` and finish with `QA_MANUAL_SIGNOFF=all ./scripts/qa-release.sh`.
+The gate covers macOS tests and a
 mounted universal DMG, cross-platform .NET tests and Release build, Python script and privacy tests,
 linting, and isolated browser smoke tests against the static `site/`. It never deploys or accesses
 production data.

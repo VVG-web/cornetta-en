@@ -42,14 +42,17 @@ enum TranscriptionService {
                            progress: @escaping (Double) -> Void = { _ in }) async throws -> [Transcript.Segment] {
         guard let endpoint = config.endpointURL else { throw TranscriptionServiceError.notConfigured }
         let duration = audioDuration(url)
+        let apiKey = TranscriptionCredential.load()
         progress(0.05)
         let data: Data
         do {
-            data = try await upload(url: url, endpoint: endpoint, config: config, responseFormat: "verbose_json")
+            data = try await upload(url: url, endpoint: endpoint, config: config, apiKey: apiKey,
+                                    responseFormat: "verbose_json")
         } catch TranscriptionServiceError.http(let status, _) where [400, 415, 422].contains(status) {
             // Alcuni server Whisper accettano solo il formato JSON semplice.
             Diagnostics.log("Trascrizione: il servizio rifiuta verbose_json (\(status)), riprovo con json")
-            data = try await upload(url: url, endpoint: endpoint, config: config, responseFormat: "json")
+            data = try await upload(url: url, endpoint: endpoint, config: config, apiKey: apiKey,
+                                    responseFormat: "json")
         }
         progress(0.95)
         let segments = parse(data, speaker: speaker, duration: duration)
@@ -57,7 +60,7 @@ enum TranscriptionService {
         return segments
     }
 
-    private static func upload(url: URL, endpoint: URL, config: TranscriptionConfig,
+    private static func upload(url: URL, endpoint: URL, config: TranscriptionConfig, apiKey: String,
                                responseFormat: String) async throws -> Data {
         guard let audio = try? Data(contentsOf: url, options: .mappedIfSafe), !audio.isEmpty else {
             throw TranscriptionServiceError.fileUnreadable(url)
@@ -84,6 +87,9 @@ enum TranscriptionService {
         request.setValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
         request.setValue("application/json", forHTTPHeaderField: "Accept")
         request.setValue("Cornetta/\(AppInfo.version)", forHTTPHeaderField: "User-Agent")
+        if let authorization = TranscriptionAuthorization.header(for: apiKey) {
+            request.setValue(authorization, forHTTPHeaderField: "Authorization")
+        }
 
         let (data, response) = try await session.upload(for: request, from: body)
         guard let http = response as? HTTPURLResponse else { throw TranscriptionServiceError.invalidResponse }

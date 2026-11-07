@@ -10,42 +10,32 @@ struct LocalizationTests {
         return defaults
     }
 
-    @Test func englishSystemLanguageSelectsEnglishForANewInstall() {
+    @Test func newInstallDefaultsToEnglish() {
         let store = defaults()
-        let language = AppLanguage.initial(defaults: store, preferredLanguages: ["en-GB", "it-IT"],
-                                           existingInstall: false)
+        let language = AppLanguage.initial(defaults: store)
         #expect(language == .english)
         #expect(store.string(forKey: AppLanguage.storageKey) == "en")
     }
 
-    @Test func otherSystemLanguagesFallBackToItalian() {
+    @Test func existingInstallWithoutAChoiceAlsoDefaultsToEnglish() {
         let store = defaults()
-        let language = AppLanguage.initial(defaults: store, preferredLanguages: ["de-DE", "en-US"],
-                                           existingInstall: false)
-        #expect(language == .italian)
-    }
-
-    @Test func existingInstallWithoutAChoiceStaysItalian() {
-        let store = defaults()
-        let language = AppLanguage.initial(defaults: store, preferredLanguages: ["en-US"],
-                                           existingInstall: true)
-        #expect(language == .italian)
-        #expect(store.string(forKey: AppLanguage.storageKey) == "it")
+        store.set("welcomeDone", forKey: "welcomeDone")
+        let language = AppLanguage.initial(defaults: store)
+        #expect(language == .english)
+        #expect(store.string(forKey: AppLanguage.storageKey) == "en")
     }
 
     @Test func explicitChoiceWinsOverSystemAndLegacyState() {
         let store = defaults()
-        store.set("en", forKey: AppLanguage.storageKey)
-        let language = AppLanguage.initial(defaults: store, preferredLanguages: ["it-IT"],
-                                           existingInstall: true)
-        #expect(language == .english)
+        store.set("it", forKey: AppLanguage.storageKey)
+        let language = AppLanguage.initial(defaults: store)
+        #expect(language == .italian)
     }
 
     @Test func invalidSavedValueFallsBackAndIsReplaced() {
         let store = defaults()
         store.set("de", forKey: AppLanguage.storageKey)
-        let language = AppLanguage.initial(defaults: store, preferredLanguages: ["en-US"],
-                                           existingInstall: false)
+        let language = AppLanguage.initial(defaults: store)
         #expect(language == .english)
         #expect(store.string(forKey: AppLanguage.storageKey) == "en")
     }
@@ -61,6 +51,10 @@ struct LocalizationTests {
     @Test func placeholdersFormatAndKeepLiteralPercentSigns() {
         #expect(L10n.format(.libraryStatusTranscribing, language: .italian, "42") == "Trascrivo 42%")
         #expect(L10n.format(.libraryStatusTranscribing, language: .english, "42") == "Transcribing 42%")
+        #expect(L10n.format(.menuTranscribeState, language: .english, "Off")
+                == "Transcribe immediately after recording: Off")
+        #expect(L10n.text(.commonOn, language: .english) == "On")
+        #expect(L10n.text(.commonOff, language: .english) == "Off")
         #expect(L10n.format(.noticeUpdateMessage, language: .english, "0.5.0")
                 == "Cornetta 0.5.0 is available on GitHub. Open the release page to download it: "
                 + "Cornetta does not install updates automatically.")

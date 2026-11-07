@@ -1,55 +1,65 @@
 import Foundation
 
-/// Configurazione del servizio HTTP di trascrizione, compatibile con l'API OpenAI Whisper
-/// (`POST /v1/audio/transcriptions` con multipart/form-data).
+/// Configurazione del servizio HTTP di trascrizione, compatibile con l'API OpenAI Whisper.
+/// `baseURL` è l'indirizzo base, per esempio `https://api.example.com/v1`: Cornetta aggiunge
+/// `/audio/transcriptions` quando costruisce l'endpoint.
 public struct TranscriptionConfig: Equatable, Sendable {
-    public var scheme: String
-    public var host: String
-    public var port: String
-    public var path: String
+    public var baseURL: String
     public var model: String
     public var language: String
 
-    public init(scheme: String = TranscriptionPreferences.defaultScheme,
-                host: String = TranscriptionPreferences.defaultHost,
-                port: String = TranscriptionPreferences.defaultPort,
-                path: String = TranscriptionPreferences.defaultPath,
+    public init(baseURL: String = TranscriptionPreferences.defaultBaseURL,
                 model: String = TranscriptionPreferences.defaultModel,
                 language: String = TranscriptionPreferences.defaultLanguage) {
-        self.scheme = scheme
-        self.host = host
-        self.port = port
-        self.path = path
+        self.baseURL = baseURL
         self.model = model
         self.language = language
     }
 
     public var endpointURL: URL? {
-        let scheme = scheme.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
-        guard scheme == "http" || scheme == "https" else { return nil }
-        var host = host.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !host.isEmpty else { return nil }
-        if host.hasPrefix("[") && host.hasSuffix("]") {
-            host = String(host.dropFirst().dropLast())
+        guard var components = baseComponents else { return nil }
+        var path = components.path
+        if path.isEmpty || path == "/" {
+            path = ""
         }
-        guard !host.isEmpty,
-              host.rangeOfCharacter(from: .whitespacesAndNewlines) == nil,
-              !host.contains(where: { "/?#@".contains($0) }) else { return nil }
-        guard let portNumber = Int(port.trimmingCharacters(in: .whitespacesAndNewlines)),
-              (1...65535).contains(portNumber) else { return nil }
-        var path = path.trimmingCharacters(in: .whitespacesAndNewlines)
-        if path.isEmpty { path = TranscriptionPreferences.defaultPath }
-        if !path.hasPrefix("/") { path = "/" + path }
-        guard path.rangeOfCharacter(from: .whitespacesAndNewlines) == nil,
-              !path.contains(where: { "?#".contains($0) }) else { return nil }
-        let displayHost = host.contains(":") ? "[\(host)]" : host
-        return URL(string: "\(scheme)://\(displayHost):\(portNumber)\(path)")
+        if !path.hasSuffix("/audio/transcriptions") {
+            path += "/audio/transcriptions"
+        }
+        components.path = path
+        return components.url
+    }
+
+    /// Endpoint OpenAI-compatible per l'elenco dei modelli, se il servizio lo espone.
+    public var modelsURL: URL? {
+        guard var components = baseComponents else { return nil }
+        var path = components.path
+        if path.hasSuffix("/audio/transcriptions") {
+            path.removeLast("/audio/transcriptions".count)
+        }
+        while path.hasSuffix("/") { path.removeLast() }
+        components.path = path + "/models"
+        return components.url
+    }
+
+    private var baseComponents: URLComponents? {
+        var base = baseURL.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !base.isEmpty else { return nil }
+        while base.hasSuffix("/") { base.removeLast() }
+        guard var components = URLComponents(string: base),
+              let scheme = components.scheme?.lowercased(),
+              scheme == "http" || scheme == "https",
+              let host = components.host, !host.isEmpty,
+              components.user == nil, components.password == nil,
+              components.query == nil, components.fragment == nil else { return nil }
+        if let port = components.port, !(1...65535).contains(port) { return nil }
+        components.scheme = scheme
+        return components
     }
 
     public var isConfigured: Bool { endpointURL != nil }
 
     public var endpointDescription: String {
-        endpointURL?.absoluteString ?? "\(scheme)://\(host):\(port)\(path)"
+        endpointURL?.absoluteString ?? baseURL
     }
 
     public var effectiveLanguage: String {
@@ -61,33 +71,69 @@ public struct TranscriptionConfig: Equatable, Sendable {
     }
 
     public static func stored(in defaults: UserDefaults = .standard) -> TranscriptionConfig {
-        TranscriptionConfig(
-            scheme: defaults.string(forKey: TranscriptionPreferences.schemeKey)
-                ?? TranscriptionPreferences.defaultScheme,
-            host: defaults.string(forKey: TranscriptionPreferences.hostKey) ?? TranscriptionPreferences.defaultHost,
-            port: defaults.string(forKey: TranscriptionPreferences.portKey) ?? TranscriptionPreferences.defaultPort,
-            path: defaults.string(forKey: TranscriptionPreferences.pathKey) ?? TranscriptionPreferences.defaultPath,
-            model: defaults.string(forKey: TranscriptionPreferences.modelKey) ?? TranscriptionPreferences.defaultModel,
+        if let baseURL = defaults.string(forKey: TranscriptionPreferences.baseURLKey) {
+            return TranscriptionConfig(
+                baseURL: baseURL,
+                model: defaults.string(forKey: TranscriptionPreferences.modelKey)
+                    ?? TranscriptionPreferences.defaultModel,
+                language: defaults.string(forKey: TranscriptionPreferences.languageKey)
+                    ?? TranscriptionPreferences.defaultLanguage)
+        }
+        return migrated(from: defaults)
+    }
+
+    /// Le versioni 0.8.0 e precedenti salvavano schema, host, porta e percorso separati.
+    private static func migrated(from defaults: UserDefaults) -> TranscriptionConfig {
+        let scheme = defaults.string(forKey: TranscriptionPreferences.schemeKey)
+            ?? "http"
+        let host = defaults.string(forKey: TranscriptionPreferences.hostKey)
+            ?? "127.0.0.1"
+        let port = defaults.string(forKey: TranscriptionPreferences.portKey)
+            ?? "8080"
+        var path = defaults.string(forKey: TranscriptionPreferences.pathKey)
+            ?? "/v1/audio/transcriptions"
+        if path.hasSuffix("/audio/transcriptions") {
+            path.removeLast("/audio/transcriptions".count)
+        }
+        while path.hasSuffix("/") { path.removeLast() }
+        let displayHost = host.contains(":") ? "[\(host)]" : host
+        let portPart = port.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? "" : ":\(port)"
+        let base = "\(scheme)://\(displayHost)\(portPart)\(path)"
+        return TranscriptionConfig(
+            baseURL: base,
+            model: defaults.string(forKey: TranscriptionPreferences.modelKey)
+                ?? TranscriptionPreferences.defaultModel,
             language: defaults.string(forKey: TranscriptionPreferences.languageKey)
-                ?? TranscriptionPreferences.defaultLanguage
-        )
+                ?? TranscriptionPreferences.defaultLanguage)
+    }
+
+    public static func save(_ config: TranscriptionConfig, autoTranscribe: Bool,
+                            in defaults: UserDefaults = .standard) {
+        defaults.set(config.baseURL, forKey: TranscriptionPreferences.baseURLKey)
+        defaults.set(config.model, forKey: TranscriptionPreferences.modelKey)
+        defaults.set(config.language, forKey: TranscriptionPreferences.languageKey)
+        defaults.set(autoTranscribe, forKey: TranscriptionPreferences.autoTranscribeKey)
+        for legacy in [TranscriptionPreferences.schemeKey, TranscriptionPreferences.hostKey,
+                       TranscriptionPreferences.portKey, TranscriptionPreferences.pathKey] {
+            defaults.removeObject(forKey: legacy)
+        }
     }
 }
 
 public enum TranscriptionPreferences {
-    public static let schemeKey = "transcriptionScheme"
-    public static let hostKey = "transcriptionHost"
-    public static let portKey = "transcriptionPort"
-    public static let pathKey = "transcriptionPath"
+    public static let baseURLKey = "transcriptionBaseURL"
     public static let modelKey = "transcriptionModel"
     public static let languageKey = "transcriptionLanguage"
     public static let autoTranscribeKey = "autoTranscribe"
     public static let migrationKey = "transcriptionHTTPMigrated"
 
-    public static let defaultScheme = "http"
-    public static let defaultHost = "127.0.0.1"
-    public static let defaultPort = "8080"
-    public static let defaultPath = "/v1/audio/transcriptions"
+    /// Chiavi separate usate fino alla 0.8.1: servono solo a migrare la configurazione.
+    static let schemeKey = "transcriptionScheme"
+    static let hostKey = "transcriptionHost"
+    static let portKey = "transcriptionPort"
+    static let pathKey = "transcriptionPath"
+
+    public static let defaultBaseURL = "http://127.0.0.1:8080/v1"
     public static let defaultModel = "whisper-1"
     public static let defaultLanguage = ""
 
@@ -97,5 +143,18 @@ public enum TranscriptionPreferences {
         guard !defaults.bool(forKey: migrationKey) else { return }
         defaults.set(false, forKey: autoTranscribeKey)
         defaults.set(true, forKey: migrationKey)
+    }
+}
+
+/// Elenco dei modelli restituito da `GET <baseURL>/models`.
+public enum TranscriptionModelList {
+    public static func ids(from data: Data) -> [String]? {
+        struct Response: Decodable {
+            struct Model: Decodable { let id: String }
+            let data: [Model]?
+            let models: [Model]?
+        }
+        guard let response = try? JSONDecoder().decode(Response.self, from: data) else { return nil }
+        return (response.data ?? response.models)?.map(\.id)
     }
 }

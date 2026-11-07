@@ -43,7 +43,8 @@ signature that does not verify immediately after signing.
 2. Compute SHA-256 for both assets.
 3. Update `site/update/feed.json` with the new version, release URL, and hashes.
 4. Run `scripts/sign-feed.py --sign site/update/feed.json`.
-5. Run the Python tests and `./scripts/check.sh`.
+5. Run `./scripts/check.sh`, every TC/TS in `docs/QA-TEST-PLAN.md`, then
+   `QA_MANUAL_SIGNOFF=all RELEASE_VERSION=<version> ./scripts/qa-release.sh`.
 6. Commit and push. The Pages workflow publishes the feed.
 7. Create the GitHub Release with the assets.
 8. Verify the public feed, signature, release URL, and hashes.

@@ -22,8 +22,11 @@ public enum L10nKey: String, CaseIterable, Sendable {
     case commonFeedback = "common.feedback"
     case commonNone = "common.none"
     case commonNoneFeminine = "common.noneFeminine"
+    case commonOff = "common.off"
+    case commonOn = "common.on"
     case commonOpen = "common.open"
     case commonRetry = "common.retry"
+    case commonSave = "common.save"
     case commonShowInFinder = "common.showInFinder"
     case commonStop = "common.stop"
     case demoMicrophone = "demo.microphone"
@@ -108,7 +111,7 @@ public enum L10nKey: String, CaseIterable, Sendable {
     case menuScreenStop = "menu.screen.stop"
     case menuScreenTitle = "menu.screen.title"
     case menuScreenWithoutMicrophone = "menu.screen.withoutMicrophone"
-    case menuTranscribe = "menu.transcribe"
+    case menuTranscribeState = "menu.transcribe.state"
     case menuTranscriptionSettings = "menu.transcriptionSettings"
     case menuUpdates = "menu.updates"
     case noticeCallMessage = "notice.call.message"
@@ -185,26 +188,34 @@ public enum L10nKey: String, CaseIterable, Sendable {
     case speakerMe = "speaker.me"
     case speakerMixed = "speaker.mixed"
     case speakerOthers = "speaker.others"
+    case transcriptionSettingsApiKey = "transcription.settings.apiKey"
+    case transcriptionSettingsApiKeyHelp = "transcription.settings.apiKey.help"
+    case transcriptionSettingsApiKeyPlaceholder = "transcription.settings.apiKey.placeholder"
     case transcriptionSettingsAuto = "transcription.settings.auto"
+    case transcriptionSettingsBaseURL = "transcription.settings.baseURL"
+    case transcriptionSettingsBaseURLHelp = "transcription.settings.baseURL.help"
+    case transcriptionSettingsBaseURLPlaceholder = "transcription.settings.baseURL.placeholder"
+    case transcriptionSettingsCheck = "transcription.settings.check"
+    case transcriptionSettingsCheckHelp = "transcription.settings.check.help"
+    case transcriptionSettingsCheckHttp = "transcription.settings.check.http"
+    case transcriptionSettingsCheckInvalidConfiguration = "transcription.settings.check.invalidConfiguration"
+    case transcriptionSettingsCheckInvalidResponse = "transcription.settings.check.invalidResponse"
+    case transcriptionSettingsCheckModelAvailable = "transcription.settings.check.modelAvailable"
+    case transcriptionSettingsCheckModelMissing = "transcription.settings.check.modelMissing"
+    case transcriptionSettingsCheckNetwork = "transcription.settings.check.network"
+    case transcriptionSettingsCheckNoModels = "transcription.settings.check.noModels"
+    case transcriptionSettingsCheckReachable = "transcription.settings.check.reachable"
+    case transcriptionSettingsCheckUnauthorized = "transcription.settings.check.unauthorized"
+    case transcriptionSettingsChecking = "transcription.settings.checking"
     case transcriptionSettingsDescription = "transcription.settings.description"
-    case transcriptionSettingsHost = "transcription.settings.host"
-    case transcriptionSettingsHostPlaceholder = "transcription.settings.host.placeholder"
-    case transcriptionSettingsHttp = "transcription.settings.http"
-    case transcriptionSettingsHttps = "transcription.settings.https"
     case transcriptionSettingsInvalid = "transcription.settings.invalid"
+    case transcriptionSettingsKeychainError = "transcription.settings.keychainError"
     case transcriptionSettingsLanguage = "transcription.settings.language"
     case transcriptionSettingsLanguagePlaceholder = "transcription.settings.language.placeholder"
     case transcriptionSettingsModel = "transcription.settings.model"
     case transcriptionSettingsModelPlaceholder = "transcription.settings.model.placeholder"
-    case transcriptionSettingsPath = "transcription.settings.path"
-    case transcriptionSettingsPathHelp = "transcription.settings.path.help"
-    case transcriptionSettingsPathPlaceholder = "transcription.settings.path.placeholder"
-    case transcriptionSettingsPort = "transcription.settings.port"
-    case transcriptionSettingsPortHelp = "transcription.settings.port.help"
-    case transcriptionSettingsPortPlaceholder = "transcription.settings.port.placeholder"
     case transcriptionSettingsPrivacy = "transcription.settings.privacy"
     case transcriptionSettingsReset = "transcription.settings.reset"
-    case transcriptionSettingsScheme = "transcription.settings.scheme"
     case transcriptionSettingsTitle = "transcription.settings.title"
     case transcriptionSettingsTransport = "transcription.settings.transport"
     case transcriptionSettingsWindow = "transcription.settings.window"
@@ -273,8 +284,11 @@ public enum L10n {
         .commonFeedback: "Feedback",
         .commonNone: "nessuno",
         .commonNoneFeminine: "nessuna",
+        .commonOff: "Disattivata",
+        .commonOn: "Attiva",
         .commonOpen: "Apri",
         .commonRetry: "Riprova",
+        .commonSave: "Salva",
         .commonShowInFinder: "Mostra nel Finder",
         .commonStop: "Ferma",
         .demoMicrophone: "Microfono MacBook Air",
@@ -359,7 +373,7 @@ public enum L10n {
         .menuScreenStop: "Ferma il video dello schermo",
         .menuScreenTitle: "Video dello schermo",
         .menuScreenWithoutMicrophone: "Senza microfono: serve macOS 15",
-        .menuTranscribe: "Trascrivi subito dopo la registrazione",
+        .menuTranscribeState: "Trascrivi subito dopo la registrazione: {0}",
         .menuTranscriptionSettings: "Impostazioni trascrizione…",
         .menuUpdates: "Controlla gli aggiornamenti su GitHub…",
         .noticeCallMessage: "Vuoi registrarla? Registro la tua voce e quella delle altre persone in un file.",
@@ -436,26 +450,34 @@ public enum L10n {
         .speakerMe: "Tu",
         .speakerMixed: "Voce",
         .speakerOthers: "Altri",
+        .transcriptionSettingsApiKey: "Chiave API (facoltativa)",
+        .transcriptionSettingsApiKeyHelp: "Resta nel Portachiavi di macOS e viene inviata solo al servizio configurato. Non compare nei log.",
+        .transcriptionSettingsApiKeyPlaceholder: "Incolla la chiave",
         .transcriptionSettingsAuto: "Trascrivi subito dopo ogni registrazione",
-        .transcriptionSettingsDescription: "Cornetta invia l'audio a un servizio HTTP compatibile con Whisper. Configura indirizzo, porta e percorso del servizio.",
-        .transcriptionSettingsHost: "Indirizzo",
-        .transcriptionSettingsHostPlaceholder: "127.0.0.1",
-        .transcriptionSettingsHttp: "HTTP",
-        .transcriptionSettingsHttps: "HTTPS",
-        .transcriptionSettingsInvalid: "Indirizzo o porta non validi.",
+        .transcriptionSettingsBaseURL: "Indirizzo base",
+        .transcriptionSettingsBaseURLHelp: "Inserisci l'indirizzo base, per esempio https://api.example.com/v1. Cornetta aggiunge /audio/transcriptions.",
+        .transcriptionSettingsBaseURLPlaceholder: "https://api.example.com/v1",
+        .transcriptionSettingsCheck: "Verifica servizio",
+        .transcriptionSettingsCheckHelp: "Verifica connessione e modello senza inviare audio.",
+        .transcriptionSettingsCheckHttp: "Il servizio ha risposto HTTP {0}.",
+        .transcriptionSettingsCheckInvalidConfiguration: "L'indirizzo del servizio non è valido.",
+        .transcriptionSettingsCheckInvalidResponse: "Risposta del servizio non riconosciuta.",
+        .transcriptionSettingsCheckModelAvailable: "Connessione riuscita. Il modello {0} è disponibile.",
+        .transcriptionSettingsCheckModelMissing: "Il servizio risponde, ma non elenca il modello {0}.",
+        .transcriptionSettingsCheckNetwork: "Non riesco a raggiungere il servizio.",
+        .transcriptionSettingsCheckNoModels: "Il servizio risponde ma non espone l'elenco dei modelli (HTTP {0}). La trascrizione può funzionare lo stesso.",
+        .transcriptionSettingsCheckReachable: "Connessione riuscita. Il servizio risponde.",
+        .transcriptionSettingsCheckUnauthorized: "Il servizio richiede una chiave valida (HTTP {0}).",
+        .transcriptionSettingsChecking: "Verifico…",
+        .transcriptionSettingsDescription: "Cornetta invia l'audio a un servizio HTTP compatibile con Whisper. Inserisci l'indirizzo base del servizio.",
+        .transcriptionSettingsInvalid: "L'indirizzo del servizio non è valido.",
+        .transcriptionSettingsKeychainError: "Non riesco a salvare la chiave nel Portachiavi.",
         .transcriptionSettingsLanguage: "Lingua (facoltativa)",
         .transcriptionSettingsLanguagePlaceholder: "Auto",
         .transcriptionSettingsModel: "Modello (facoltativo)",
         .transcriptionSettingsModelPlaceholder: "whisper-1",
-        .transcriptionSettingsPath: "Percorso",
-        .transcriptionSettingsPathHelp: "Percorso completo dopo l'indirizzo, di solito /v1/audio/transcriptions.",
-        .transcriptionSettingsPathPlaceholder: "/v1/audio/transcriptions",
-        .transcriptionSettingsPort: "Porta",
-        .transcriptionSettingsPortHelp: "Porta del servizio, per esempio 8080.",
-        .transcriptionSettingsPortPlaceholder: "8080",
         .transcriptionSettingsPrivacy: "L'audio viene inviato solo al servizio configurato, quando premi Trascrivi o quando la trascrizione automatica è attiva. Usa un servizio locale o di cui ti fidi.",
         .transcriptionSettingsReset: "Ripristina predefiniti",
-        .transcriptionSettingsScheme: "Protocollo",
         .transcriptionSettingsTitle: "Servizio di trascrizione",
         .transcriptionSettingsTransport: "HTTP va bene per un servizio sul Mac o sulla rete locale; per un servizio su Internet usa HTTPS.",
         .transcriptionSettingsWindow: "Trascrizione",
@@ -523,8 +545,11 @@ public enum L10n {
         .commonFeedback: "Feedback",
         .commonNone: "none",
         .commonNoneFeminine: "none",
+        .commonOff: "Off",
+        .commonOn: "On",
         .commonOpen: "Open",
         .commonRetry: "Try again",
+        .commonSave: "Save",
         .commonShowInFinder: "Show in Finder",
         .commonStop: "Stop",
         .demoMicrophone: "MacBook Air Microphone",
@@ -609,7 +634,7 @@ public enum L10n {
         .menuScreenStop: "Stop screen recording",
         .menuScreenTitle: "Screen recording",
         .menuScreenWithoutMicrophone: "Without microphone: requires macOS 15",
-        .menuTranscribe: "Transcribe immediately after recording",
+        .menuTranscribeState: "Transcribe immediately after recording: {0}",
         .menuTranscriptionSettings: "Transcription settings…",
         .menuUpdates: "Check for updates on GitHub…",
         .noticeCallMessage: "Do you want to record it? I will put your voice and the other people in one file.",
@@ -686,26 +711,34 @@ public enum L10n {
         .speakerMe: "You",
         .speakerMixed: "Unattributed voice",
         .speakerOthers: "Others",
+        .transcriptionSettingsApiKey: "API key (optional)",
+        .transcriptionSettingsApiKeyHelp: "Stored in the macOS Keychain and sent only to the configured service. Never written to logs.",
+        .transcriptionSettingsApiKeyPlaceholder: "Paste the key",
         .transcriptionSettingsAuto: "Transcribe immediately after each recording",
-        .transcriptionSettingsDescription: "Cornetta sends audio to a Whisper-compatible HTTP service. Configure the service address, port and path.",
-        .transcriptionSettingsHost: "Address",
-        .transcriptionSettingsHostPlaceholder: "127.0.0.1",
-        .transcriptionSettingsHttp: "HTTP",
-        .transcriptionSettingsHttps: "HTTPS",
-        .transcriptionSettingsInvalid: "The address or port is invalid.",
+        .transcriptionSettingsBaseURL: "Base URL",
+        .transcriptionSettingsBaseURLHelp: "Enter the base URL, for example https://api.example.com/v1. Cornetta adds /audio/transcriptions.",
+        .transcriptionSettingsBaseURLPlaceholder: "https://api.example.com/v1",
+        .transcriptionSettingsCheck: "Check service",
+        .transcriptionSettingsCheckHelp: "Checks connectivity and the model without sending audio.",
+        .transcriptionSettingsCheckHttp: "The service answered HTTP {0}.",
+        .transcriptionSettingsCheckInvalidConfiguration: "The service URL is invalid.",
+        .transcriptionSettingsCheckInvalidResponse: "The service response was not recognized.",
+        .transcriptionSettingsCheckModelAvailable: "Connection OK. Model {0} is available.",
+        .transcriptionSettingsCheckModelMissing: "The service responds, but does not list model {0}.",
+        .transcriptionSettingsCheckNetwork: "Could not reach the service.",
+        .transcriptionSettingsCheckNoModels: "The service responds but does not expose a model list (HTTP {0}). Transcription may still work.",
+        .transcriptionSettingsCheckReachable: "Connection OK. The service responds.",
+        .transcriptionSettingsCheckUnauthorized: "The service requires a valid key (HTTP {0}).",
+        .transcriptionSettingsChecking: "Checking…",
+        .transcriptionSettingsDescription: "Cornetta sends audio to a Whisper-compatible HTTP service. Enter the service base URL.",
+        .transcriptionSettingsInvalid: "The service URL is invalid.",
+        .transcriptionSettingsKeychainError: "Could not save the key in the Keychain.",
         .transcriptionSettingsLanguage: "Language (optional)",
         .transcriptionSettingsLanguagePlaceholder: "Auto",
         .transcriptionSettingsModel: "Model (optional)",
         .transcriptionSettingsModelPlaceholder: "whisper-1",
-        .transcriptionSettingsPath: "Path",
-        .transcriptionSettingsPathHelp: "Full path after the address, usually /v1/audio/transcriptions.",
-        .transcriptionSettingsPathPlaceholder: "/v1/audio/transcriptions",
-        .transcriptionSettingsPort: "Port",
-        .transcriptionSettingsPortHelp: "Service port, for example 8080.",
-        .transcriptionSettingsPortPlaceholder: "8080",
         .transcriptionSettingsPrivacy: "Audio is sent only to the configured service, when you press Transcribe or when automatic transcription is enabled. Use a local service or one you trust.",
         .transcriptionSettingsReset: "Restore defaults",
-        .transcriptionSettingsScheme: "Protocol",
         .transcriptionSettingsTitle: "Transcription service",
         .transcriptionSettingsTransport: "HTTP works for a service on this Mac or the local network; use HTTPS for a service on the internet.",
         .transcriptionSettingsWindow: "Transcription",

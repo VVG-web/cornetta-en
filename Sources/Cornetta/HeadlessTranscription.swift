@@ -34,7 +34,8 @@ enum HeadlessTranscription {
                     language: config.effectiveLanguage.isEmpty ? "auto" : config.effectiveLanguage,
                     segments: segments)
                 print(TranscriptFormatter.markdown(
-                    transcript, title: url.deletingPathExtension().lastPathComponent, duration: nil))
+                    transcript, title: url.deletingPathExtension().lastPathComponent, duration: nil,
+                    language: AppLanguage.initial()))
             } catch {
                 print("Errore: \(error.localizedDescription)")
                 code = 1

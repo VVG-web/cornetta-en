@@ -19,20 +19,26 @@ values in the app preferences:
 
 | Field | Default | Notes |
 | --- | --- | --- |
-| Protocol | `http` | Use `https` for a service outside the local network. |
-| Address | `127.0.0.1` | IPv4, IPv6, `localhost` or a DNS name. |
-| Port | `8080` | 1–65535. |
-| Path | `/v1/audio/transcriptions` | A leading slash is added if missing. |
+| Base URL | `http://127.0.0.1:8080/v1` | Full OpenAI-compatible base URL. Cornetta appends `/audio/transcriptions`. Use `https` outside the local network. |
 | Model | `whisper-1` | Sent only when non-empty. |
-| Language | empty (automatic) | Sent only when non-empty; use an ISO-639-1 code such as `it`. |
+| Language | empty (automatic) | Sent only when non-empty; use an ISO-639-1 code such as `ru`. |
+| API key | empty | Optional. Stored in the macOS Keychain, sent only as a Bearer token. |
 
-The **Path** field is the full path after the host and port. For a service whose
-OpenAI-compatible base URL is `http://host:9193/v1`, enter
-`/v1/audio/transcriptions`, not `/v1`.
+The base URL is the value an OpenAI SDK calls `base_url`, for example
+`https://api.example.com/v1`. Cornetta builds the transcription endpoint by
+appending `/audio/transcriptions`, and the model-list endpoint by appending
+`/models`. No separate port is required: `https` uses 443 and `http` uses 80
+unless the URL contains an explicit port.
+
+**Check service** sends a `GET` to `<baseURL>/models` with the draft API key. It
+never sends audio and never saves the draft. A 401/403 means the key is missing
+or invalid. A 200 with the configured model in the list means the model is
+available. A 404/405/501 means the provider does not expose a model list;
+transcription may still work.
 
 The preview under the fields shows the resulting URL and turns red when the
-address, port or path is invalid. **Restore defaults** resets every field. No
-separate save step is needed.
+base URL is invalid. **Restore defaults** resets every field. Changes are saved
+only when you press **Save**.
 
 The toggle **Transcribe immediately after each recording** is the same option
 as the menu item. It is off by default. With it off, a recording is transcribed
@@ -51,9 +57,13 @@ Cornetta sends one multipart form per audio file:
 
 The request has `Accept: application/json` and a User-Agent of
 `Cornetta/<version>`. The session is ephemeral, accepts no cookies, and has a
-10-minute request timeout and a 15-minute resource timeout. The client does not
-send an API key or any other credential; use a local service or an
-authenticating reverse proxy when a service requires one.
+10-minute request timeout and a 15-minute resource timeout. If an API key is
+saved, the request adds `Authorization: Bearer <key>`.
+
+The key is stored as a generic-password item in the macOS Keychain under the
+Cornetta transcription service, never in `UserDefaults`, a source file or a log.
+Leave the field empty and press **Save** to remove it. The settings window keeps
+edits in a draft and writes them only when you press **Save**.
 
 If `verbose_json` returns HTTP 400, 415 or 422, Cornetta retries the same file
 once with `response_format=json`. Other HTTP errors, connection failures and
@@ -131,10 +141,10 @@ merged Markdown.
 
 | Symptom | Likely cause |
 | --- | --- |
-| `not configured` | Address or port is empty/invalid, or the scheme is not `http`/`https`. |
-| Connection refused | No service is listening on that address and port. |
-| HTTP 404 | The path is wrong; the default is `/v1/audio/transcriptions`. |
+| `not configured` | Base URL is empty or invalid. It must be an `http`/`https` URL with a host and no query or credentials. |
+| Connection refused | No service is listening on the host and port in the base URL. |
+| HTTP 404 | The base path is wrong; Cornetta appends `/audio/transcriptions`. |
 | HTTP 400/415/422 | The service rejected `verbose_json`; Cornetta retries with `json`. If it still fails, check the audio format and required fields. |
-| HTTP 401/403 | The service requires authentication, which this client does not send. |
+| HTTP 401/403 | The API key is missing, invalid or not allowed to use this model. |
 | TLS error | A self-signed or otherwise untrusted HTTPS certificate. Use a trusted certificate or a local HTTP service. |
 | Plain HTTP to a remote host fails | App Transport Security only allows local networking; use HTTPS. |

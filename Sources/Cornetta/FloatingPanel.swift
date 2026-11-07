@@ -19,11 +19,22 @@ final class FloatingPanel: NSPanel {
         let hosting = NSHostingView(rootView: rootView)
         hosting.sizingOptions = [.preferredContentSize]
         contentView = hosting
-        setContentSize(hosting.fittingSize)
-        if !setFrameUsingName(autosaveName) {
+        let fitted = hosting.fittingSize
+        setContentSize(fitted.width > 1 && fitted.height > 1 ? fitted : NSSize(width: 360, height: 100))
+        if !setFrameUsingName(autosaveName) || frame.width < 2 || frame.height < 2 {
+            if fitted.width > 1 && fitted.height > 1 { setContentSize(fitted) }
             placeTopRight()
         }
         setFrameAutosaveName(autosaveName)
+        DispatchQueue.main.async { [weak self, weak hosting] in
+            guard let self, let hosting else { return }
+            hosting.layoutSubtreeIfNeeded()
+            let fitted = hosting.fittingSize
+            if fitted.width > 1, fitted.height > 1, self.frame.size != fitted {
+                self.setContentSize(fitted)
+                self.keepOnScreen()
+            }
+        }
         // SwiftUI calcola la dimensione dopo: a ogni ridimensionamento il pannello resta dentro lo schermo.
         // Osservatore con selettore: sparisce da solo con il pannello, uno nuovo a ogni avviso.
         NotificationCenter.default.addObserver(self, selector: #selector(didResize), name: NSWindow.didResizeNotification, object: self)
@@ -41,6 +52,7 @@ final class FloatingPanel: NSPanel {
     }
 
     func show() {
+        if frame.width < 2 || frame.height < 2 { setContentSize(NSSize(width: 360, height: 100)) }
         orderFrontRegardless()
         keepOnScreen()
         DispatchQueue.main.async { [weak self] in self?.keepOnScreen() }
