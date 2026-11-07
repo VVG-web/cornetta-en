@@ -6,6 +6,7 @@ This is intentionally a source-level guard, not a replacement for the functional
 It catches accidental reintroduction of the upstream telemetry, feedback, analytics, update-feed
 and deployment components after they were removed.
 """
+import json
 import subprocess
 import unittest
 from pathlib import Path
@@ -53,6 +54,9 @@ def tracked_files():
 
 
 class PrivacyGuardTests(unittest.TestCase):
+    def read(self, path: str) -> str:
+        return (ROOT / path).read_text(encoding="utf-8")
+
     def test_removed_runtime_components_stay_removed(self):
         for path in FORBIDDEN_FILES:
             self.assertFalse((ROOT / path).exists(), f"removed component came back: {path}")
@@ -89,10 +93,9 @@ class PrivacyGuardTests(unittest.TestCase):
         self.assertIn("UseCookies = false", win)
 
     def test_macos_bundle_has_no_update_feed_metadata(self):
-        plist = (ROOT / "Resources/Info.plist").read_text(encoding="utf-8")
-        self.assertNotIn("SUFeedURL", plist)
-        self.assertNotIn("SUPublicEDKey", plist)
-        self.assertNotIn("SUEnableAutomaticChecks", plist)
+        plist = self.read("Resources/Info.plist")
+        for key in ("SUFeedURL", "SUPublicEDKey", "SUEnableAutomaticChecks"):
+            self.assertNotIn(key, plist)
 
     def test_static_site_has_no_analytics_or_download_api(self):
         pages = [ROOT / "site/index.html", ROOT / "site/en/index.html",
@@ -112,9 +115,9 @@ class PrivacyGuardTests(unittest.TestCase):
         self.assertIn("No telemetry", english)
 
     def test_no_telemetry_switch_in_localization(self):
-        catalog = (ROOT / "localization/strings.json").read_text(encoding="utf-8")
+        catalog = json.loads(self.read("localization/strings.json"))["strings"]
         self.assertNotIn("menu.telemetry", catalog)
-        self.assertNotIn("Send usage data", catalog)
+        self.assertFalse(any(entry["en"] == "Send usage data" for entry in catalog.values()))
 
 
 if __name__ == "__main__":

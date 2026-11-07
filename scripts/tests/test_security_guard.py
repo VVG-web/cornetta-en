@@ -39,6 +39,16 @@ def text_files():
 
 
 class MacSecurityGuardTests(unittest.TestCase):
+    def read(self, path: str) -> str:
+        return (ROOT / path).read_text(encoding="utf-8")
+
+    def check(self, path: str, present: tuple[str, ...] = (), absent: tuple[str, ...] = ()) -> None:
+        text = self.read(path)
+        for needle in present:
+            self.assertIn(needle, text)
+        for needle in absent:
+            self.assertNotIn(needle, text)
+
     def test_no_privileged_or_system_level_code(self):
         problems = []
         for file in text_files():
@@ -66,24 +76,20 @@ class MacSecurityGuardTests(unittest.TestCase):
         self.assertIn("tap?.destroy()", recorder)
 
     def test_no_system_wide_installer_or_receipts(self):
-        text = (ROOT / "Sources/CornettaCore/AppInstaller.swift").read_text(encoding="utf-8")
-        self.assertNotIn("/System", text)
-        self.assertNotIn("/Library", text)
-        self.assertIn("replaceItemAt", text)
+        self.check("Sources/CornettaCore/AppInstaller.swift", present=("replaceItemAt",),
+                   absent=("/System", "/Library"))
 
     def test_entitlements_are_audio_only(self):
-        text = (ROOT / "Resources/Cornetta.entitlements").read_text(encoding="utf-8")
+        text = self.read("Resources/Cornetta.entitlements")
         keys = set(re.findall(r"<key>([^<]+)</key>", text))
         self.assertEqual({"com.apple.security.device.audio-input"}, keys)
 
     def test_transcription_network_is_local_by_default(self):
-        plist = (ROOT / "Resources/Info.plist").read_text(encoding="utf-8")
-        self.assertIn("<key>NSAllowsLocalNetworking</key>", plist)
-        self.assertNotIn("NSAllowsArbitraryLoads", plist)
-        config = (ROOT / "Sources/CornettaCore/TranscriptionConfig.swift").read_text(encoding="utf-8")
-        self.assertIn('defaultHost = "127.0.0.1"', config)
-        self.assertIn('defaultPort = "8080"', config)
-        self.assertIn('defaultPath = "/v1/audio/transcriptions"', config)
+        self.check("Resources/Info.plist", present=("<key>NSAllowsLocalNetworking</key>",),
+                   absent=("NSAllowsArbitraryLoads",))
+        self.check("Sources/CornettaCore/TranscriptionConfig.swift",
+                   present=('defaultHost = "127.0.0.1"', 'defaultPort = "8080"',
+                            'defaultPath = "/v1/audio/transcriptions"'))
 
 
 if __name__ == "__main__":
