@@ -70,11 +70,14 @@ The app must not open background connections. The only allowed network actions a
   `Sources/Cornetta/UpdateManager.swift` and `windows/src/Cornetta.App/Updates.cs`;
 - opening GitHub Issues in the browser when the user chooses Feedback;
 - a user-triggered transcription request from `Sources/Cornetta/TranscriptionService.swift` to the
-  endpoint stored in preferences. The default is loopback; the request carries one audio file and the
-  configured model, language and response format. It never runs at launch or in the background.
+  selected HTTP provider. The default is loopback; the request carries one audio file and that provider's
+  model, language and response format. It never runs at launch or in the background.
+- Apple Speech (`SpeechEngine.swift`) runs locally on macOS 26 and never sends audio. macOS may download
+  the language asset once on first use. The provider catalog and per-provider Keychain accounts are in
+  `TranscriptionProviders.swift`.
 - a user-triggered **Check service** request to `<baseURL>/models` from
   `Sources/Cornetta/ProviderCheck.swift`. It carries the optional API key, no audio, and does not save
-  settings. The key itself is stored only in the macOS Keychain (`TranscriptionCredential.swift`).
+  settings. Each key is stored only in the macOS Keychain (`TranscriptionCredential.swift`).
 
 Do not add telemetry, analytics, crash reporting, ad SDKs, a feedback server, or an automatic updater.
 `python3 -m unittest discover -s scripts/tests -p 'test_privacy_guard.py'` checks that the old endpoints
@@ -97,10 +100,12 @@ python3 site-src/make-demo-library.py /tmp/demo
 open -n build/Cornetta.app --args --demo-library /tmp/demo
 ```
 
-For transcription, run a local Whisper-compatible mock or server and point the app at it with the
-`-transcriptionHost`, `-transcriptionPort`, `-transcriptionScheme` and `-transcriptionPath` arguments.
-Exercise a valid `verbose_json` response, the `json` fallback and an HTTP error. The endpoint contract is
-in `docs/TRANSCRIPTION.md`.
+For transcription, run a local Whisper-compatible mock or server and add it as an HTTP provider in
+`--transcription-settings` (the provider picker, **+** button and **Check service** are enough). The
+`--transcribe` headless command uses the selected provider. For a disposable automated check, write the
+provider list and `transcriptionSelectedProviderID` in a temporary UserDefaults domain or restore the
+preferences afterwards. Exercise a valid `verbose_json` response, the `json` fallback and an HTTP error.
+The endpoint contract is in `docs/TRANSCRIPTION.md`.
 
 Run real recording tests only with permission to capture the selected audio and screen. Windows changes
 also require the existing Windows CI and preferably a real Windows 10/11 machine for `--selftest`,

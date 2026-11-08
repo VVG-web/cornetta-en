@@ -5,30 +5,34 @@ import Security
 /// vive nel Portachiavi e viene letta solo quando parte una richiesta.
 public enum TranscriptionCredential {
     private static let service = "com.stellakamikaze.cornetta.transcription"
-    private static let account = "api-key"
+    public static let legacyAccount = "api-key"
 
-    public static func load() -> String {
+    public static func account(for id: UUID) -> String {
+        "api-key.\(id.uuidString)"
+    }
+
+    public static func load(account: String = legacyAccount) -> String {
         var item: CFTypeRef?
-        let status = SecItemCopyMatching(query(returningData: true) as CFDictionary, &item)
+        let status = SecItemCopyMatching(query(account: account, returningData: true) as CFDictionary, &item)
         guard status == errSecSuccess,
               let data = item as? Data,
               let key = String(data: data, encoding: .utf8) else { return "" }
         return key
     }
 
-    public static func save(_ key: String) throws {
+    public static func save(_ key: String, account: String = legacyAccount) throws {
         let data = Data(key.utf8)
         guard !data.isEmpty else {
-            delete()
+            delete(account: account)
             return
         }
         let attributes: [String: Any] = [
             kSecValueData as String: data,
             kSecAttrAccessible as String: kSecAttrAccessibleAfterFirstUnlock,
         ]
-        let status = SecItemUpdate(query() as CFDictionary, attributes as CFDictionary)
+        let status = SecItemUpdate(query(account: account) as CFDictionary, attributes as CFDictionary)
         if status == errSecItemNotFound {
-            var item = query()
+            var item = query(account: account)
             attributes.forEach { item[$0.key] = $0.value }
             let added = SecItemAdd(item as CFDictionary, nil)
             guard added == errSecSuccess else { throw KeychainError(status: added) }
@@ -37,11 +41,11 @@ public enum TranscriptionCredential {
         }
     }
 
-    public static func delete() {
-        SecItemDelete(query() as CFDictionary)
+    public static func delete(account: String = legacyAccount) {
+        SecItemDelete(query(account: account) as CFDictionary)
     }
 
-    private static func query(returningData: Bool = false) -> [String: Any] {
+    private static func query(account: String, returningData: Bool = false) -> [String: Any] {
         var query: [String: Any] = [
             kSecClass as String: kSecClassGenericPassword,
             kSecAttrService as String: service,

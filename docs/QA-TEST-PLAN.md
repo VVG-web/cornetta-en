@@ -30,10 +30,11 @@ subset is relevant, set it to the completed IDs instead of `all`; the script rej
 | TC-10 | The static site has no analytics, no visit counting and no download API | `scripts/tests/test_privacy_guard.py`, `scripts/test_site.py` |
 | TC-11 | The Windows app has no transcription and defaults to English without a saved choice | Windows tests and `scripts/tests/test_localization.py` |
 | TC-12 | The public history contains no private VVG email and no credential files | `scripts/tests/test_history_guard.py` |
-| TC-13 | The macOS app contains no `Speech.framework`, allows only local HTTP through ATS, and defaults transcription to loopback | `scripts/tests/test_security_guard.py`, release DMG inspection |
+| TC-13 | The macOS app bundles no speech model or telemetry, allows only local HTTP through ATS by default, and weak-links `Speech.framework` only for the optional macOS 26 Apple engine | `scripts/tests/test_security_guard.py`, release DMG inspection |
 | TC-14 | Full macOS build, tests, universal DMG, .NET, Python and browser scenarios | `./scripts/check.sh` |
 | TC-15 | Release metadata and assets are internally consistent | `scripts/qa-release.sh` |
 | TC-16 | Call detection normalizes G-Space and Yandex Telemost helpers and ignores system microphone users | `Tests/CornettaCoreTests/CallDetectorTests.swift` |
+| TC-17 | Multiple HTTP providers persist, switch and delete independently; the selected provider is remembered; Apple is a separate provider option | `Tests/CornettaCoreTests/TranscriptionProvidersTests.swift` |
 
 ## Manual test scenarios
 
@@ -122,11 +123,11 @@ blocks the release until it is fixed and all affected scenarios are repeated.
 ### TS-10: Settings window layout and validation
 
 1. Open Transcription settings.
-2. Check base URL, model, language, API key, endpoint preview, automatic toggle, privacy note,
-   Check service and Restore defaults.
+2. Check the provider picker, Add provider button, name, base URL, model, language, API key,
+   endpoint preview, automatic toggle, privacy note, Check service, Delete provider and Save.
 3. Enter an empty URL, an `ftp://` URL, a URL with `?`, and a URL with credentials.
-4. Expected: the preview turns red and the invalid message appears. Restore defaults returns to
-   `http://127.0.0.1:8080/v1/audio/transcriptions`.
+4. Expected: the preview turns red and the invalid message appears. A new provider starts from
+   `http://127.0.0.1:8080/v1` and can be saved with a name.
 5. Confirm the window is readable at the default size and every control has an accessibility label.
 
 ### TS-11: Welcome, permission and notice screens
@@ -155,15 +156,17 @@ blocks the release until it is fixed and all affected scenarios are repeated.
 
 1. Run `VERSION=<version> ./scripts/check.sh`.
 2. Mount the DMG. Expected: bundle identifier `com.stellakamikaze.cornetta`, correct version,
-   `arm64` and `x86_64`, valid signature, both localization files, no `Speech.framework`.
+   `arm64` and `x86_64`, valid signature, both localization files, and `Speech.framework` present as a
+   weak (optional) link for the macOS 26 Apple engine.
 3. Confirm the app runs on Intel macOS 15 with no privileged helper, kext, system extension, launch
    agent, package receipt or leftover aggregate device.
 
 ### TS-15: Public privacy and site boundary
 
 1. Open the Italian and English home pages and privacy pages.
-2. Expected: the pages say that recordings stay on the computer, audio goes only to the configured
-   transcription service when the user starts a transcription, and no analytics or cookies exist.
+2. Expected: the pages say that recordings stay on the computer, HTTP audio goes only to the selected
+   provider when the user starts a transcription, Apple Speech stays on the Mac, and no analytics or
+   cookies exist.
 3. Check that the site CSP still forbids connections and that `llms.txt` matches the same boundary.
 
 ### TS-16: History and credential hygiene
@@ -173,6 +176,22 @@ blocks the release until it is fixed and all affected scenarios are repeated.
    `gnivc.ru` domain remains. Upstream authors keep their original attribution.
 3. Search the tree for `.env`, `*.pem`, API keys and private keys. Expected: none tracked.
 4. Confirm the update-feed private key is outside the repository and mode `600`.
+
+### TS-17: Provider selector, multiple HTTP providers and Apple option
+
+1. Open Transcription settings. Add a second HTTP provider with a name, base URL, model, language and
+   key. Expected: it appears in the provider picker and is selected.
+2. Switch between the two HTTP providers. Expected: each keeps its own URL, model, language and key;
+   Check service uses the selected provider's draft values.
+3. Transcribe a test recording with each provider. Expected: the transcript metadata names the selected
+   engine and the request goes only to that provider.
+4. Delete one provider. Expected: it disappears from the picker, the other remains selected, its key is
+   removed, and recordings are untouched.
+5. Select Apple Speech. On macOS 26 expected: native transcription works locally; macOS may download the
+   language asset once, but Cornetta sends no audio. On macOS 15 expected: the warning appears and no HTTP
+   request is made.
+6. Record the macOS version used for this scenario. The macOS 26 native path must be reported separately
+   when the release host is older; a missing host is a written release exception, not an unrecorded skip.
 
 ## Sign-off
 

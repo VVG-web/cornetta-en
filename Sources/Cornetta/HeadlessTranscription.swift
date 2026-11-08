@@ -2,12 +2,12 @@ import CornettaCore
 import Foundation
 
 /// `Cornetta --transcribe <file.m4a> [--tracks <cartella con tu.m4a e altri.m4a>]`:
-/// trascrive senza interfaccia usando il servizio HTTP configurato e stampa il Markdown.
+/// trascrive senza interfaccia usando il provider selezionato e stampa il Markdown.
 enum HeadlessTranscription {
     static func run(file: String, tracks: String?) {
-        let config = TranscriptionService.config
-        guard config.isConfigured else {
-            print("Il servizio di trascrizione non è configurato. Usa Impostazioni trascrizione.")
+        let provider = TranscriptionRunner.selected
+        guard TranscriptionRunner.isAvailable(provider) else {
+            print("Il provider di trascrizione selezionato non è disponibile.")
             exit(2)
         }
         let semaphore = DispatchSemaphore(value: 0)
@@ -15,24 +15,26 @@ enum HeadlessTranscription {
         Task.detached {
             do {
                 let url = URL(fileURLWithPath: file)
-                let segments: [Transcript.Segment]
+                let output: TranscriptionOutput
                 if let tracks {
                     let dir = URL(fileURLWithPath: tracks, isDirectory: true)
-                    let theirs = try await TranscriptionService.transcribe(
+                    let theirs = try await TranscriptionRunner.transcribe(
                         url: dir.appendingPathComponent(RecordingFinalizer.othersTrack),
-                        speaker: .others, config: config)
-                    let mine = try await TranscriptionService.transcribe(
+                        speaker: .others, provider: provider)
+                    let mine = try await TranscriptionRunner.transcribe(
                         url: dir.appendingPathComponent(RecordingFinalizer.meTrack),
-                        speaker: .me, config: config)
-                    print("frasi Tu: \(mine.count), frasi Altri: \(theirs.count)")
-                    segments = TranscriptMerger.merge(me: mine, others: theirs)
+                        speaker: .me, provider: provider)
+                    print("frasi Tu: \(mine.segments.count), frasi Altri: \(theirs.segments.count)")
+                    output = TranscriptionOutput(
+                        segments: TranscriptMerger.merge(me: mine.segments, others: theirs.segments),
+                        engine: mine.engine, language: mine.language)
                 } else {
-                    segments = try await TranscriptionService.transcribe(url: url, speaker: .mixed, config: config)
+                    output = try await TranscriptionRunner.transcribe(
+                        url: url, speaker: .mixed, provider: provider)
                 }
-                let transcript = Transcript(
-                    recording: url.lastPathComponent, engine: TranscriptionService.engineName,
-                    language: config.effectiveLanguage.isEmpty ? "auto" : config.effectiveLanguage,
-                    segments: segments)
+                let transcript = Transcript(recording: url.lastPathComponent,
+                                            engine: output.engine, language: output.language,
+                                            segments: output.segments)
                 print(TranscriptFormatter.markdown(
                     transcript, title: url.deletingPathExtension().lastPathComponent, duration: nil,
                     language: AppLanguage.initial()))

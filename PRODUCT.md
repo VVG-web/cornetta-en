@@ -37,10 +37,11 @@ di rilascio, parte da questo taglio: niente toni da prodotto premium.
 - Mac: macOS 14.4 o successivo, Apple Silicon e Intel. App non notarizzata: al primo avvio macOS la blocca
   e serve «Apri comunque» in Impostazioni di Sistema → Privacy e sicurezza. Due permessi: Microfono,
   Registrazione audio di sistema. Download solo da GitHub Releases.
-- Trascrizione on demand sul Mac: servizio HTTP compatibile con Whisper, predefinito su localhost. Righe
-  «Tu» e «Altri» dalle due tracce, file Markdown accanto all'audio. L'audio parte solo quando l'utente
-  avvia una trascrizione; nessun modello vocale è incluso nell'app.
-- La chiave API facoltativa del servizio resta nel Portachiavi di macOS e viene inviata solo a
+- Trascrizione on demand sul Mac: selettore tra Apple Speech sul Mac (macOS 26) e più provider HTTP
+  compatibili con Whisper. Righe «Tu» e «Altri» dalle due tracce, file Markdown accanto all'audio.
+  L'audio parte solo quando l'utente avvia una trascrizione. Con Apple Speech resta sul Mac; macOS può
+  scaricare il modello della lingua una volta.
+- Ogni provider HTTP ha una chiave API facoltativa separata, nel Portachiavi di macOS, inviata solo a
   quell'endpoint come token Bearer.
 - Windows (beta): Windows 10 e 11, installer per utente senza permessi di amministratore. L'installer non
   è firmato: SmartScreen chiede «Ulteriori informazioni → Esegui comunque». Niente trascrizione.

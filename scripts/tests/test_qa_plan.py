@@ -14,9 +14,9 @@ class ReleaseQAPlanTests(unittest.TestCase):
 
     def test_plan_has_every_test_case_and_scenario(self):
         text = self.plan()
-        self.assertEqual({f"TC-{n:02d}" for n in range(1, 17)},
+        self.assertEqual({f"TC-{n:02d}" for n in range(1, 18)},
                          set(re.findall(r"\bTC-\d{2}\b", text)))
-        self.assertEqual({f"TS-{n:02d}" for n in range(1, 17)},
+        self.assertEqual({f"TS-{n:02d}" for n in range(1, 18)},
                          set(re.findall(r"\bTS-\d{2}\b", text)))
 
     def test_plan_covers_every_reported_bug_and_requirement(self):

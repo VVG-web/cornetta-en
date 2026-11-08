@@ -107,17 +107,6 @@ public struct TranscriptionConfig: Equatable, Sendable {
                 ?? TranscriptionPreferences.defaultLanguage)
     }
 
-    public static func save(_ config: TranscriptionConfig, autoTranscribe: Bool,
-                            in defaults: UserDefaults = .standard) {
-        defaults.set(config.baseURL, forKey: TranscriptionPreferences.baseURLKey)
-        defaults.set(config.model, forKey: TranscriptionPreferences.modelKey)
-        defaults.set(config.language, forKey: TranscriptionPreferences.languageKey)
-        defaults.set(autoTranscribe, forKey: TranscriptionPreferences.autoTranscribeKey)
-        for legacy in [TranscriptionPreferences.schemeKey, TranscriptionPreferences.hostKey,
-                       TranscriptionPreferences.portKey, TranscriptionPreferences.pathKey] {
-            defaults.removeObject(forKey: legacy)
-        }
-    }
 }
 
 public enum TranscriptionPreferences {

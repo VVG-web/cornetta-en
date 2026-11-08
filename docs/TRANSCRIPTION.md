@@ -1,28 +1,38 @@
-# HTTP transcription
+# Transcription providers
 
-Cornetta does not ship a speech model. On macOS it can send a recording to an
-HTTP service that implements the OpenAI Whisper transcription endpoint:
+Cornetta has two kinds of providers:
+
+- **Apple Speech on this Mac** uses macOS 26 speech recognition and keeps audio local.
+- **HTTP providers** implement the OpenAI Whisper transcription endpoint. You can
+  save more than one and choose the active provider in settings.
 
 ```text
 POST <scheme>://<host>:<port><path>
 Content-Type: multipart/form-data
 ```
 
-The default is `http://127.0.0.1:8080/v1/audio/transcriptions`, with model
-`whisper-1`, automatic language detection, and automatic transcription off.
-The Windows build does not transcribe.
+The default HTTP provider is `http://127.0.0.1:8080/v1` with model `whisper-1`,
+automatic language detection, and automatic transcription off. The Windows build
+does not transcribe.
 
 ## Configuration
 
-Open **Transcription settings…** from the menu bar menu. The window stores these
-values in the app preferences:
+Open **Transcription settings…** from the menu bar menu. The **Provider** picker
+contains Apple Speech and every saved HTTP provider. The **+** button opens a
+new-provider form. A custom provider can be renamed, edited or deleted.
+
+Apple Speech has no base URL or key. It shows a warning on macOS versions before
+26 and never sends audio to the network. On first use macOS may download the
+speech language asset; that download contains no recording.
+
+Each HTTP provider stores these values independently:
 
 | Field | Default | Notes |
 | --- | --- | --- |
 | Base URL | `http://127.0.0.1:8080/v1` | Full OpenAI-compatible base URL. Cornetta appends `/audio/transcriptions`. Use `https` outside the local network. |
 | Model | `whisper-1` | Sent only when non-empty. |
 | Language | empty (automatic) | Sent only when non-empty; use an ISO-639-1 code such as `ru`. |
-| API key | empty | Optional. Stored in the macOS Keychain, sent only as a Bearer token. |
+| API key | empty | Optional. Stored per provider in the macOS Keychain, sent only as that provider's Bearer token. |
 
 The base URL is the value an OpenAI SDK calls `base_url`, for example
 `https://api.example.com/v1`. Cornetta builds the transcription endpoint by
@@ -37,8 +47,7 @@ available. A 404/405/501 means the provider does not expose a model list;
 transcription may still work.
 
 The preview under the fields shows the resulting URL and turns red when the
-base URL is invalid. **Restore defaults** resets every field. Changes are saved
-only when you press **Save**.
+base URL is invalid. Provider changes are saved only when you press **Save**.
 
 The toggle **Transcribe immediately after each recording** is the same option
 as the menu item. It is off by default. With it off, a recording is transcribed
@@ -60,10 +69,12 @@ The request has `Accept: application/json` and a User-Agent of
 10-minute request timeout and a 15-minute resource timeout. If an API key is
 saved, the request adds `Authorization: Bearer <key>`.
 
-The key is stored as a generic-password item in the macOS Keychain under the
-Cornetta transcription service, never in `UserDefaults`, a source file or a log.
-Leave the field empty and press **Save** to remove it. The settings window keeps
-edits in a draft and writes them only when you press **Save**.
+Each key is a separate generic-password item in the macOS Keychain, never in
+`UserDefaults`, a source file or a log. To remove a key, clear the field and press
+**Save**; leaving the key field untouched preserves the stored key, even when the
+Keychain could not be read. The settings window keeps edits in a draft and writes
+them only when you press **Save**. Switching the provider in the picker takes
+effect immediately; provider fields still require Save.
 
 If `verbose_json` returns HTTP 400, 415 or 422, Cornetta retries the same file
 once with `response_format=json`. Other HTTP errors, connection failures and
@@ -127,7 +138,7 @@ curl -f http://127.0.0.1:8080/v1/audio/transcriptions \
   -F response_format=verbose_json
 ```
 
-Headless mode uses the same stored configuration:
+Headless mode uses the selected provider from the same stored configuration:
 
 ```bash
 build/Cornetta.app/Contents/MacOS/Cornetta --transcribe file.m4a

@@ -21,9 +21,9 @@ compatibility: Full verification requires macOS with Xcode, .NET 10, Python 3, a
 - Preserve the privacy boundary: no background network connections, no telemetry, no analytics.
   The only network actions are the user-triggered signed update feed, opening a GitHub issue and a
   transcription request to the endpoint the user configured.
-- Audio leaves only on a user-started transcription, only to that endpoint, and only with the file name
-  and the configured model/language fields. Transcripts, device names, contacts and diagnostics stay
-  local. The default endpoint is loopback.
+- Audio leaves only on a user-started HTTP transcription, only to the selected provider, and only with the
+  file name and that provider's model/language fields. Apple Speech and transcripts stay local. Each HTTP
+  provider has its own Keychain key; the default endpoint is loopback.
 - **Check service** is a user-initiated `GET /models`; it sends the draft API key but no audio and does
   not save settings.
 - Keep local-first behavior: recordings and transcripts stay in the user's folders.

@@ -2,49 +2,153 @@ import AppKit
 import CornettaCore
 import SwiftUI
 
-/// Finestra per configurare il servizio HTTP di trascrizione. I valori restano in una bozza finché
-/// non premi Salva: l'autocompletamento di macOS non può sovrascrivere la configurazione da solo.
+/// Finestra per scegliere il motore di trascrizione e gestire più provider HTTP.
 struct TranscriptionSettingsView: View {
-    @State private var baseURL: String
-    @State private var model: String
-    @State private var languageCode: String
+    @State private var providers: [TranscriptionProvider]
+    @State private var selectedID: UUID
+    @State private var draft: TranscriptionProvider
     @State private var apiKey: String
-    @State private var autoTranscribe: Bool
+    @State private var apiKeyDirty = false
+    @AppStorage(TranscriptionPreferences.autoTranscribeKey) private var autoTranscribe = false
     @State private var saveError: String?
     @State private var checking = false
     @State private var checkResult: ProviderCheckResult?
+    @State private var addingProvider = false
+    @State private var confirmDelete = false
 
     @Environment(\.appLanguage) private var language
 
     init() {
-        let config = TranscriptionConfig.stored()
-        _baseURL = State(initialValue: config.baseURL)
-        _model = State(initialValue: config.model)
-        _languageCode = State(initialValue: config.language)
-        _apiKey = State(initialValue: TranscriptionCredential.load())
-        _autoTranscribe = State(initialValue: UserDefaults.standard.bool(
-            forKey: TranscriptionPreferences.autoTranscribeKey))
+        let all = TranscriptionProviderCatalog.all()
+        let selected = TranscriptionProviderCatalog.selected()
+        _providers = State(initialValue: all)
+        _selectedID = State(initialValue: selected.id)
+        _draft = State(initialValue: selected)
+        _apiKey = State(initialValue: TranscriptionProviderCatalog.apiKey(for: selected))
     }
 
-    private var config: TranscriptionConfig {
-        TranscriptionConfig(baseURL: baseURL, model: model, language: languageCode)
-    }
+    private var isApple: Bool { draft.kind == .apple }
+    private var config: TranscriptionConfig { draft.config }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 18) {
+        VStack(alignment: .leading, spacing: 16) {
             Text(L10n.text(.transcriptionSettingsTitle, language: language))
                 .font(.title2.weight(.semibold))
+
+            HStack {
+                Text(L10n.text(.transcriptionSettingsProvider, language: language))
+                Picker(L10n.text(.transcriptionSettingsProvider, language: language), selection: $selectedID) {
+                    ForEach(providers) { provider in
+                        Text(providerName(provider)).tag(provider.id)
+                    }
+                }
+                .labelsHidden()
+                .frame(width: 300)
+                Button {
+                    addingProvider = true
+                } label: {
+                    Image(systemName: "plus")
+                }
+                .help(L10n.text(.transcriptionSettingsAddProvider, language: language))
+            }
+
+            Toggle(L10n.text(.transcriptionSettingsAuto, language: language), isOn: $autoTranscribe)
+
+            if isApple {
+                appleSettings
+            } else {
+                customProviderSettings
+            }
+
+            if let saveError {
+                Text(saveError)
+                    .font(.callout)
+                    .foregroundStyle(.red)
+            }
+
+            HStack {
+                if !isApple {
+                    Button(L10n.text(.transcriptionSettingsDeleteProvider, language: language),
+                           role: .destructive) {
+                        confirmDelete = true
+                    }
+                }
+                Spacer()
+                Button(L10n.text(.commonClose, language: language)) {
+                    NSApp.keyWindow?.close()
+                }
+                if !isApple {
+                    Button(L10n.text(.commonSave, language: language)) {
+                        save()
+                    }
+                    .keyboardShortcut(.defaultAction)
+                    .buttonStyle(.borderedProminent)
+                    .disabled(!config.isConfigured || draft.name.trimmingCharacters(in: .whitespaces).isEmpty)
+                }
+            }
+        }
+        .padding(24)
+        .frame(width: 640)
+        .onChange(of: selectedID) { _, id in
+            TranscriptionProviderCatalog.select(id)
+            NotificationCenter.default.post(name: .cornettaTranscriptionSettingsChanged, object: nil)
+            guard let provider = providers.first(where: { $0.id == id }) else { return }
+            draft = provider
+            apiKey = TranscriptionProviderCatalog.apiKey(for: provider)
+            apiKeyDirty = false
+            checkResult = nil
+            saveError = nil
+        }
+        .sheet(isPresented: $addingProvider) {
+            AddProviderView { provider in
+                refreshProviders(select: provider.id)
+            }
+            .localizedRoot()
+        }
+        .confirmationDialog(L10n.text(.transcriptionSettingsDeleteProviderTitle, language: language),
+                            isPresented: $confirmDelete) {
+            Button(L10n.text(.transcriptionSettingsDelete, language: language), role: .destructive) {
+                deleteProvider()
+            }
+            Button(L10n.text(.commonCancel, language: language), role: .cancel) {}
+        } message: {
+            Text(L10n.text(.transcriptionSettingsDeleteProviderMessage, language: language))
+        }
+    }
+
+    private var appleSettings: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text(L10n.text(.transcriptionSettingsAppleDescription, language: language))
+                .foregroundStyle(.secondary)
+                .fixedSize(horizontal: false, vertical: true)
+            if !SpeechEngine.isAvailable {
+                Text(L10n.text(.transcriptionSettingsAppleUnavailable, language: language))
+                    .foregroundStyle(.red)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+        }
+    }
+
+    private var customProviderSettings: some View {
+        VStack(alignment: .leading, spacing: 14) {
             Text(L10n.text(.transcriptionSettingsDescription, language: language))
                 .foregroundStyle(.secondary)
                 .fixedSize(horizontal: false, vertical: true)
 
-            Toggle(L10n.text(.transcriptionSettingsAuto, language: language), isOn: $autoTranscribe)
-
             Grid(alignment: .leading, horizontalSpacing: 12, verticalSpacing: 10) {
+                GridRow {
+                    Text(L10n.text(.transcriptionSettingsProviderName, language: language))
+                    TextField(L10n.text(.transcriptionSettingsProviderNamePlaceholder, language: language),
+                              text: $draft.name)
+                        .textFieldStyle(.roundedBorder)
+                        .frame(width: 300)
+                        .textContentType(nil)
+                        .disableAutocorrection(true)
+                }
                 GridRow {
                     Text(L10n.text(.transcriptionSettingsBaseURL, language: language))
                     TextField(L10n.text(.transcriptionSettingsBaseURLPlaceholder, language: language),
-                              text: $baseURL)
+                              text: $draft.baseURL)
                         .textFieldStyle(.roundedBorder)
                         .frame(width: 420)
                         .font(.system(.body, design: .monospaced))
@@ -55,27 +159,27 @@ struct TranscriptionSettingsView: View {
                 }
                 GridRow {
                     Text(L10n.text(.transcriptionSettingsModel, language: language))
-                    TextField(L10n.text(.transcriptionSettingsModelPlaceholder, language: language), text: $model)
+                    TextField(L10n.text(.transcriptionSettingsModelPlaceholder, language: language),
+                              text: $draft.model)
                         .textFieldStyle(.roundedBorder)
                         .frame(width: 250)
                         .textContentType(nil)
                         .disableAutocorrection(true)
-                        .accessibilityLabel(L10n.text(.transcriptionSettingsModel, language: language))
                 }
                 GridRow {
                     Text(L10n.text(.transcriptionSettingsLanguage, language: language))
                     TextField(L10n.text(.transcriptionSettingsLanguagePlaceholder, language: language),
-                              text: $languageCode)
+                              text: $draft.language)
                         .textFieldStyle(.roundedBorder)
                         .frame(width: 150)
                         .textContentType(nil)
                         .disableAutocorrection(true)
-                        .accessibilityLabel(L10n.text(.transcriptionSettingsLanguage, language: language))
                 }
                 GridRow {
                     Text(L10n.text(.transcriptionSettingsApiKey, language: language))
                     SecureField(L10n.text(.transcriptionSettingsApiKeyPlaceholder, language: language),
-                                text: $apiKey)
+                                text: Binding(get: { apiKey },
+                                              set: { apiKey = $0; apiKeyDirty = true }))
                         .textFieldStyle(.roundedBorder)
                         .frame(width: 420)
                         .textContentType(nil)
@@ -100,66 +204,63 @@ struct TranscriptionSettingsView: View {
                     .foregroundStyle(.red)
             }
 
-            if let saveError {
-                Text(saveError)
-                    .font(.callout)
-                    .foregroundStyle(.red)
-            }
-
-            Text(L10n.text(.transcriptionSettingsPrivacy, language: language))
-                .font(.callout)
-                .foregroundStyle(.secondary)
-                .fixedSize(horizontal: false, vertical: true)
-
-            if let checkResult {
-                Text(checkText(checkResult))
-                    .font(.callout)
-                    .foregroundStyle(checkColor(checkResult))
-                    .fixedSize(horizontal: false, vertical: true)
-            }
-
             HStack {
-                Button(L10n.text(.transcriptionSettingsReset, language: language)) {
-                    baseURL = TranscriptionPreferences.defaultBaseURL
-                    model = TranscriptionPreferences.defaultModel
-                    languageCode = TranscriptionPreferences.defaultLanguage
-                    apiKey = ""
-                    autoTranscribe = false
-                    saveError = nil
-                    checkResult = nil
-                }
                 Button(checking ? L10n.text(.transcriptionSettingsChecking, language: language)
                         : L10n.text(.transcriptionSettingsCheck, language: language)) {
                     check()
                 }
                 .disabled(checking || !config.isConfigured)
                 .help(L10n.text(.transcriptionSettingsCheckHelp, language: language))
-                Spacer()
-                Button(L10n.text(.commonClose, language: language)) {
-                    NSApp.keyWindow?.close()
+                if let checkResult {
+                    Text(checkText(checkResult))
+                        .font(.callout)
+                        .foregroundStyle(checkColor(checkResult))
+                        .fixedSize(horizontal: false, vertical: true)
                 }
-                Button(L10n.text(.commonSave, language: language)) {
-                    save()
-                }
-                .keyboardShortcut(.defaultAction)
-                .buttonStyle(.borderedProminent)
-                .disabled(!config.isConfigured)
             }
+
+            Text(L10n.text(.transcriptionSettingsPrivacy, language: language))
+                .font(.callout)
+                .foregroundStyle(.secondary)
+                .fixedSize(horizontal: false, vertical: true)
         }
-        .padding(24)
-        .frame(width: 620)
+    }
+
+    private func providerName(_ provider: TranscriptionProvider) -> String {
+        provider.kind == .apple
+            ? L10n.text(.transcriptionSettingsAppleName, language: language)
+            : provider.name
+    }
+
+    private func refreshProviders(select id: UUID?) {
+        providers = TranscriptionProviderCatalog.all()
+        if let id { selectedID = id }
+        if let provider = providers.first(where: { $0.id == selectedID }) {
+            draft = provider
+            apiKey = TranscriptionProviderCatalog.apiKey(for: provider)
+            apiKeyDirty = false
+        }
+        checkResult = nil
+        saveError = nil
+        NotificationCenter.default.post(name: .cornettaTranscriptionSettingsChanged, object: nil)
     }
 
     private func save() {
-        guard config.isConfigured else { return }
+        guard config.isConfigured, !draft.name.trimmingCharacters(in: .whitespaces).isEmpty else { return }
         do {
-            try TranscriptionCredential.save(apiKey)
-            TranscriptionConfig.save(config, autoTranscribe: autoTranscribe)
-            NotificationCenter.default.post(name: .cornettaTranscriptionSettingsChanged, object: nil)
+            try TranscriptionProviderCatalog.save(draft, apiKey: apiKeyDirty ? apiKey : nil,
+                                                   select: true)
+            refreshProviders(select: draft.id)
             NSApp.keyWindow?.close()
         } catch {
             saveError = L10n.text(.transcriptionSettingsKeychainError, language: language)
         }
+    }
+
+    private func deleteProvider() {
+        TranscriptionProviderCatalog.delete(draft)
+        let next = TranscriptionProviderCatalog.selected()
+        refreshProviders(select: next.id)
     }
 
     private func check() {
@@ -204,6 +305,112 @@ struct TranscriptionSettingsView: View {
         case .modelAvailable, .reachable: return .green
         case .modelNotListed, .noModelList: return .orange
         default: return .red
+        }
+    }
+}
+
+struct AddProviderView: View {
+    @State private var name = ""
+    @State private var baseURL = TranscriptionPreferences.defaultBaseURL
+    @State private var model = TranscriptionPreferences.defaultModel
+    @State private var languageCode = TranscriptionPreferences.defaultLanguage
+    @State private var apiKey = ""
+    @State private var error: String?
+    @Environment(\.appLanguage) private var language
+    @Environment(\.dismiss) private var dismiss
+    let onSaved: (TranscriptionProvider) -> Void
+
+    private var config: TranscriptionConfig {
+        TranscriptionConfig(baseURL: baseURL, model: model, language: languageCode)
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 14) {
+            Text(L10n.text(.transcriptionSettingsNewProvider, language: language))
+                .font(.title3.weight(.semibold))
+            Grid(alignment: .leading, horizontalSpacing: 12, verticalSpacing: 10) {
+                GridRow {
+                    Text(L10n.text(.transcriptionSettingsProviderName, language: language))
+                    TextField(L10n.text(.transcriptionSettingsProviderNamePlaceholder, language: language),
+                              text: $name)
+                        .textFieldStyle(.roundedBorder)
+                        .frame(width: 300)
+                        .textContentType(nil)
+                        .disableAutocorrection(true)
+                }
+                GridRow {
+                    Text(L10n.text(.transcriptionSettingsBaseURL, language: language))
+                    TextField(L10n.text(.transcriptionSettingsBaseURLPlaceholder, language: language),
+                              text: $baseURL)
+                        .textFieldStyle(.roundedBorder)
+                        .frame(width: 420)
+                        .font(.system(.body, design: .monospaced))
+                        .textContentType(nil)
+                        .disableAutocorrection(true)
+                }
+                GridRow {
+                    Text(L10n.text(.transcriptionSettingsModel, language: language))
+                    TextField(L10n.text(.transcriptionSettingsModelPlaceholder, language: language),
+                              text: $model)
+                        .textFieldStyle(.roundedBorder)
+                        .frame(width: 250)
+                        .textContentType(nil)
+                        .disableAutocorrection(true)
+                }
+                GridRow {
+                    Text(L10n.text(.transcriptionSettingsLanguage, language: language))
+                    TextField(L10n.text(.transcriptionSettingsLanguagePlaceholder, language: language),
+                              text: $languageCode)
+                        .textFieldStyle(.roundedBorder)
+                        .frame(width: 150)
+                        .textContentType(nil)
+                        .disableAutocorrection(true)
+                }
+                GridRow {
+                    Text(L10n.text(.transcriptionSettingsApiKey, language: language))
+                    SecureField(L10n.text(.transcriptionSettingsApiKeyPlaceholder, language: language),
+                                text: $apiKey)
+                        .textFieldStyle(.roundedBorder)
+                        .frame(width: 420)
+                        .textContentType(nil)
+                        .disableAutocorrection(true)
+                }
+            }
+            Text(config.endpointDescription)
+                .font(.system(.caption, design: .monospaced))
+                .foregroundStyle(config.isConfigured ? Color.secondary : Color.red)
+            if !config.isConfigured {
+                Text(L10n.text(.transcriptionSettingsInvalid, language: language))
+                    .font(.callout)
+                    .foregroundStyle(.red)
+            }
+            if let error {
+                Text(error)
+                    .font(.callout)
+                    .foregroundStyle(.red)
+            }
+            HStack {
+                Spacer()
+                Button(L10n.text(.commonCancel, language: language)) { dismiss() }
+                Button(L10n.text(.commonSave, language: language)) { add() }
+                    .keyboardShortcut(.defaultAction)
+                    .buttonStyle(.borderedProminent)
+                    .disabled(!config.isConfigured || name.trimmingCharacters(in: .whitespaces).isEmpty)
+            }
+        }
+        .padding(24)
+        .frame(width: 560)
+    }
+
+    private func add() {
+        let provider = TranscriptionProvider(name: name, kind: .http, baseURL: baseURL,
+                                             model: model, language: languageCode)
+        do {
+            try TranscriptionProviderCatalog.save(provider, apiKey: apiKey, select: true)
+            onSaved(provider)
+            dismiss()
+        } catch {
+            self.error = L10n.text(.transcriptionSettingsKeychainError, language: language)
         }
     }
 }

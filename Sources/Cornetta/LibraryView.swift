@@ -244,7 +244,7 @@ struct StatusLabel: View {
                              String(Int(p * 100)))).monospacedDigit()
         case .failed: Text(L10n.text(.libraryStatusFailed, language: language)).foregroundStyle(.red)
         case .notTranscribed:
-            Text(L10n.text(TranscriptionService.isConfigured ? .libraryStatusNotTranscribed : .libraryStatusAudioOnly,
+            Text(L10n.text(TranscriptionRunner.isAvailable ? .libraryStatusNotTranscribed : .libraryStatusAudioOnly,
                            language: language))
         }
     }
@@ -309,7 +309,7 @@ struct RecordingDetail: View {
                 Button(L10n.text(.commonShowInFinder, language: language)) {
                     NSWorkspace.shared.activateFileViewerSelecting([recording.url])
                 }
-                if transcript != nil, TranscriptionService.isConfigured, !inProgress {
+                if transcript != nil, TranscriptionRunner.isAvailable, !inProgress {
                     Button(L10n.text(.libraryTranscribeAgain, language: language)) { library.enqueue(recording.url) }
                 }
                 Divider()
@@ -383,7 +383,7 @@ struct RecordingDetail: View {
                 }
             }
         case .notTranscribed:
-            if TranscriptionService.isConfigured {
+            if TranscriptionRunner.isAvailable {
                 ContentUnavailableView {
                     Label(L10n.text(.libraryStatusNotYet, language: language), systemImage: "text.bubble")
                 } description: {

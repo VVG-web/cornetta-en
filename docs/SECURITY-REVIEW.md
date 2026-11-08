@@ -32,13 +32,15 @@ kernel itself.
 - No `.pkg` installer and no installer receipt. The DMG is drag-and-drop.
 - The only entitlement is `com.apple.security.device.audio-input`.
 - The bundle contains one executable, its icon and localization files. It links only Apple system
-  frameworks. There is no `Speech.framework`: transcription is an HTTP client built on `URLSession`.
+  frameworks. `Speech.framework` is weak-linked and used only by the optional Apple Speech provider,
+  guarded by `#available(macOS 26.0, *)`; the HTTP provider uses `URLSession`. On first use macOS may
+  download the speech language asset; the audio itself is never sent.
 - The transcription client uses an ephemeral `URLSession`, accepts no cookies, has explicit request and
   resource timeouts, and contacts only the endpoint stored in preferences. The default is loopback.
   App Transport Security allows local networking only, not arbitrary HTTP loads.
-- An optional transcription API key is stored as a generic-password item in the macOS Keychain, never in
-  `UserDefaults`, source files or logs. It is sent only to the configured endpoint as a Bearer token and
-  is removed when the field is cleared and saved.
+- Each optional transcription API key is a separate generic-password item in the macOS Keychain, never in
+  `UserDefaults`, source files or logs. It is sent only to its provider as a Bearer token and is removed
+  when the field is cleared and saved.
 - The **Check service** button sends one user-initiated `GET <baseURL>/models` with the draft key. It
   sends no audio and does not save the settings.
 - The only optional persistence is `SMAppService.mainApp`, used by “Open at login”. It has both
@@ -90,9 +92,9 @@ Results:
 
 | Version | Intel status | Notes |
 |---|---|---|
-| macOS 14.4 Sonoma | supported by code, not executed here | Core Audio process taps are available from 14.2. Screen recording with microphone is hidden because it requires macOS 15. HTTP transcription is available when a service is configured. |
-| macOS 15 Sequoia | executed on 15.8.1 Intel | Recording and probe passed. Screen recording with microphone is available. The HTTP transcription client passed against a local mock. |
-| macOS 26 Tahoe | supported by code, not executed on an Intel host | Uses the same recording and HTTP transcription paths; there is no OS-specific speech API to guard. |
+| macOS 14.4 Sonoma | supported by code, not executed here | Core Audio process taps are available from 14.2. Screen recording with microphone is hidden because it requires macOS 15. HTTP transcription is available. Apple Speech shows its macOS 26 warning. |
+| macOS 15 Sequoia | executed on 15.8.1 Intel | Recording and probe passed. Screen recording with microphone is available. The HTTP transcription client passed against a local mock. Apple Speech shows its macOS 26 warning. |
+| macOS 26 Tahoe | supported by code, not executed on an Intel host | The optional Apple Speech engine is compiled and availability-guarded. HTTP transcription uses the same path as older systems. |
 
 The app does not have a separate Apple Silicon path that bypasses guards. The Intel `x86_64` slice was
 built and exercised directly.
@@ -120,8 +122,11 @@ No kext, system extension, launch daemon, package receipt or driver remains afte
   SHA-256 in the signed update feed or GitHub release notes.
 - The app is not sandboxed. It can access files with the user's normal permissions by design. The code
   reviewed here does not use that access to modify system locations.
-- Transcription was not exercised against a third-party remote service. The client and its failure
-  paths were tested with a local mock; a remote endpoint is the user's configuration and trust choice.
+- The Apple Speech engine was compiled but not executed on macOS 26. Its paths are guarded by
+  `#available(macOS 26.0, *)` and a failure is contained to transcription.
+- HTTP transcription was not exercised against a third-party remote service in the security review. The
+  client and its failure paths were tested with a local mock and a configured provider; a remote endpoint
+  is the user's configuration and trust choice.
 - If the user configures a remote endpoint, the audio file, its filename and the model/language fields
   leave the Mac. The privacy pages and `docs/TRANSCRIPTION.md` state this explicitly.
 - A user who forces the app to crash during capture may leave a working audio file; macOS cleans up the

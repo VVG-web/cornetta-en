@@ -27,9 +27,6 @@ enum TranscriptionServiceError: LocalizedError {
 enum TranscriptionService {
     static let engineName = "Whisper HTTP"
 
-    static var config: TranscriptionConfig { TranscriptionConfig.stored() }
-    static var isConfigured: Bool { config.isConfigured }
-
     private static let session: URLSession = {
         let configuration = URLSessionConfiguration.ephemeral
         configuration.httpShouldSetCookies = false
@@ -39,10 +36,10 @@ enum TranscriptionService {
     }()
 
     static func transcribe(url: URL, speaker: Transcript.Speaker, config: TranscriptionConfig,
+                           apiKey: String = "",
                            progress: @escaping (Double) -> Void = { _ in }) async throws -> [Transcript.Segment] {
         guard let endpoint = config.endpointURL else { throw TranscriptionServiceError.notConfigured }
         let duration = audioDuration(url)
-        let apiKey = TranscriptionCredential.load()
         progress(0.05)
         let data: Data
         do {

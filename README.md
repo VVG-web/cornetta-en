@@ -8,8 +8,8 @@ based on the original [Cornetta](https://github.com/stellakamikaze/cornetta) by 
   (macOS 14.4+, Apple Silicon and Intel · Windows 10 and 11, beta)
 - Site: [vvg-web.github.io/cornetta-en](https://vvg-web.github.io/cornetta-en/)
 - Privacy: no telemetry, no analytics, no cookies, no feedback server.
-  Recordings stay on the computer. Audio is sent only to the transcription service you configure,
-  and only when you start a transcription. The default service is on localhost.
+  Recordings stay on the computer. With an HTTP provider, audio is sent only to the provider you select,
+  and only when you start a transcription. Apple Speech stays on the Mac.
 - Updates: manual check against a signed feed on GitHub Pages. Nothing is downloaded or installed automatically.
 - Security review: [macOS Intel safety and uninstall](docs/SECURITY-REVIEW.md).
 - Stack: Swift and Core Audio process taps (`Sources/`), C# .NET Framework 4.8 with NAudio (`windows/`),
@@ -35,11 +35,11 @@ feedback. L'app non apre connessioni in background.
 
 Le uniche connessioni possibili sono quelle avviate dall'utente:
 
-- **Trascrizione**: quando premi **Trascrivi** o attivi la trascrizione automatica, Cornetta invia
-  l'audio della registrazione al servizio HTTP che hai configurato. Il valore predefinito è
-  `http://127.0.0.1:8080/v1/audio/transcriptions`: se il servizio gira sullo stesso Mac, l'audio non
-  esce dal computer. Cornetta non include un modello vocale e non contatta alcun servizio di
-  trascrizione in background.
+- **Trascrizione HTTP**: con un provider HTTP selezionato, quando premi **Trascrivi** o attivi la
+  trascrizione automatica, Cornetta invia l'audio della registrazione a quel provider. Il valore
+  predefinito è `http://127.0.0.1:8080/v1/audio/transcriptions`: se il servizio gira sullo stesso Mac,
+  l'audio non esce dal computer. Con **Apple Speech sul Mac** l'audio resta sul Mac. Cornetta non contatta
+  alcun servizio di trascrizione in background.
 - **Controlla gli aggiornamenti su GitHub…** scarica il feed firmato da GitHub Pages, verifica la firma
   ECDSA P-256 e solo allora legge la versione. La richiesta contiene la versione dell'app e un normale
   User-Agent, mai audio, testi o nomi di file.
@@ -80,7 +80,8 @@ Non fa merge, cherry-pick o push automatici. Il rapporto è generato da
 
 - macOS 14.4 o successivo.
 - Mac con Apple Silicon o Intel (app universale).
-- Per la trascrizione, un servizio HTTP compatibile con l'API OpenAI Whisper. Non è incluso nel pacchetto.
+- Per la trascrizione, Apple Speech sul Mac (macOS 26) oppure un servizio HTTP compatibile con l'API
+  OpenAI Whisper. Nessun modello vocale è incluso nel pacchetto.
 - Per lo sviluppo: Xcode completo o Command Line Tools, .NET SDK 10, Python 3 e un browser Chromium.
 
 ## Installazione macOS
@@ -104,9 +105,9 @@ oppure **→ Registrazione schermo e audio di sistema**.
 - **Controlla gli aggiornamenti su GitHub…**: confronta la versione installata con l'ultima release e apre
   GitHub se ce n'è una nuova.
 - **Apri una segnalazione su GitHub…**: apre il browser sulla pagina delle issue del fork.
-- **Impostazioni trascrizione…**: incolla l'indirizzo base, modello, lingua e chiave API del servizio
-  HTTP. La stessa finestra contiene **Verifica servizio** e l'opzione per trascrivere subito dopo ogni
-  registrazione.
+- **Impostazioni trascrizione…**: scegli Apple Speech oppure un provider HTTP, aggiungi provider con
+  **+** e imposta indirizzo base, modello, lingua e chiave API. La stessa finestra contiene **Verifica
+  servizio**, **Elimina provider** e l'opzione per trascrivere subito dopo ogni registrazione.
 
 Se a metà chiamata cambi microfono (per esempio colleghi le AirPods), Cornetta passa al nuovo microfono e
 continua sullo stesso file.
@@ -131,19 +132,24 @@ Prova da riga di comando:
 
 ## Trascrizione
 
-Cornetta non include un motore vocale: usa un servizio HTTP esterno compatibile con l'API OpenAI Whisper.
-La trascrizione parte solo quando scegli **Trascrivi**, oppure dopo una registrazione se hai attivato
-**Trascrivi subito dopo la registrazione**.
+Cornetta può usare **Apple Speech sul Mac** oppure uno o più servizi HTTP compatibili con l'API OpenAI
+Whisper. In **Impostazioni trascrizione…** scegli il provider dal menu e aggiungi altri provider con il
+pulsante **+**. La trascrizione parte solo quando scegli **Trascrivi**, oppure dopo una registrazione se
+hai attivato **Trascrivi subito dopo la registrazione**.
 
 - Durante la registrazione salva due tracce separate in `~/Library/Application Support/Cornetta/Tracce/`:
   «Tu» (microfono) e «Altri» (audio di sistema). Le tracce permettono di etichettare le battute; se
   mancano, la trascrizione usa il file misto e le righe compaiono come «Voce».
-- In **Impostazioni trascrizione…** incolla l'indirizzo base del servizio, per esempio
+- Per un provider HTTP incolla l'indirizzo base del servizio, per esempio
   `https://api.example.com/v1`. Cornetta aggiunge `/audio/transcriptions`. Il valore predefinito è
   `http://127.0.0.1:8080/v1`, con modello `whisper-1` e lingua automatica. Per un servizio su un altro
   computer usa HTTPS. **Verifica servizio** controlla connessione e modello senza inviare audio.
-- Se il servizio richiede una chiave, incollala nel campo **Chiave API**. Resta nel Portachiavi di macOS,
-  viene inviata solo come `Authorization: Bearer` all'endpoint configurato e non compare nei log.
+- Ogni provider HTTP ha nome, indirizzo, modello, lingua e chiave API separati. Se il servizio richiede
+  una chiave, incollala nel campo **Chiave API**. Resta nel Portachiavi di macOS, viene inviata solo come
+  `Authorization: Bearer` a quel provider e non compare nei log.
+- **Apple Speech sul Mac** usa il riconoscimento vocale di macOS 26 e non invia audio in rete; al primo
+  uso macOS può scaricare il modello della lingua. Su macOS precedenti il provider è visibile ma non
+  disponibile.
 - Cornetta invia il file audio con una richiesta `multipart/form-data`; il servizio risponde con
   `verbose_json` (segmenti con orari) o, se non lo supporta, con `json` o testo semplice.
 - Il testo si salva in JSON (`~/Library/Application Support/Cornetta/Trascrizioni/`) e come `.md` accanto

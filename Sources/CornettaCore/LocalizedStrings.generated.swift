@@ -186,9 +186,14 @@ public enum L10nKey: String, CaseIterable, Sendable {
     case speakerMe = "speaker.me"
     case speakerMixed = "speaker.mixed"
     case speakerOthers = "speaker.others"
+    case speechPreparing = "speech.preparing"
+    case transcriptionSettingsAddProvider = "transcription.settings.addProvider"
     case transcriptionSettingsApiKey = "transcription.settings.apiKey"
     case transcriptionSettingsApiKeyHelp = "transcription.settings.apiKey.help"
     case transcriptionSettingsApiKeyPlaceholder = "transcription.settings.apiKey.placeholder"
+    case transcriptionSettingsAppleDescription = "transcription.settings.apple.description"
+    case transcriptionSettingsAppleUnavailable = "transcription.settings.apple.unavailable"
+    case transcriptionSettingsAppleName = "transcription.settings.appleName"
     case transcriptionSettingsAuto = "transcription.settings.auto"
     case transcriptionSettingsBaseURL = "transcription.settings.baseURL"
     case transcriptionSettingsBaseURLHelp = "transcription.settings.baseURL.help"
@@ -205,6 +210,10 @@ public enum L10nKey: String, CaseIterable, Sendable {
     case transcriptionSettingsCheckReachable = "transcription.settings.check.reachable"
     case transcriptionSettingsCheckUnauthorized = "transcription.settings.check.unauthorized"
     case transcriptionSettingsChecking = "transcription.settings.checking"
+    case transcriptionSettingsDelete = "transcription.settings.delete"
+    case transcriptionSettingsDeleteProvider = "transcription.settings.deleteProvider"
+    case transcriptionSettingsDeleteProviderMessage = "transcription.settings.deleteProvider.message"
+    case transcriptionSettingsDeleteProviderTitle = "transcription.settings.deleteProvider.title"
     case transcriptionSettingsDescription = "transcription.settings.description"
     case transcriptionSettingsInvalid = "transcription.settings.invalid"
     case transcriptionSettingsKeychainError = "transcription.settings.keychainError"
@@ -212,8 +221,12 @@ public enum L10nKey: String, CaseIterable, Sendable {
     case transcriptionSettingsLanguagePlaceholder = "transcription.settings.language.placeholder"
     case transcriptionSettingsModel = "transcription.settings.model"
     case transcriptionSettingsModelPlaceholder = "transcription.settings.model.placeholder"
+    case transcriptionSettingsNewProvider = "transcription.settings.newProvider"
     case transcriptionSettingsPrivacy = "transcription.settings.privacy"
-    case transcriptionSettingsReset = "transcription.settings.reset"
+    case transcriptionSettingsProvider = "transcription.settings.provider"
+    case transcriptionSettingsProviderName = "transcription.settings.providerName"
+    case transcriptionSettingsProviderNameDefault = "transcription.settings.providerName.default"
+    case transcriptionSettingsProviderNamePlaceholder = "transcription.settings.providerName.placeholder"
     case transcriptionSettingsTitle = "transcription.settings.title"
     case transcriptionSettingsTransport = "transcription.settings.transport"
     case transcriptionSettingsWindow = "transcription.settings.window"
@@ -340,8 +353,8 @@ public enum L10n {
         .libraryTranscribingOthers: "Trascrivo la voce degli altri…",
         .libraryTranscriptionFailed: "Trascrizione non riuscita.",
         .libraryTranscriptionSettings: "Apri impostazioni trascrizione",
-        .libraryUnavailableMessage: "Apri Impostazioni trascrizione e indica indirizzo, porta e percorso del servizio HTTP.",
-        .libraryUnavailableTitle: "Servizio di trascrizione non configurato",
+        .libraryUnavailableMessage: "Apri Impostazioni trascrizione e scegli un provider disponibile.",
+        .libraryUnavailableTitle: "Nessun provider di trascrizione disponibile",
         .libraryWindow: "Registrazioni",
         .menuFeedback: "Apri una segnalazione su GitHub…",
         .menuLanguage: "Lingua",
@@ -446,9 +459,14 @@ public enum L10n {
         .speakerMe: "Tu",
         .speakerMixed: "Voce",
         .speakerOthers: "Altri",
+        .speechPreparing: "Preparo il modello della lingua…",
+        .transcriptionSettingsAddProvider: "Aggiungi provider…",
         .transcriptionSettingsApiKey: "Chiave API (facoltativa)",
-        .transcriptionSettingsApiKeyHelp: "Resta nel Portachiavi di macOS e viene inviata solo al servizio configurato. Non compare nei log.",
+        .transcriptionSettingsApiKeyHelp: "Resta nel Portachiavi di macOS e viene inviata solo al provider selezionato. Non compare nei log.",
         .transcriptionSettingsApiKeyPlaceholder: "Incolla la chiave",
+        .transcriptionSettingsAppleDescription: "Usa il riconoscimento vocale di macOS. L'audio resta su questo Mac. Richiede macOS 26; macOS può scaricare il modello della lingua una volta.",
+        .transcriptionSettingsAppleUnavailable: "Apple Speech non è disponibile su questa versione di macOS. Scegli un provider personalizzato.",
+        .transcriptionSettingsAppleName: "Apple Speech sul Mac",
         .transcriptionSettingsAuto: "Trascrivi subito dopo ogni registrazione",
         .transcriptionSettingsBaseURL: "Indirizzo base",
         .transcriptionSettingsBaseURLHelp: "Inserisci l'indirizzo base, per esempio https://api.example.com/v1. Cornetta aggiunge /audio/transcriptions.",
@@ -465,16 +483,24 @@ public enum L10n {
         .transcriptionSettingsCheckReachable: "Connessione riuscita. Il servizio risponde.",
         .transcriptionSettingsCheckUnauthorized: "Il servizio richiede una chiave valida (HTTP {0}).",
         .transcriptionSettingsChecking: "Verifico…",
-        .transcriptionSettingsDescription: "Cornetta invia l'audio a un servizio HTTP compatibile con Whisper. Inserisci l'indirizzo base del servizio.",
+        .transcriptionSettingsDelete: "Elimina",
+        .transcriptionSettingsDeleteProvider: "Elimina provider",
+        .transcriptionSettingsDeleteProviderMessage: "La configurazione e la chiave API salvata vengono eliminate.",
+        .transcriptionSettingsDeleteProviderTitle: "Eliminare questo provider?",
+        .transcriptionSettingsDescription: "Configura un provider HTTP compatibile con Whisper. L'audio viene inviato solo al provider selezionato.",
         .transcriptionSettingsInvalid: "L'indirizzo del servizio non è valido.",
         .transcriptionSettingsKeychainError: "Non riesco a salvare la chiave nel Portachiavi.",
         .transcriptionSettingsLanguage: "Lingua (facoltativa)",
         .transcriptionSettingsLanguagePlaceholder: "Auto",
         .transcriptionSettingsModel: "Modello (facoltativo)",
         .transcriptionSettingsModelPlaceholder: "whisper-1",
-        .transcriptionSettingsPrivacy: "L'audio viene inviato solo al servizio configurato, quando premi Trascrivi o quando la trascrizione automatica è attiva. Usa un servizio locale o di cui ti fidi.",
-        .transcriptionSettingsReset: "Ripristina predefiniti",
-        .transcriptionSettingsTitle: "Servizio di trascrizione",
+        .transcriptionSettingsNewProvider: "Nuovo provider",
+        .transcriptionSettingsPrivacy: "Con Apple Speech l'audio resta su questo Mac. Con un provider HTTP l'audio viene inviato solo al provider selezionato, quando premi Trascrivi o quando la trascrizione automatica è attiva. Usa un servizio locale o di cui ti fidi.",
+        .transcriptionSettingsProvider: "Provider",
+        .transcriptionSettingsProviderName: "Nome",
+        .transcriptionSettingsProviderNameDefault: "Il mio provider",
+        .transcriptionSettingsProviderNamePlaceholder: "Il mio provider",
+        .transcriptionSettingsTitle: "Provider di trascrizione",
         .transcriptionSettingsTransport: "HTTP va bene per un servizio sul Mac o sulla rete locale; per un servizio su Internet usa HTTPS.",
         .transcriptionSettingsWindow: "Trascrizione",
         .welcomeAllow: "Consenti",
@@ -599,8 +625,8 @@ public enum L10n {
         .libraryTranscribingOthers: "Transcribing the other people…",
         .libraryTranscriptionFailed: "Transcription failed.",
         .libraryTranscriptionSettings: "Open transcription settings",
-        .libraryUnavailableMessage: "Open Transcription settings and enter the HTTP service address, port and path.",
-        .libraryUnavailableTitle: "Transcription service not configured",
+        .libraryUnavailableMessage: "Open Transcription settings and choose an available provider.",
+        .libraryUnavailableTitle: "No transcription provider available",
         .libraryWindow: "Recordings",
         .menuFeedback: "Open a GitHub issue…",
         .menuLanguage: "Language",
@@ -705,9 +731,14 @@ public enum L10n {
         .speakerMe: "You",
         .speakerMixed: "Unattributed voice",
         .speakerOthers: "Others",
+        .speechPreparing: "Preparing the language model…",
+        .transcriptionSettingsAddProvider: "Add provider…",
         .transcriptionSettingsApiKey: "API key (optional)",
-        .transcriptionSettingsApiKeyHelp: "Stored in the macOS Keychain and sent only to the configured service. Never written to logs.",
+        .transcriptionSettingsApiKeyHelp: "Stored in the macOS Keychain and sent only to the selected provider. Never written to logs.",
         .transcriptionSettingsApiKeyPlaceholder: "Paste the key",
+        .transcriptionSettingsAppleDescription: "Uses macOS speech recognition. Audio stays on this Mac. Requires macOS 26; macOS may download the language model once.",
+        .transcriptionSettingsAppleUnavailable: "Apple Speech is not available on this macOS version. Choose a custom provider.",
+        .transcriptionSettingsAppleName: "Apple Speech on this Mac",
         .transcriptionSettingsAuto: "Transcribe immediately after each recording",
         .transcriptionSettingsBaseURL: "Base URL",
         .transcriptionSettingsBaseURLHelp: "Enter the base URL, for example https://api.example.com/v1. Cornetta adds /audio/transcriptions.",
@@ -724,16 +755,24 @@ public enum L10n {
         .transcriptionSettingsCheckReachable: "Connection OK. The service responds.",
         .transcriptionSettingsCheckUnauthorized: "The service requires a valid key (HTTP {0}).",
         .transcriptionSettingsChecking: "Checking…",
-        .transcriptionSettingsDescription: "Cornetta sends audio to a Whisper-compatible HTTP service. Enter the service base URL.",
+        .transcriptionSettingsDelete: "Delete",
+        .transcriptionSettingsDeleteProvider: "Delete provider",
+        .transcriptionSettingsDeleteProviderMessage: "The configuration and saved API key are deleted.",
+        .transcriptionSettingsDeleteProviderTitle: "Delete this provider?",
+        .transcriptionSettingsDescription: "Configure a Whisper-compatible HTTP provider. Audio is sent only to the selected provider.",
         .transcriptionSettingsInvalid: "The service URL is invalid.",
         .transcriptionSettingsKeychainError: "Could not save the key in the Keychain.",
         .transcriptionSettingsLanguage: "Language (optional)",
         .transcriptionSettingsLanguagePlaceholder: "Auto",
         .transcriptionSettingsModel: "Model (optional)",
         .transcriptionSettingsModelPlaceholder: "whisper-1",
-        .transcriptionSettingsPrivacy: "Audio is sent only to the configured service, when you press Transcribe or when automatic transcription is enabled. Use a local service or one you trust.",
-        .transcriptionSettingsReset: "Restore defaults",
-        .transcriptionSettingsTitle: "Transcription service",
+        .transcriptionSettingsNewProvider: "New provider",
+        .transcriptionSettingsPrivacy: "With Apple Speech, audio stays on this Mac. With an HTTP provider, audio is sent only to the selected provider when you press Transcribe or enable automatic transcription. Use a local service or one you trust.",
+        .transcriptionSettingsProvider: "Provider",
+        .transcriptionSettingsProviderName: "Name",
+        .transcriptionSettingsProviderNameDefault: "My provider",
+        .transcriptionSettingsProviderNamePlaceholder: "My provider",
+        .transcriptionSettingsTitle: "Transcription providers",
         .transcriptionSettingsTransport: "HTTP works for a service on this Mac or the local network; use HTTPS for a service on the internet.",
         .transcriptionSettingsWindow: "Transcription",
         .welcomeAllow: "Allow",

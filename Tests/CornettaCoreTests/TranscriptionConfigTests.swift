@@ -100,15 +100,4 @@ struct TranscriptionConfigTests {
         #expect(TranscriptionAuthorization.header(for: "sk-test") == "Bearer sk-test")
     }
 
-    @Test func explicitSaveRoundTripsEveryField() throws {
-        let suite = "TranscriptionSaveTests"
-        let defaults = try #require(UserDefaults(suiteName: suite))
-        defaults.removePersistentDomain(forName: suite)
-        let config = TranscriptionConfig(baseURL: "https://api.example.com/v1",
-                                         model: "faster-whisper-large-v3", language: "ru")
-        TranscriptionConfig.save(config, autoTranscribe: true, in: defaults)
-        #expect(TranscriptionConfig.stored(in: defaults) == config)
-        #expect(defaults.bool(forKey: TranscriptionPreferences.autoTranscribeKey))
-        defaults.removePersistentDomain(forName: suite)
-    }
 }
