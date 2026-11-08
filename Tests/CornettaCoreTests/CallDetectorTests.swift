@@ -8,6 +8,14 @@ struct CallDetectorTests {
         #expect(CallDetector.normalize("com.apple.WebKit.GPU") == "com.apple.Safari")
         #expect(CallDetector.normalize("com.apple.avconferenced") == "com.apple.FaceTime")
         #expect(CallDetector.normalize("us.zoom.xos") == "us.zoom.xos")
+        #expect(CallDetector.normalize(
+            "org.qt-project.Qt.QtWebEngineProcess",
+            executablePath: "/Applications/Yandex.Telemost.app/Contents/MacOS/QtWebEngineProcess.app/Contents/MacOS/QtWebEngineProcess")
+            == "ru.yandex.desktop.telemost")
+        #expect(CallDetector.normalize(
+            "ru.darkseer.gspace.desktop.helper",
+            executablePath: "/Applications/G-Space.app/Contents/Frameworks/G-Space Helper.app/Contents/MacOS/G-Space Helper")
+            == "ru.darkseer.gspace.desktop")
     }
 
     @Test func ownProcessAndSystemServicesAreIgnored() {

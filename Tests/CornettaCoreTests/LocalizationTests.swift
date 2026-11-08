@@ -51,10 +51,8 @@ struct LocalizationTests {
     @Test func placeholdersFormatAndKeepLiteralPercentSigns() {
         #expect(L10n.format(.libraryStatusTranscribing, language: .italian, "42") == "Trascrivo 42%")
         #expect(L10n.format(.libraryStatusTranscribing, language: .english, "42") == "Transcribing 42%")
-        #expect(L10n.format(.menuTranscribeState, language: .english, "Off")
-                == "Transcribe immediately after recording: Off")
-        #expect(L10n.text(.commonOn, language: .english) == "On")
-        #expect(L10n.text(.commonOff, language: .english) == "Off")
+        #expect(L10n.text(.menuTranscribe, language: .english)
+                == "Transcribe immediately after recording")
         #expect(L10n.format(.noticeUpdateMessage, language: .english, "0.5.0")
                 == "Cornetta 0.5.0 is available on GitHub. Open the release page to download it: "
                 + "Cornetta does not install updates automatically.")

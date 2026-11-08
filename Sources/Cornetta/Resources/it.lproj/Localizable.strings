@@ -19,8 +19,6 @@
 "Feedback" = "Feedback";
 "nessuno" = "nessuno";
 "nessuna" = "nessuna";
-"Disattivata" = "Disattivata";
-"Attiva" = "Attiva";
 "Apri" = "Apri";
 "Riprova" = "Riprova";
 "Salva" = "Salva";
@@ -97,6 +95,7 @@
 "Ferma il video dello schermo" = "Ferma il video dello schermo";
 "Video dello schermo" = "Video dello schermo";
 "Senza microfono: serve macOS 15" = "Senza microfono: serve macOS 15";
+"Trascrivi subito dopo la registrazione" = "Trascrivi subito dopo la registrazione";
 "Impostazioni trascrizione…" = "Impostazioni trascrizione…";
 "Controlla gli aggiornamenti su GitHub…" = "Controlla gli aggiornamenti su GitHub…";
 "Vuoi registrarla? Registro la tua voce e quella delle altre persone in un file." = "Vuoi registrarla? Registro la tua voce e quella delle altre persone in un file.";

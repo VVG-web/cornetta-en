@@ -19,8 +19,6 @@
 "Feedback" = "Feedback";
 "nessuno" = "none";
 "nessuna" = "none";
-"Disattivata" = "Off";
-"Attiva" = "On";
 "Apri" = "Open";
 "Riprova" = "Try again";
 "Salva" = "Save";
@@ -97,6 +95,7 @@
 "Ferma il video dello schermo" = "Stop screen recording";
 "Video dello schermo" = "Screen recording";
 "Senza microfono: serve macOS 15" = "Without microphone: requires macOS 15";
+"Trascrivi subito dopo la registrazione" = "Transcribe immediately after recording";
 "Impostazioni trascrizione…" = "Transcription settings…";
 "Controlla gli aggiornamenti su GitHub…" = "Check for updates on GitHub…";
 "Vuoi registrarla? Registro la tua voce e quella delle altre persone in un file." = "Do you want to record it? I will put your voice and the other people in one file.";

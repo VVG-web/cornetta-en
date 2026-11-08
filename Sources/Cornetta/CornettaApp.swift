@@ -88,10 +88,7 @@ struct MenuContent: View {
         Button(localization.text(.menuFeedback)) { model.openFeedback() }
         Toggle(localization.text(.menuOverlay), isOn: $model.showOverlay)
         Toggle(localization.text(.menuPropose), isOn: $model.proposeOnCall)
-        Toggle(isOn: $autoTranscribe) {
-            Text(localization.format(.menuTranscribeState,
-                                     localization.text(autoTranscribe ? .commonOn : .commonOff)))
-        }
+        Toggle(localization.text(.menuTranscribe), isOn: $autoTranscribe)
         Button(localization.text(.menuTranscriptionSettings)) { TranscriptionSettingsWindow.show() }
         Toggle(localization.text(.menuLaunchAtLoginMac),
                isOn: Binding(get: { LaunchAtLogin.isEnabled }, set: { LaunchAtLogin.set($0) }))

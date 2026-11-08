@@ -111,6 +111,11 @@ oppure **→ Registrazione schermo e audio di sistema**.
 Se a metà chiamata cambi microfono (per esempio colleghi le AirPods), Cornetta passa al nuovo microfono e
 continua sullo stesso file.
 
+Il suggerimento **Registra la chiamata** parte quando un'app usa il microfono per almeno 4 secondi.
+Non c'è una lista chiusa: vale per G-Space, Yandex Telemost, Zoom, Teams, WhatsApp, FaceTime, Slack,
+Discord e per le chiamate nel browser (in quel caso l'app mostrata è Chrome o Safari). Siri, la
+dettatura, Voice Memos, i servizi audio di sistema e Cornetta stessa sono esclusi.
+
 ## Video dello schermo
 
 - **Registra lo schermo…**: macOS mostra il suo selettore. Scegli uno schermo, una finestra o un'app e il

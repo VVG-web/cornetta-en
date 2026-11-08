@@ -22,8 +22,6 @@ public enum L10nKey: String, CaseIterable, Sendable {
     case commonFeedback = "common.feedback"
     case commonNone = "common.none"
     case commonNoneFeminine = "common.noneFeminine"
-    case commonOff = "common.off"
-    case commonOn = "common.on"
     case commonOpen = "common.open"
     case commonRetry = "common.retry"
     case commonSave = "common.save"
@@ -111,7 +109,7 @@ public enum L10nKey: String, CaseIterable, Sendable {
     case menuScreenStop = "menu.screen.stop"
     case menuScreenTitle = "menu.screen.title"
     case menuScreenWithoutMicrophone = "menu.screen.withoutMicrophone"
-    case menuTranscribeState = "menu.transcribe.state"
+    case menuTranscribe = "menu.transcribe"
     case menuTranscriptionSettings = "menu.transcriptionSettings"
     case menuUpdates = "menu.updates"
     case noticeCallMessage = "notice.call.message"
@@ -284,8 +282,6 @@ public enum L10n {
         .commonFeedback: "Feedback",
         .commonNone: "nessuno",
         .commonNoneFeminine: "nessuna",
-        .commonOff: "Disattivata",
-        .commonOn: "Attiva",
         .commonOpen: "Apri",
         .commonRetry: "Riprova",
         .commonSave: "Salva",
@@ -373,7 +369,7 @@ public enum L10n {
         .menuScreenStop: "Ferma il video dello schermo",
         .menuScreenTitle: "Video dello schermo",
         .menuScreenWithoutMicrophone: "Senza microfono: serve macOS 15",
-        .menuTranscribeState: "Trascrivi subito dopo la registrazione: {0}",
+        .menuTranscribe: "Trascrivi subito dopo la registrazione",
         .menuTranscriptionSettings: "Impostazioni trascrizione…",
         .menuUpdates: "Controlla gli aggiornamenti su GitHub…",
         .noticeCallMessage: "Vuoi registrarla? Registro la tua voce e quella delle altre persone in un file.",
@@ -545,8 +541,6 @@ public enum L10n {
         .commonFeedback: "Feedback",
         .commonNone: "none",
         .commonNoneFeminine: "none",
-        .commonOff: "Off",
-        .commonOn: "On",
         .commonOpen: "Open",
         .commonRetry: "Try again",
         .commonSave: "Save",
@@ -634,7 +628,7 @@ public enum L10n {
         .menuScreenStop: "Stop screen recording",
         .menuScreenTitle: "Screen recording",
         .menuScreenWithoutMicrophone: "Without microphone: requires macOS 15",
-        .menuTranscribeState: "Transcribe immediately after recording: {0}",
+        .menuTranscribe: "Transcribe immediately after recording",
         .menuTranscriptionSettings: "Transcription settings…",
         .menuUpdates: "Check for updates on GitHub…",
         .noticeCallMessage: "Do you want to record it? I will put your voice and the other people in one file.",

@@ -33,6 +33,7 @@ subset is relevant, set it to the completed IDs instead of `all`; the script rej
 | TC-13 | The macOS app contains no `Speech.framework`, allows only local HTTP through ATS, and defaults transcription to loopback | `scripts/tests/test_security_guard.py`, release DMG inspection |
 | TC-14 | Full macOS build, tests, universal DMG, .NET, Python and browser scenarios | `./scripts/check.sh` |
 | TC-15 | Release metadata and assets are internally consistent | `scripts/qa-release.sh` |
+| TC-16 | Call detection normalizes G-Space and Yandex Telemost helpers and ignores system microphone users | `Tests/CornettaCoreTests/CallDetectorTests.swift` |
 
 ## Manual test scenarios
 

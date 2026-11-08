@@ -1,14 +1,17 @@
 import CoreAudio
+import Darwin
 import Foundation
 
 /// Un processo che sta usando il microfono.
 public struct MicrophoneClient: Equatable, Sendable {
     public let pid: pid_t
     public let bundleID: String
+    public let executablePath: String
 
-    public init(pid: pid_t, bundleID: String) {
+    public init(pid: pid_t, bundleID: String, executablePath: String = "") {
         self.pid = pid
         self.bundleID = bundleID
+        self.executablePath = executablePath
     }
 }
 
@@ -30,8 +33,15 @@ public enum CallDetector {
             guard running != 0 else { return nil }
             let pid = (try? CoreAudio.value(object, kAudioProcessPropertyPID, initial: pid_t(0))) ?? 0
             let bundle = (try? CoreAudio.string(object, kAudioProcessPropertyBundleID)) ?? ""
-            return MicrophoneClient(pid: pid, bundleID: bundle)
+            return MicrophoneClient(pid: pid, bundleID: bundle, executablePath: executablePath(of: pid))
         }
+    }
+
+    private static func executablePath(of pid: pid_t) -> String {
+        var buffer = [CChar](repeating: 0, count: 4096)
+        let length = proc_pidpath(pid, &buffer, UInt32(buffer.count))
+        guard length > 0 else { return "" }
+        return String(cString: buffer)
     }
 
     /// Le app che probabilmente sono in chiamata, normalizzate (un helper di Chrome diventa Chrome).
@@ -39,14 +49,17 @@ public enum CallDetector {
         var apps: [String] = []
         for client in clients where client.pid != ownPID && !client.bundleID.isEmpty {
             if ignoredPrefixes.contains(where: { client.bundleID.hasPrefix($0) }) { continue }
-            let app = normalize(client.bundleID)
+            let app = normalize(client.bundleID, executablePath: client.executablePath)
             if !apps.contains(app) { apps.append(app) }
         }
         return apps
     }
 
     /// Riporta i processi ausiliari all'app che l'utente riconosce.
-    public static func normalize(_ bundleID: String) -> String {
+    public static func normalize(_ bundleID: String, executablePath: String = "") -> String {
+        let path = executablePath.lowercased()
+        if path.contains("yandex.telemost.app") { return "ru.yandex.desktop.telemost" }
+        if path.contains("g-space.app") { return "ru.darkseer.gspace.desktop" }
         if bundleID.contains("avconferenced") || bundleID.contains("FaceTime") || bundleID.contains("TelephonyUtilities") {
             return "com.apple.FaceTime"
         }

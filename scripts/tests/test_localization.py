@@ -83,10 +83,7 @@ class LocalizationTests(unittest.TestCase):
     def test_macos_auto_transcription_menu_uses_its_own_storage(self):
         text = (ROOT / "Sources" / "Cornetta" / "CornettaApp.swift").read_text(encoding="utf-8")
         self.assertIn("@AppStorage(TranscriptionPreferences.autoTranscribeKey)", text)
-        self.assertIn("Toggle(isOn: $autoTranscribe)", text)
-        self.assertIn(".menuTranscribeState", text)
-        self.assertIn(".commonOn", text)
-        self.assertIn(".commonOff", text)
+        self.assertIn("Toggle(localization.text(.menuTranscribe), isOn: $autoTranscribe)", text)
         self.assertNotIn("Library.shared.$autoTranscribe", text)
 
     def test_language_controls_are_present_on_both_platforms(self):
