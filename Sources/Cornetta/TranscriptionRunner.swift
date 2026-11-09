@@ -48,8 +48,15 @@ enum TranscriptionRunner {
         }
         guard provider.config.isConfigured else { throw TranscriptionRunnerError.notConfigured }
         let key = TranscriptionProviderCatalog.apiKey(for: provider)
+        let diarization = provider.diarization.map {
+            // The owner's microphone track is always kept separate. Sending
+            // diarize=false also overrides servers that diarize by default.
+            TranscriptionDiarization(enabled: $0.enabled && speaker != .me,
+                                      timeoutSeconds: $0.normalized.timeoutSeconds)
+        }
         let segments = try await TranscriptionService.transcribe(url: url, speaker: speaker,
                                                                  config: provider.config, apiKey: key,
+                                                                 diarization: diarization,
                                                                  progress: progress)
         return TranscriptionOutput(segments: segments, engine: TranscriptionService.engineName,
                                    language: provider.config.effectiveLanguage.isEmpty

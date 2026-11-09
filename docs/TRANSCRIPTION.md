@@ -53,6 +53,24 @@ The toggle **Transcribe immediately after each recording** is the same option
 as the menu item. It is off by default. With it off, a recording is transcribed
 only when you press **Transcribe** in the Recordings window.
 
+## Server diarization
+
+Each HTTP provider has an optional **Server diarization** setting. When it is
+enabled, Cornetta sends `diarize=true` in the multipart request and reads
+`segments[].speaker` from `verbose_json`, for example `SPEAKER_00`. The
+transcript shows Speaker 1, Speaker 2 and so on.
+
+The microphone track is always the owner and remains **You**. It is sent with
+`diarize=false`, so the server does not reassign the owner through diarization.
+Only the system-audio track uses the server speaker labels. Timestamps remain
+the original start/end values, so playback highlighting and the audio-text
+sync are unchanged.
+
+The diarization settings sheet also sets the request timeout. The value is sent
+as `X-Audio-Timeout` and the client waits up to that long for the synchronous
+response. A provider that diarizes by default is explicitly disabled with
+`diarize=false` when the checkbox is off after the option has been configured.
+
 ## Request
 
 Cornetta sends one multipart form per audio file:
@@ -62,6 +80,7 @@ Cornetta sends one multipart form per audio file:
 | `file` | The audio file, with its filename and MIME type. |
 | `model` | The configured model, omitted when empty. |
 | `language` | The configured language, omitted when empty. |
+| `diarize` | `true` for a diarized remote track, `false` for the owner or a disabled setting. Omitted when the provider has no diarization setting. |
 | `response_format` | `verbose_json` first, then `json` if the service rejects it. |
 
 The request has `Accept: application/json` and a User-Agent of

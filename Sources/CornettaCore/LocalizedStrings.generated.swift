@@ -197,6 +197,7 @@ public enum L10nKey: String, CaseIterable, Sendable {
     case speakerMe = "speaker.me"
     case speakerMixed = "speaker.mixed"
     case speakerOthers = "speaker.others"
+    case speakerRemote = "speaker.remote"
     case speechPreparing = "speech.preparing"
     case transcriptionSettingsAddProvider = "transcription.settings.addProvider"
     case transcriptionSettingsApiKey = "transcription.settings.apiKey"
@@ -226,6 +227,15 @@ public enum L10nKey: String, CaseIterable, Sendable {
     case transcriptionSettingsDeleteProviderMessage = "transcription.settings.deleteProvider.message"
     case transcriptionSettingsDeleteProviderTitle = "transcription.settings.deleteProvider.title"
     case transcriptionSettingsDescription = "transcription.settings.description"
+    case transcriptionSettingsDiarization = "transcription.settings.diarization"
+    case transcriptionSettingsDiarizationEnabled = "transcription.settings.diarization.enabled"
+    case transcriptionSettingsDiarizationHelp = "transcription.settings.diarization.help"
+    case transcriptionSettingsDiarizationNote = "transcription.settings.diarization.note"
+    case transcriptionSettingsDiarizationSettings = "transcription.settings.diarization.settings"
+    case transcriptionSettingsDiarizationTimeout = "transcription.settings.diarization.timeout"
+    case transcriptionSettingsDiarizationTimeoutHelp = "transcription.settings.diarization.timeout.help"
+    case transcriptionSettingsDiarizationTimeoutPlaceholder = "transcription.settings.diarization.timeout.placeholder"
+    case transcriptionSettingsDiarizationTitle = "transcription.settings.diarization.title"
     case transcriptionSettingsInvalid = "transcription.settings.invalid"
     case transcriptionSettingsKeychainError = "transcription.settings.keychainError"
     case transcriptionSettingsLanguage = "transcription.settings.language"
@@ -481,6 +491,7 @@ public enum L10n {
         .speakerMe: "Tu",
         .speakerMixed: "Voce",
         .speakerOthers: "Altri",
+        .speakerRemote: "Interlocutore {0}",
         .speechPreparing: "Preparo il modello della lingua…",
         .transcriptionSettingsAddProvider: "Aggiungi provider…",
         .transcriptionSettingsApiKey: "Chiave API (facoltativa)",
@@ -510,6 +521,15 @@ public enum L10n {
         .transcriptionSettingsDeleteProviderMessage: "La configurazione e la chiave API salvata vengono eliminate.",
         .transcriptionSettingsDeleteProviderTitle: "Eliminare questo provider?",
         .transcriptionSettingsDescription: "Configura un provider HTTP compatibile con Whisper. L'audio viene inviato solo al provider selezionato.",
+        .transcriptionSettingsDiarization: "Diarizzazione sul server",
+        .transcriptionSettingsDiarizationEnabled: "Attiva la diarizzazione",
+        .transcriptionSettingsDiarizationHelp: "Chiede al server di separare gli interlocutori. La traccia del microfono resta la tua voce e non passa dalla diarizzazione.",
+        .transcriptionSettingsDiarizationNote: "Il server restituisce le etichette in segments[].speaker, per esempio SPEAKER_00. Cornetta mostra Speaker 1, Speaker 2 e così via. La traccia del microfono resta separata e viene etichettata come la tua voce.",
+        .transcriptionSettingsDiarizationSettings: "Impostazioni diarizzazione…",
+        .transcriptionSettingsDiarizationTimeout: "Timeout del server (secondi)",
+        .transcriptionSettingsDiarizationTimeoutHelp: "Inviato come X-Audio-Timeout. Il server può applicare un limite diverso.",
+        .transcriptionSettingsDiarizationTimeoutPlaceholder: "1800",
+        .transcriptionSettingsDiarizationTitle: "Diarizzazione",
         .transcriptionSettingsInvalid: "L'indirizzo del servizio non è valido.",
         .transcriptionSettingsKeychainError: "Non riesco a salvare la chiave nel Portachiavi.",
         .transcriptionSettingsLanguage: "Lingua (facoltativa)",
@@ -764,6 +784,7 @@ public enum L10n {
         .speakerMe: "You",
         .speakerMixed: "Unattributed voice",
         .speakerOthers: "Others",
+        .speakerRemote: "Speaker {0}",
         .speechPreparing: "Preparing the language model…",
         .transcriptionSettingsAddProvider: "Add provider…",
         .transcriptionSettingsApiKey: "API key (optional)",
@@ -793,6 +814,15 @@ public enum L10n {
         .transcriptionSettingsDeleteProviderMessage: "The configuration and saved API key are deleted.",
         .transcriptionSettingsDeleteProviderTitle: "Delete this provider?",
         .transcriptionSettingsDescription: "Configure a Whisper-compatible HTTP provider. Audio is sent only to the selected provider.",
+        .transcriptionSettingsDiarization: "Server diarization",
+        .transcriptionSettingsDiarizationEnabled: "Enable diarization",
+        .transcriptionSettingsDiarizationHelp: "Ask the server to separate the other speakers. The microphone track stays your voice and is not diarized.",
+        .transcriptionSettingsDiarizationNote: "The server returns labels in segments[].speaker, for example SPEAKER_00. Cornetta shows Speaker 1, Speaker 2 and so on. The microphone track stays separate and is labelled as your voice.",
+        .transcriptionSettingsDiarizationSettings: "Diarization settings…",
+        .transcriptionSettingsDiarizationTimeout: "Server timeout (seconds)",
+        .transcriptionSettingsDiarizationTimeoutHelp: "Sent as X-Audio-Timeout. The server may apply a different limit.",
+        .transcriptionSettingsDiarizationTimeoutPlaceholder: "1800",
+        .transcriptionSettingsDiarizationTitle: "Diarization",
         .transcriptionSettingsInvalid: "The service URL is invalid.",
         .transcriptionSettingsKeychainError: "Could not save the key in the Keychain.",
         .transcriptionSettingsLanguage: "Language (optional)",

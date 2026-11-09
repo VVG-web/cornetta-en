@@ -186,6 +186,15 @@
 "La configurazione e la chiave API salvata vengono eliminate." = "The configuration and saved API key are deleted.";
 "Eliminare questo provider?" = "Delete this provider?";
 "Configura un provider HTTP compatibile con Whisper. L'audio viene inviato solo al provider selezionato." = "Configure a Whisper-compatible HTTP provider. Audio is sent only to the selected provider.";
+"Diarizzazione sul server" = "Server diarization";
+"Attiva la diarizzazione" = "Enable diarization";
+"Chiede al server di separare gli interlocutori. La traccia del microfono resta la tua voce e non passa dalla diarizzazione." = "Ask the server to separate the other speakers. The microphone track stays your voice and is not diarized.";
+"Il server restituisce le etichette in segments[].speaker, per esempio SPEAKER_00. Cornetta mostra Speaker 1, Speaker 2 e così via. La traccia del microfono resta separata e viene etichettata come la tua voce." = "The server returns labels in segments[].speaker, for example SPEAKER_00. Cornetta shows Speaker 1, Speaker 2 and so on. The microphone track stays separate and is labelled as your voice.";
+"Impostazioni diarizzazione…" = "Diarization settings…";
+"Timeout del server (secondi)" = "Server timeout (seconds)";
+"Inviato come X-Audio-Timeout. Il server può applicare un limite diverso." = "Sent as X-Audio-Timeout. The server may apply a different limit.";
+"1800" = "1800";
+"Diarizzazione" = "Diarization";
 "Non riesco a salvare la chiave nel Portachiavi." = "Could not save the key in the Keychain.";
 "Lingua (facoltativa)" = "Language (optional)";
 "Auto" = "Auto";

@@ -37,6 +37,7 @@ subset is relevant, set it to the completed IDs instead of `all`; the script rej
 | TC-17 | Multiple HTTP providers persist, switch and delete independently; the selected provider is remembered; Apple is a separate provider option | `Tests/CornettaCoreTests/TranscriptionProvidersTests.swift` |
 | TC-18 | The five recording tags are read and written in the .m4a, empty tags can be removed, and the audio remains readable after the atomic replacement | `Tests/CornettaCoreTests/RecordingTagsTests.swift` |
 | TC-19 | Floating recording, suggestion and notice panels size themselves to their SwiftUI content, including the Feedback button and long update messages | manual TS-19, release screenshots |
+| TC-20 | Per-provider diarization settings survive old provider JSON; server speaker labels become readable Speaker N labels; the owner track remains You | `Tests/CornettaCoreTests/TranscriptionProvidersTests.swift`, `Tests/CornettaCoreTests/TranscriptTests.swift` |
 
 ## Manual test scenarios
 
@@ -216,6 +217,20 @@ blocks the release until it is fixed and all affected scenarios are repeated.
 3. Trigger a notice with a long message and a call suggestion at the same time. Expected: both windows grow
    to fit and remain inside the screen.
 4. Quit and relaunch the app. Expected: the old saved frame is replaced by the content-sized frame.
+
+### TS-20: Server diarization and separate owner channel
+
+1. Open Transcription settings for a custom HTTP provider, enable **Server diarization**, and check that
+   the diarization settings sheet opens with the timeout field.
+2. Save and transcribe a recording with `verbose_json` and `segments[].speaker` in the response, for
+   example `SPEAKER_00`. Expected: requests include `diarize=true`, the response is parsed, and the
+   transcript shows Speaker 1, Speaker 2 and so on.
+3. For a recording with separate tracks, expected: the system-audio track carries the diarized speaker
+   labels, while the microphone track remains **You** and is sent with `diarize=false`. Audio and text
+   timestamps stay aligned.
+4. Disable diarization and transcribe again. Expected: the request includes `diarize=false`, the
+   transcript falls back to Others, and the audio still succeeds.
+5. Use a local provider only for this test. Do not commit its URL, name, model or API key.
 
 ## Sign-off
 

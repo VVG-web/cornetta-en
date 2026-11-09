@@ -45,8 +45,8 @@ struct TranscriptionConfigTests {
     @Test func parsesOpenAIModelLists() throws {
         let data = Data(#"{"data":[{"id":"faster-whisper-large-v3"},{"id":"whisper-1"}]}"#.utf8)
         #expect(TranscriptionModelList.ids(from: data) == ["faster-whisper-large-v3", "whisper-1"])
-        let alt = Data(#"{"models":[{"id":"igpu"}]}"#.utf8)
-        #expect(TranscriptionModelList.ids(from: alt) == ["igpu"])
+        let alt = Data(#"{"models":[{"id":"custom-model"}]}"#.utf8)
+        #expect(TranscriptionModelList.ids(from: alt) == ["custom-model"])
         #expect(TranscriptionModelList.ids(from: Data("not json".utf8)) == nil)
     }
 

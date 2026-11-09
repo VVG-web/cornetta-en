@@ -2,6 +2,14 @@ import AVFoundation
 import CornettaCore
 import Foundation
 
+/// One provider-level diarization request. `enabled == false` is sent explicitly
+/// to turn off a server that diarizes by default. Cornetta never sends it for
+/// the owner's microphone track.
+struct TranscriptionDiarization: Sendable {
+    let enabled: Bool
+    let timeoutSeconds: Int
+}
+
 enum TranscriptionServiceError: LocalizedError {
     case notConfigured
     case http(status: Int, body: String)
@@ -28,37 +36,54 @@ enum TranscriptionService {
     static let engineName = "Whisper HTTP"
 
     private static let session: URLSession = {
+        makeSession(requestTimeout: 600, resourceTimeout: 900)
+    }()
+
+    private static func makeSession(requestTimeout: TimeInterval,
+                                    resourceTimeout: TimeInterval) -> URLSession {
         let configuration = URLSessionConfiguration.ephemeral
         configuration.httpShouldSetCookies = false
-        configuration.timeoutIntervalForRequest = 600
-        configuration.timeoutIntervalForResource = 900
+        configuration.timeoutIntervalForRequest = requestTimeout
+        configuration.timeoutIntervalForResource = resourceTimeout
         return URLSession(configuration: configuration)
-    }()
+    }
+
+    private static func session(for diarization: TranscriptionDiarization?) -> URLSession {
+        guard let diarization else { return session }
+        let timeout = TimeInterval(diarization.timeoutSeconds)
+        return makeSession(requestTimeout: timeout, resourceTimeout: timeout + 120)
+    }
 
     static func transcribe(url: URL, speaker: Transcript.Speaker, config: TranscriptionConfig,
                            apiKey: String = "",
+                           diarization: TranscriptionDiarization? = nil,
                            progress: @escaping (Double) -> Void = { _ in }) async throws -> [Transcript.Segment] {
         guard let endpoint = config.endpointURL else { throw TranscriptionServiceError.notConfigured }
         let duration = audioDuration(url)
         progress(0.05)
+        let session = session(for: diarization)
         let data: Data
         do {
             data = try await upload(url: url, endpoint: endpoint, config: config, apiKey: apiKey,
-                                    responseFormat: "verbose_json")
+                                    responseFormat: "verbose_json", diarization: diarization,
+                                    session: session)
         } catch TranscriptionServiceError.http(let status, _) where [400, 415, 422].contains(status) {
             // Alcuni server Whisper accettano solo il formato JSON semplice.
             Diagnostics.log("Trascrizione: il servizio rifiuta verbose_json (\(status)), riprovo con json")
             data = try await upload(url: url, endpoint: endpoint, config: config, apiKey: apiKey,
-                                    responseFormat: "json")
+                                    responseFormat: "json", diarization: diarization,
+                                    session: session)
         }
         progress(0.95)
-        let segments = parse(data, speaker: speaker, duration: duration)
+        let segments = parse(data, speaker: speaker, duration: duration,
+                             diarization: diarization?.enabled == true)
         progress(1)
         return segments
     }
 
     private static func upload(url: URL, endpoint: URL, config: TranscriptionConfig, apiKey: String,
-                               responseFormat: String) async throws -> Data {
+                               responseFormat: String, diarization: TranscriptionDiarization?,
+                               session: URLSession) async throws -> Data {
         guard let audio = try? Data(contentsOf: url, options: .mappedIfSafe), !audio.isEmpty else {
             throw TranscriptionServiceError.fileUnreadable(url)
         }
@@ -76,6 +101,9 @@ enum TranscriptionService {
         if !config.effectiveLanguage.isEmpty {
             body.append(field("language", config.effectiveLanguage, boundary: boundary))
         }
+        if let diarization {
+            body.append(field("diarize", diarization.enabled ? "true" : "false", boundary: boundary))
+        }
         body.append(field("response_format", responseFormat, boundary: boundary))
         body.append("--\(boundary)--\r\n")
 
@@ -84,6 +112,9 @@ enum TranscriptionService {
         request.setValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
         request.setValue("application/json", forHTTPHeaderField: "Accept")
         request.setValue("Cornetta/\(AppInfo.version)", forHTTPHeaderField: "User-Agent")
+        if let diarization {
+            request.setValue(String(diarization.timeoutSeconds), forHTTPHeaderField: "X-Audio-Timeout")
+        }
         if let authorization = TranscriptionAuthorization.header(for: apiKey) {
             request.setValue(authorization, forHTTPHeaderField: "Authorization")
         }
@@ -106,7 +137,8 @@ enum TranscriptionService {
         return data
     }
 
-    private static func parse(_ data: Data, speaker: Transcript.Speaker, duration: Double) -> [Transcript.Segment] {
+    private static func parse(_ data: Data, speaker: Transcript.Speaker, duration: Double,
+                              diarization: Bool) -> [Transcript.Segment] {
         if let response = try? JSONDecoder().decode(WhisperResponse.self, from: data) {
             if let rawSegments = response.segments, !rawSegments.isEmpty {
                 let segments = rawSegments.compactMap { segment -> Transcript.Segment? in
@@ -114,7 +146,9 @@ enum TranscriptionService {
                     guard !text.isEmpty else { return nil }
                     let start = max(0, segment.start ?? 0)
                     let end = max(start, segment.end ?? duration)
-                    return Transcript.Segment(speaker: speaker, start: start, end: end, text: text)
+                    let remote = diarization && speaker != .me ? segment.speaker : nil
+                    return Transcript.Segment(speaker: speaker, start: start, end: end, text: text,
+                                              remoteSpeaker: remote)
                 }
                 if !segments.isEmpty { return segments }
             }
@@ -162,6 +196,7 @@ enum TranscriptionService {
         let start: Double?
         let end: Double?
         let text: String?
+        let speaker: String?
     }
 }
 

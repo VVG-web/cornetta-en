@@ -251,7 +251,7 @@ struct RecordingRow: View {
         let q = query.trimmingCharacters(in: .whitespaces).lowercased()
         guard !q.isEmpty, let transcript = library.transcripts[recording.id] else { return nil }
         return transcript.segments.first { $0.text.lowercased().contains(q) }.map {
-            "\($0.speaker.label(language: language)): \($0.text)"
+            "\($0.displayLabel(language: language)): \($0.text)"
         }
     }
 }
@@ -552,7 +552,7 @@ struct TurnRow: View {
             .accessibilityLabel(L10n.format(.libraryListenFromAccessibility, language: language,
                                             TranscriptFormatter.timestamp(turn.start)))
             VStack(alignment: .leading, spacing: 3) {
-                Text(turn.speaker.label(language: language))
+                Text(turn.displayLabel(language: language))
                     .font(.caption.weight(.bold))
                     .foregroundStyle(color)
                 Text(turn.text)

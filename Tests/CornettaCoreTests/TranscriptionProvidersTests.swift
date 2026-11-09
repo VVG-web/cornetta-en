@@ -61,10 +61,30 @@ struct TranscriptionProvidersTests {
         let provider = TranscriptionProvider(name: "Paid", kind: .http,
                                              baseURL: "https://api.example.com/v1",
                                              model: "large-v3", language: "ru",
-                                             usesLegacyKey: false)
+                                             usesLegacyKey: false,
+                                             diarization: DiarizationSettings(enabled: true,
+                                                                              timeoutSeconds: 1_800))
         let decoded = try JSONDecoder().decode(TranscriptionProvider.self,
                                                from: JSONEncoder().encode(provider))
         #expect(decoded == provider)
         #expect(decoded.credentialAccount == TranscriptionCredential.account(for: provider.id))
+        #expect(decoded.usesDiarization)
+    }
+
+    @Test func oldProviderJSONWithoutDiarizationStillDecodes() throws {
+        let json = """
+        {"id":"C0000000-0000-0000-0000-000000000001","name":"Local","kind":"http",
+         "baseURL":"http://127.0.0.1:8080/v1","model":"whisper-1","language":"it",
+         "usesLegacyKey":false}
+        """
+        let provider = try JSONDecoder().decode(TranscriptionProvider.self,
+                                                from: Data(json.utf8))
+        #expect(provider.diarization == nil)
+        #expect(!provider.usesDiarization)
+    }
+
+    @Test func diarizationTimeoutIsClamped() {
+        #expect(DiarizationSettings(timeoutSeconds: 10).normalized.timeoutSeconds == 60)
+        #expect(DiarizationSettings(timeoutSeconds: 9_999).normalized.timeoutSeconds == 3_600)
     }
 }

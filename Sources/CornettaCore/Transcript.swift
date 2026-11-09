@@ -25,15 +25,29 @@ public struct Transcript: Codable, Equatable, Sendable {
 
     public struct Segment: Codable, Equatable, Sendable {
         public var speaker: Speaker
+        /// Speaker label returned by a diarizing server, for example SPEAKER_00.
+        /// Nil for local Apple Speech and for the owner's microphone track.
+        public var remoteSpeaker: String?
         public var start: Double
         public var end: Double
         public var text: String
 
-        public init(speaker: Speaker, start: Double, end: Double, text: String) {
+        public init(speaker: Speaker, start: Double, end: Double, text: String,
+                    remoteSpeaker: String? = nil) {
             self.speaker = speaker
+            self.remoteSpeaker = remoteSpeaker
             self.start = start
             self.end = end
             self.text = text
+        }
+
+        /// The owner always stays the owner. Remote labels are used only for
+        /// the system-audio track (or a mixed legacy recording).
+        public func displayLabel(language: AppLanguage = .italian) -> String {
+            if speaker != .me, let remoteSpeaker, !remoteSpeaker.trimmingCharacters(in: .whitespaces).isEmpty {
+                return RemoteSpeakerLabel.display(remoteSpeaker, language: language)
+            }
+            return speaker.label(language: language)
         }
     }
 
@@ -66,12 +80,26 @@ public struct Transcript: Codable, Equatable, Sendable {
     }()
 
     public func plainText(language: AppLanguage = .italian) -> String {
-        segments.map { "\($0.speaker.label(language: language)): \($0.text)" }.joined(separator: "\n")
+        segments.map { "\($0.displayLabel(language: language)): \($0.text)" }.joined(separator: "\n")
     }
 
     /// Italian plain text for older call sites. New UI passes the selected language explicitly.
     public var plainText: String {
         plainText(language: .italian)
+    }
+}
+
+/// Maps OpenAI-style diarization labels to readable names.
+public enum RemoteSpeakerLabel {
+    public static func display(_ raw: String, language: AppLanguage = .italian) -> String {
+        let label = raw.trimmingCharacters(in: .whitespacesAndNewlines)
+        let upper = label.uppercased()
+        guard upper.hasPrefix("SPEAKER_") || upper.hasPrefix("SPEAKER-") else {
+            return label
+        }
+        let digits = label.filter(\.isNumber)
+        guard let index = Int(digits), index >= 0 else { return label }
+        return L10n.format(.speakerRemote, language: language, String(index + 1))
     }
 }
 
@@ -174,7 +202,7 @@ public enum TranscriptFormatter {
         lines.append(meta.joined(separator: " · "))
         lines.append("")
         for turn in turns(transcript.segments) {
-            lines.append("**\(turn.speaker.label(language: language))** (\(timestamp(turn.start))): \(turn.text)")
+            lines.append("**\(turn.displayLabel(language: language))** (\(timestamp(turn.start))): \(turn.text)")
             lines.append("")
         }
         return lines.joined(separator: "\n")
@@ -184,7 +212,8 @@ public enum TranscriptFormatter {
     public static func turns(_ segments: [Transcript.Segment]) -> [Transcript.Segment] {
         var result: [Transcript.Segment] = []
         for segment in segments {
-            if var last = result.last, last.speaker == segment.speaker, segment.start - last.end < 2.5 {
+            if var last = result.last, last.speaker == segment.speaker,
+               last.remoteSpeaker == segment.remoteSpeaker, segment.start - last.end < 2.5 {
                 last.text += " " + segment.text
                 last.end = max(last.end, segment.end)
                 result[result.count - 1] = last

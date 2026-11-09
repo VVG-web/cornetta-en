@@ -15,6 +15,7 @@ struct TranscriptionSettingsView: View {
     @State private var checkResult: ProviderCheckResult?
     @State private var addingProvider = false
     @State private var confirmDelete = false
+    @State private var showingDiarizationSettings = false
 
     @Environment(\.appLanguage) private var language
 
@@ -102,6 +103,12 @@ struct TranscriptionSettingsView: View {
         .sheet(isPresented: $addingProvider) {
             AddProviderView { provider in
                 refreshProviders(select: provider.id)
+            }
+            .localizedRoot()
+        }
+        .sheet(isPresented: $showingDiarizationSettings) {
+            DiarizationSettingsView(settings: draft.diarization ?? DiarizationSettings()) { settings in
+                draft.diarization = settings
             }
             .localizedRoot()
         }
@@ -193,6 +200,18 @@ struct TranscriptionSettingsView: View {
                 .font(.caption)
                 .foregroundStyle(.secondary)
 
+            VStack(alignment: .leading, spacing: 6) {
+                Toggle(L10n.text(.transcriptionSettingsDiarization, language: language),
+                       isOn: diarizationEnabled)
+                    .help(L10n.text(.transcriptionSettingsDiarizationHelp, language: language))
+                if draft.diarization?.enabled == true {
+                    Button(L10n.text(.transcriptionSettingsDiarizationSettings, language: language)) {
+                        showingDiarizationSettings = true
+                    }
+                    .controlSize(.small)
+                }
+            }
+
             Text(config.endpointDescription)
                 .font(.system(.caption, design: .monospaced))
                 .foregroundStyle(config.isConfigured ? Color.secondary : Color.red)
@@ -230,6 +249,18 @@ struct TranscriptionSettingsView: View {
         provider.kind == .apple
             ? L10n.text(.transcriptionSettingsAppleName, language: language)
             : provider.name
+    }
+
+    private var diarizationEnabled: Binding<Bool> {
+        Binding(
+            get: { draft.diarization?.enabled == true },
+            set: { enabled in
+                var settings = draft.diarization ?? DiarizationSettings()
+                settings.enabled = enabled
+                draft.diarization = settings.normalized
+                if enabled { showingDiarizationSettings = true }
+            }
+        )
     }
 
     private func refreshProviders(select id: UUID?) {
@@ -419,6 +450,7 @@ struct AddProviderView: View {
 enum TranscriptionSettingsWindow {
     private static var window: NSWindow?
     private static var languageObserver: NSObjectProtocol?
+    private static var fitTimer: Timer?
 
     static func show() {
         if window == nil {
@@ -448,5 +480,29 @@ enum TranscriptionSettingsWindow {
         }
         NSApp.activate(ignoringOtherApps: true)
         window.makeKeyAndOrderFront(nil)
+        startFitTimer()
+    }
+
+    /// The provider view grows when diarization is enabled and shrinks for
+    /// Apple Speech. Keep the window fitted instead of relying on an old
+    /// autosaved frame.
+    private static func startFitTimer() {
+        fitTimer?.invalidate()
+        fitTimer = Timer.scheduledTimer(withTimeInterval: 0.25, repeats: true) { _ in
+            Task { @MainActor in
+                guard let window, window.isVisible, let content = window.contentView else {
+                    fitTimer?.invalidate()
+                    fitTimer = nil
+                    return
+                }
+                content.layoutSubtreeIfNeeded()
+                let fitted = content.fittingSize
+                guard fitted.width > 1, fitted.height > 1 else { return }
+                if abs(window.frame.width - fitted.width) > 0.5
+                    || abs(window.frame.height - fitted.height) > 0.5 {
+                    window.setContentSize(fitted)
+                }
+            }
+        }
     }
 }

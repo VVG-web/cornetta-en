@@ -186,6 +186,15 @@
 "La configurazione e la chiave API salvata vengono eliminate." = "La configurazione e la chiave API salvata vengono eliminate.";
 "Eliminare questo provider?" = "Eliminare questo provider?";
 "Configura un provider HTTP compatibile con Whisper. L'audio viene inviato solo al provider selezionato." = "Configura un provider HTTP compatibile con Whisper. L'audio viene inviato solo al provider selezionato.";
+"Diarizzazione sul server" = "Diarizzazione sul server";
+"Attiva la diarizzazione" = "Attiva la diarizzazione";
+"Chiede al server di separare gli interlocutori. La traccia del microfono resta la tua voce e non passa dalla diarizzazione." = "Chiede al server di separare gli interlocutori. La traccia del microfono resta la tua voce e non passa dalla diarizzazione.";
+"Il server restituisce le etichette in segments[].speaker, per esempio SPEAKER_00. Cornetta mostra Speaker 1, Speaker 2 e così via. La traccia del microfono resta separata e viene etichettata come la tua voce." = "Il server restituisce le etichette in segments[].speaker, per esempio SPEAKER_00. Cornetta mostra Speaker 1, Speaker 2 e così via. La traccia del microfono resta separata e viene etichettata come la tua voce.";
+"Impostazioni diarizzazione…" = "Impostazioni diarizzazione…";
+"Timeout del server (secondi)" = "Timeout del server (secondi)";
+"Inviato come X-Audio-Timeout. Il server può applicare un limite diverso." = "Inviato come X-Audio-Timeout. Il server può applicare un limite diverso.";
+"1800" = "1800";
+"Diarizzazione" = "Diarizzazione";
 "Non riesco a salvare la chiave nel Portachiavi." = "Non riesco a salvare la chiave nel Portachiavi.";
 "Lingua (facoltativa)" = "Lingua (facoltativa)";
 "Auto" = "Auto";

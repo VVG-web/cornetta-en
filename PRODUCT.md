@@ -46,6 +46,8 @@ di rilascio, parte da questo taglio: niente toni da prodotto premium.
 - Tag audio modificabili nella finestra Registrazioni e trascrizioni: titolo, artista/autore,
   album/progetto, data e commento/argomento. I cinque valori sono scritti nei metadati standard del
   file `.m4a`, non solo nelle preferenze dell'app.
+- Diarizzazione server opzionale per ogni provider HTTP: etichette Speaker N dagli orari del server,
+  mentre la traccia del microfono resta separata come voce del proprietario.
 - Windows (beta): Windows 10 e 11, installer per utente senza permessi di amministratore. L'installer non
   è firmato: SmartScreen chiede «Ulteriori informazioni → Esegui comunque». Niente trascrizione.
 - Telefoni esclusi: iOS non dà l'audio delle chiamate, Android lo blocca dalla 10.

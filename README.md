@@ -147,6 +147,10 @@ hai attivato **Trascrivi subito dopo la registrazione**.
 - Ogni provider HTTP ha nome, indirizzo, modello, lingua e chiave API separati. Se il servizio richiede
   una chiave, incollala nel campo **Chiave API**. Resta nel Portachiavi di macOS, viene inviata solo come
   `Authorization: Bearer` a quel provider e non compare nei log.
+- Per i provider HTTP si può attivare **Diarizzazione sul server**. Cornetta invia `diarize=true` e legge
+  `segments[].speaker`: la trascrizione mostra Speaker 1, Speaker 2 e così via. La traccia del microfono
+  resta **Tu** e viene inviata con `diarize=false`, quindi la voce del proprietario non viene riassegnata
+  dalla diarizzazione. Gli orari restano quelli originali.
 - **Apple Speech sul Mac** usa il riconoscimento vocale di macOS 26 e non invia audio in rete; al primo
   uso macOS può scaricare il modello della lingua. Su macOS precedenti il provider è visibile ma non
   disponibile.

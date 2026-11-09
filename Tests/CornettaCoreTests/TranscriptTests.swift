@@ -66,6 +66,29 @@ struct TranscriptTests {
         #expect(TranscriptFormatter.timestamp(3725) == "1:02:05")
     }
 
+    @Test func remoteSpeakersAreMappedToReadableLabels() {
+        #expect(RemoteSpeakerLabel.display("SPEAKER_00", language: .english) == "Speaker 1")
+        #expect(RemoteSpeakerLabel.display("SPEAKER-02", language: .english) == "Speaker 3")
+        #expect(RemoteSpeakerLabel.display("SPEAKER_01", language: .italian) == "Interlocutore 2")
+        #expect(RemoteSpeakerLabel.display("Alice", language: .english) == "Alice")
+        #expect(S(speaker: .others, start: 0, end: 1, text: "Ciao",
+                 remoteSpeaker: "SPEAKER_00").displayLabel(language: .english) == "Speaker 1")
+        #expect(S(speaker: .me, start: 0, end: 1, text: "Ciao",
+                 remoteSpeaker: "SPEAKER_00").displayLabel(language: .english) == "You")
+    }
+
+    @Test func differentRemoteSpeakersStayDifferentTurns() {
+        let turns = TranscriptFormatter.turns([
+            S(speaker: .others, start: 0, end: 1, text: "Uno.",
+              remoteSpeaker: "SPEAKER_00"),
+            S(speaker: .others, start: 1.2, end: 2, text: "Due.",
+              remoteSpeaker: "SPEAKER_01"),
+        ])
+        #expect(turns.count == 2)
+        #expect(turns[0].displayLabel(language: .english) == "Speaker 1")
+        #expect(turns[1].displayLabel(language: .english) == "Speaker 2")
+    }
+
     @Test func markdownHasTitleAndSpeakers() {
         let t = Transcript(recording: "x.m4a", engine: "test", language: "it_IT", segments: [
             S(speaker: .me, start: 0, end: 1, text: "Pronto?"), S(speaker: .others, start: 2, end: 3, text: "Ciao!"),
@@ -100,5 +123,16 @@ struct TranscriptTests {
         let back = try Transcript.decoder.decode(Transcript.self, from: data)
         #expect(back.segments == t.segments)
         #expect(abs(back.createdAt.timeIntervalSince(t.createdAt)) < 1)
+    }
+
+    @Test func oldTranscriptJSONWithoutRemoteSpeakerStillDecodes() throws {
+        let json = """
+        {"recording":"x.m4a","createdAt":"2026-01-01T12:00:00Z","engine":"test",
+         "language":"it_IT","segments":[{"speaker":"me","start":0,"end":1,"text":"Ciao"}]}
+        """
+        let transcript = try Transcript.decoder.decode(Transcript.self, from: Data(json.utf8))
+        #expect(transcript.segments.count == 1)
+        #expect(transcript.segments[0].remoteSpeaker == nil)
+        #expect(transcript.segments[0].displayLabel(language: .english) == "You")
     }
 }

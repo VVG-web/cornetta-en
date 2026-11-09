@@ -1,5 +1,22 @@
 import Foundation
 
+/// Server-side diarization is opt-in per HTTP provider. The server returns
+/// speaker labels inside `segments[].speaker`; Cornetta keeps the microphone
+/// track separate and labels it as the owner.
+public struct DiarizationSettings: Codable, Equatable, Sendable {
+    public var enabled: Bool
+    public var timeoutSeconds: Int
+
+    public init(enabled: Bool = false, timeoutSeconds: Int = 1_800) {
+        self.enabled = enabled
+        self.timeoutSeconds = timeoutSeconds
+    }
+
+    public var normalized: DiarizationSettings {
+        DiarizationSettings(enabled: enabled, timeoutSeconds: min(max(timeoutSeconds, 60), 3_600))
+    }
+}
+
 /// Un motore di trascrizione selezionabile. Le chiavi API non fanno parte di questo valore:
 /// vivono nel Portachiavi, per provider.
 public struct TranscriptionProvider: Codable, Equatable, Identifiable, Sendable {
@@ -16,10 +33,13 @@ public struct TranscriptionProvider: Codable, Equatable, Identifiable, Sendable 
     public var language: String
     /// Il provider migrato dalla configurazione singola usa ancora l'account Keychain storico.
     public var usesLegacyKey: Bool
+    /// Nil per i provider creati prima di questa opzione; il campo manca anche
+    /// nei JSON vecchi e viene decodificato come nil senza rompere la migrazione.
+    public var diarization: DiarizationSettings?
 
     public init(id: UUID = UUID(), name: String, kind: Kind,
                 baseURL: String = "", model: String = "", language: String = "",
-                usesLegacyKey: Bool = false) {
+                usesLegacyKey: Bool = false, diarization: DiarizationSettings? = nil) {
         self.id = id
         self.name = name
         self.kind = kind
@@ -27,6 +47,7 @@ public struct TranscriptionProvider: Codable, Equatable, Identifiable, Sendable 
         self.model = model
         self.language = language
         self.usesLegacyKey = usesLegacyKey
+        self.diarization = diarization
     }
 
     public var config: TranscriptionConfig {
@@ -34,6 +55,8 @@ public struct TranscriptionProvider: Codable, Equatable, Identifiable, Sendable 
     }
 
     public var isHTTP: Bool { kind == .http }
+
+    public var usesDiarization: Bool { diarization?.enabled == true }
 
     public var credentialAccount: String {
         usesLegacyKey ? TranscriptionCredential.legacyAccount
