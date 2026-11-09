@@ -4,6 +4,8 @@ import SwiftUI
 /// Pannello sempre in primo piano, su tutte le scrivanie e sopra le app a tutto schermo.
 /// Non ruba il focus all'app di chiamata.
 final class FloatingPanel: NSPanel {
+    private var fitTimer: Timer?
+
     init<Content: View>(rootView: Content, autosaveName: String) {
         super.init(contentRect: NSRect(x: 0, y: 0, width: 360, height: 100),
                    styleMask: [.nonactivatingPanel, .borderless],
@@ -17,7 +19,6 @@ final class FloatingPanel: NSPanel {
         isOpaque = false
         hasShadow = true
         let hosting = NSHostingView(rootView: rootView)
-        hosting.sizingOptions = [.preferredContentSize]
         contentView = hosting
         let fitted = hosting.fittingSize
         setContentSize(fitted.width > 1 && fitted.height > 1 ? fitted : NSSize(width: 360, height: 100))
@@ -26,14 +27,11 @@ final class FloatingPanel: NSPanel {
             placeTopRight()
         }
         setFrameAutosaveName(autosaveName)
+        fitContent()
         DispatchQueue.main.async { [weak self, weak hosting] in
             guard let self, let hosting else { return }
             hosting.layoutSubtreeIfNeeded()
-            let fitted = hosting.fittingSize
-            if fitted.width > 1, fitted.height > 1, self.frame.size != fitted {
-                self.setContentSize(fitted)
-                self.keepOnScreen()
-            }
+            self.fitContent()
         }
         // SwiftUI calcola la dimensione dopo: a ogni ridimensionamento il pannello resta dentro lo schermo.
         // Osservatore con selettore: sparisce da solo con il pannello, uno nuovo a ogni avviso.
@@ -53,9 +51,48 @@ final class FloatingPanel: NSPanel {
 
     func show() {
         if frame.width < 2 || frame.height < 2 { setContentSize(NSSize(width: 360, height: 100)) }
+        fitContent()
         orderFrontRegardless()
         keepOnScreen()
-        DispatchQueue.main.async { [weak self] in self?.keepOnScreen() }
+        startFitTimer()
+        DispatchQueue.main.async { [weak self] in self?.fitContent() }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) { [weak self] in self?.fitContent() }
+    }
+
+    /// The recording overlay grows when the call-ended suggestion appears, and a
+    /// notice can change its message. SwiftUI does not resize an AppKit window by
+    /// itself, so keep the panel fitted while it is visible.
+    private func startFitTimer() {
+        fitTimer?.invalidate()
+        fitTimer = Timer.scheduledTimer(withTimeInterval: 0.25, repeats: true) { [weak self] _ in
+            self?.fitContent()
+        }
+    }
+
+    override func orderOut(_ sender: Any?) {
+        fitTimer?.invalidate()
+        fitTimer = nil
+        super.orderOut(sender)
+    }
+
+    override func close() {
+        fitTimer?.invalidate()
+        fitTimer = nil
+        super.close()
+    }
+
+    /// SwiftUI often has not laid out its content when the panel is created or an
+    /// autosaved frame from an older version is restored. Always size the window
+    /// to the hosting view after layout, instead of trusting the saved frame.
+    private func fitContent() {
+        guard let contentView else { return }
+        contentView.layoutSubtreeIfNeeded()
+        let fitted = contentView.fittingSize
+        guard fitted.width > 1, fitted.height > 1 else { return }
+        if abs(frame.width - fitted.width) > 0.5 || abs(frame.height - fitted.height) > 0.5 {
+            setContentSize(fitted)
+        }
+        keepOnScreen()
     }
 
     /// Se il pannello sborda, lo sposta dentro l'area visibile senza cambiarne la dimensione.

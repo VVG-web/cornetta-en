@@ -60,6 +60,17 @@
 "Da trascrivere" = "Da trascrivere";
 "Non ancora trascritta" = "Non ancora trascritta";
 "Trascritta" = "Trascritta";
+"Album / progetto" = "Album / progetto";
+"Artista / autore" = "Artista / autore";
+"Commento / argomento" = "Commento / argomento";
+"Data" = "Data";
+"AAAA-MM-GG" = "AAAA-MM-GG";
+"Modifica tag…" = "Modifica tag…";
+"Tag della registrazione" = "Tag della registrazione";
+"Sono tag audio standard, salvati nel file .m4a. Il titolo sostituisce la data nella libreria." = "Sono tag audio standard, salvati nel file .m4a. Il titolo sostituisce la data nella libreria.";
+"Non riesco a leggere i tag da questo file audio." = "Non riesco a leggere i tag da questo file audio.";
+"Non riesco a salvare i tag nel file audio." = "Non riesco a salvare i tag nel file audio.";
+"Titolo" = "Titolo";
 "Voci non separate" = "Voci non separate";
 "Tu e Altri separati" = "Tu e Altri separati";
 "Trascrivi" = "Trascrivi";

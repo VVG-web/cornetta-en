@@ -57,7 +57,7 @@ final class UpdateManager: ObservableObject {
             let feed = try JSONDecoder().decode(SignedFeed.self, from: feedData)
             guard feed.schema == 1,
                   let version = ReleaseVersion.normalized(feed.version),
-                  let releaseURL = safeReleaseURL(feed.releaseURL) else {
+                  let releaseURL = safeReleaseURL(feed.releaseURL, version: version) else {
                 Diagnostics.log("Controllo aggiornamenti: feed non riconosciuto")
                 return .failed
             }
@@ -87,10 +87,12 @@ final class UpdateManager: ObservableObject {
         return data
     }
 
-    /// L'URL apre solo una release del repository fork: il resto non viene mai passato al browser.
-    private func safeReleaseURL(_ url: URL) -> URL? {
+    /// L'avviso apre sempre e solo la pagina della release nel fork. Anche un feed
+    /// firmato con un URL diverso viene rifiutato, invece di finire nel browser.
+    private func safeReleaseURL(_ url: URL, version: String) -> URL? {
         guard url.scheme == "https", url.host == "github.com",
-              url.path.hasPrefix("/\(AppInfo.githubRepository)/releases/") else { return nil }
-        return url
+              let expected = AppInfo.releaseURL(for: version),
+              url == expected else { return nil }
+        return expected
     }
 }

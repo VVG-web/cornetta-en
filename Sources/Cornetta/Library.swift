@@ -22,6 +22,7 @@ final class Library: ObservableObject {
         let duration: Double
         var id: String { url.lastPathComponent }
         var hasTracks: Bool
+        var tags: RecordingTags = .empty
     }
 
     @Published private(set) var recordings: [Recording] = []
@@ -41,6 +42,9 @@ final class Library: ObservableObject {
     /// Durata per file, con la data di modifica: si rilegge solo un file nuovo o cambiato.
     private var durations: [URL: (modified: Date, seconds: Double)] = [:]
     private var measuring: Set<URL> = []
+    /// Tag già letti, con la data di modifica del file: la stessa cache vale per la lista e per l'editor.
+    private var tagCache: [URL: (modified: Date, tags: RecordingTags)] = [:]
+    private var readingTags: Set<URL> = []
     /// Titolo e testo in minuscolo per la ricerca, e battute: si ricalcolano solo quando cambia una trascrizione.
     private var searchText: [String: String] = [:]
     private var turnsCache: [String: [Transcript.Segment]] = [:]
@@ -166,6 +170,7 @@ final class Library: ObservableObject {
         let listing = try? FileManager.default.contentsOfDirectory(at: recordingsFolder, includingPropertiesForKeys: keys,
                                                                    options: [.skipsHiddenFiles])
         var unmeasured: [URL] = []
+        var unreadTags: [URL] = []
         recordings = (listing ?? [])
             .filter { $0.pathExtension.lowercased() == "m4a" }
             .map { url in
@@ -174,8 +179,11 @@ final class Library: ObservableObject {
                 let modified = values?.contentModificationDate ?? .distantPast
                 let duration = durations[url].flatMap { $0.modified == modified ? $0.seconds : nil }
                 if duration == nil { unmeasured.append(url) }
+                let tags = tagCache[url].flatMap { $0.modified == modified ? $0.tags : nil }
+                if tags == nil { unreadTags.append(url) }
                 let tracks = track(RecordingFinalizer.othersTrack, raw: RecordingFinalizer.othersName, of: url) != nil
-                return Recording(url: url, date: date, duration: duration ?? 0, hasTracks: tracks)
+                return Recording(url: url, date: date, duration: duration ?? 0, hasTracks: tracks,
+                                 tags: tags ?? .empty)
             }
             .sorted { $0.date > $1.date }
 
@@ -184,6 +192,7 @@ final class Library: ObservableObject {
         for id in transcripts.keys where !ids.contains(id) { transcripts[id] = nil }
         for id in statuses.keys where !ids.contains(id) { statuses[id] = nil }
         durations = durations.filter { ids.contains($0.key.lastPathComponent) }
+        tagCache = tagCache.filter { ids.contains($0.key.lastPathComponent) }
 
         for recording in recordings where transcripts[recording.id] == nil {
             if let data = try? Data(contentsOf: transcriptURL(for: recording.url)),
@@ -195,7 +204,42 @@ final class Library: ObservableObject {
             }
         }
         measure(unmeasured)
+        readTags(unreadTags)
         if listing != nil { cleanOrphans(present: Set(recordings.map { $0.url.deletingPathExtension().lastPathComponent })) }
+    }
+
+    /// Legge i tag fuori dal thread principale, come le durate.
+    private func readTags(_ urls: [URL]) {
+        let urls = urls.filter { !readingTags.contains($0) }
+        guard !urls.isEmpty else { return }
+        readingTags.formUnion(urls)
+        Task.detached(priority: .utility) {
+            var loaded: [(URL, Date, RecordingTags)] = []
+            for url in urls {
+                let modified = (try? url.resourceValues(
+                    forKeys: [.contentModificationDateKey]).contentModificationDate) ?? .distantPast
+                loaded.append((url, modified, await RecordingTagStore.read(from: url)))
+            }
+            let results = loaded
+            await MainActor.run {
+                for (url, modified, tags) in results {
+                    if let current = self.tagCache[url], current.modified > modified { continue }
+                    self.tagCache[url] = (modified, tags)
+                }
+                self.readingTags.subtract(urls)
+                let updated = self.recordings.map { recording in
+                    var updated = recording
+                    if let cached = self.tagCache[recording.url] {
+                        updated.tags = cached.tags
+                    }
+                    return updated
+                }
+                if updated != self.recordings {
+                    self.recordings = updated
+                    self.searchText = [:]
+                }
+            }
+        }
     }
 
     /// Durate dei file nuovi o cambiati, lette fuori dal thread principale: poi l'elenco si aggiorna.
@@ -214,7 +258,8 @@ final class Library: ObservableObject {
                 self.measuring.subtract(urls)
                 let updated = self.recordings.map { recording in
                     Recording(url: recording.url, date: recording.date,
-                              duration: self.durations[recording.url]?.seconds ?? recording.duration, hasTracks: recording.hasTracks)
+                              duration: self.durations[recording.url]?.seconds ?? recording.duration,
+                              hasTracks: recording.hasTracks, tags: recording.tags)
                 }
                 if updated != self.recordings { self.recordings = updated }
             }
@@ -264,7 +309,10 @@ final class Library: ObservableObject {
     /// Ricerca su titolo e trascrizione; `query` è già in minuscolo.
     func matches(_ recording: Recording, query: String) -> Bool {
         if let text = searchText[recording.id] { return text.contains(query) }
-        let text = (title(for: recording) + "\n" + (transcripts[recording.id]?.plainText ?? "")).lowercased()
+        let tags = [recording.tags.title, recording.tags.artist, recording.tags.album,
+                    recording.tags.date, recording.tags.comment].joined(separator: "\n")
+        let text = (title(for: recording) + "\n" + tags + "\n"
+                    + (transcripts[recording.id]?.plainText ?? "")).lowercased()
         searchText[recording.id] = text
         return text.contains(query)
     }
@@ -398,10 +446,63 @@ final class Library: ObservableObject {
     // MARK: - Azioni
 
     func title(for recording: Recording) -> String {
+        let custom = recording.tags.title.trimmingCharacters(in: .whitespacesAndNewlines)
+        if !custom.isEmpty { return custom }
+        return defaultTitle(for: recording)
+    }
+
+    func defaultTitle(for recording: Recording) -> String {
         let formatter = DateFormatter()
         formatter.locale = Localization.shared.locale
         formatter.setLocalizedDateFormatFromTemplate("EEEEdMMMM HHmm")
         return tr(.libraryCallTitle, formatter.string(from: recording.date))
+    }
+
+    func dateText(for recording: Recording) -> String {
+        let formatter = DateFormatter()
+        formatter.locale = Localization.shared.locale
+        formatter.setLocalizedDateFormatFromTemplate("EEEEdMMMM HHmm")
+        return formatter.string(from: recording.date)
+    }
+
+    /// Read tags on demand so the editor cannot open with empty fields while the
+    /// background cache is still loading.
+    func tags(for recording: Recording) async throws -> RecordingTags {
+        let modified = (try? recording.url.resourceValues(
+            forKeys: [.contentModificationDateKey]).contentModificationDate) ?? .distantPast
+        if let cached = tagCache[recording.url], cached.modified == modified {
+            return cached.tags
+        }
+        let tags = try await RecordingTagStore.load(from: recording.url)
+        tagCache[recording.url] = (modified, tags)
+        if let index = recordings.firstIndex(where: { $0.url == recording.url }) {
+            recordings[index].tags = tags
+        }
+        searchText = [:]
+        return tags
+    }
+
+    /// Write the five tags into the audio file, refresh the cache and regenerate
+    /// the Markdown transcript, when present.
+    func updateTags(_ recording: Recording, tags: RecordingTags) async throws {
+        let tags = tags.normalized
+        guard tags != recording.tags else { return }
+        if AudioPlayer.shared.playingID == recording.id { AudioPlayer.shared.stop() }
+        try await RecordingTagStore.write(tags, to: recording.url)
+        let modified = (try? recording.url.resourceValues(
+            forKeys: [.contentModificationDateKey]).contentModificationDate) ?? .distantPast
+        tagCache[recording.url] = (modified, tags)
+        if let index = recordings.firstIndex(where: { $0.url == recording.url }) {
+            recordings[index].tags = tags
+            if recording.duration > 0 {
+                durations[recording.url] = (modified, recording.duration)
+            }
+        }
+        searchText = [:]
+        if let transcript = transcripts[recording.id] {
+            try? save(transcript, for: recording.url)
+        }
+        Diagnostics.log("Tag aggiornati: \(recording.id)")
     }
 
     func markdown(for recording: Recording) -> String? {

@@ -91,6 +91,12 @@ class PrivacyGuardTests(unittest.TestCase):
             self.assertNotIn("latestReleaseAPIURL", text)
             self.assertNotIn("LatestReleaseApiUrl", text)
         self.assertIn("UseCookies = false", win)
+        self.assertIn("AppInfo.releaseURL(for: version)", mac)
+        self.assertIn("url == expected", mac)
+        self.assertIn('githubRepository = "VVG-web/cornetta-en"', mac_info)
+        self.assertIn('GithubRepository = "VVG-web/cornetta-en"', win_info)
+        for text in (mac_info, win_info):
+            self.assertNotIn("github.com/stellakamikaze/cornetta", text)
 
     def test_macos_bundle_has_no_update_feed_metadata(self):
         plist = self.read("Resources/Info.plist")

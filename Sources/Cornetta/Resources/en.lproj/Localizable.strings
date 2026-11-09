@@ -60,6 +60,17 @@
 "Da trascrivere" = "Not transcribed";
 "Non ancora trascritta" = "Not transcribed yet";
 "Trascritta" = "Transcribed";
+"Album / progetto" = "Album / project";
+"Artista / autore" = "Artist / author";
+"Commento / argomento" = "Comment / topic";
+"Data" = "Date";
+"AAAA-MM-GG" = "YYYY-MM-DD";
+"Modifica tag…" = "Edit tags…";
+"Tag della registrazione" = "Recording tags";
+"Sono tag audio standard, salvati nel file .m4a. Il titolo sostituisce la data nella libreria." = "These are standard audio tags saved in the .m4a file. The title replaces the call date in the library.";
+"Non riesco a leggere i tag da questo file audio." = "Could not read the tags from this audio file.";
+"Non riesco a salvare i tag nel file audio." = "Could not save the tags to the audio file.";
+"Titolo" = "Title";
 "Voci non separate" = "Voices not separated";
 "Tu e Altri separati" = "You and Others separated";
 "Trascrivi" = "Transcribe";

@@ -35,6 +35,8 @@ subset is relevant, set it to the completed IDs instead of `all`; the script rej
 | TC-15 | Release metadata and assets are internally consistent | `scripts/qa-release.sh` |
 | TC-16 | Call detection normalizes G-Space and Yandex Telemost helpers and ignores system microphone users | `Tests/CornettaCoreTests/CallDetectorTests.swift` |
 | TC-17 | Multiple HTTP providers persist, switch and delete independently; the selected provider is remembered; Apple is a separate provider option | `Tests/CornettaCoreTests/TranscriptionProvidersTests.swift` |
+| TC-18 | The five recording tags are read and written in the .m4a, empty tags can be removed, and the audio remains readable after the atomic replacement | `Tests/CornettaCoreTests/RecordingTagsTests.swift` |
+| TC-19 | Floating recording, suggestion and notice panels size themselves to their SwiftUI content, including the Feedback button and long update messages | manual TS-19, release screenshots |
 
 ## Manual test scenarios
 
@@ -192,6 +194,28 @@ blocks the release until it is fixed and all affected scenarios are repeated.
    request is made.
 6. Record the macOS version used for this scenario. The macOS 26 native path must be reported separately
    when the release host is older; a missing host is a written release exception, not an unrecorded skip.
+
+### TS-18: Recording audio tags
+
+1. Open a disposable recording in **Recordings and transcripts**, press the tag button, and set Title,
+   Artist / author, Album / project, Date and Comment / topic.
+2. Save and reopen the editor. Expected: all five values are present. Check the file with an audio metadata
+   reader; the fields must be in the .m4a, not only in Cornetta preferences.
+3. Expected: the custom Title replaces the generated call date in the list and detail header, and the
+   other tag values appear in the detail summary. Search for the Artist, Album, Date and Comment text.
+4. Edit the key fields, clear all five, save, and reopen. Expected: the tags are gone, the audio still
+   plays, and a transcript Markdown file is regenerated with the new title when it exists.
+5. Cancel an edit. Expected: the file and the cached tags are unchanged.
+
+### TS-19: Floating panel sizes
+
+1. Run `--demo` with old autosaved panel frames and inspect the recording overlay, call-ended suggestion
+   and update notice.
+2. Expected: each panel fits its content at every detail level. The Feedback button is fully visible, the
+   level labels do not wrap, and no text is clipped at the left, right, top or bottom edge.
+3. Trigger a notice with a long message and a call suggestion at the same time. Expected: both windows grow
+   to fit and remain inside the screen.
+4. Quit and relaunch the app. Expected: the old saved frame is replaced by the content-sized frame.
 
 ## Sign-off
 

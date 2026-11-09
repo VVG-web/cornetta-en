@@ -193,17 +193,31 @@ struct RecordingRow: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 3) {
-            Text(Self.capitalizedFirst(formattedDate))
+            Text(Self.capitalizedFirst(primaryTitle))
                 .font(.body.weight(.semibold))
+                .lineLimit(1)
+            if let secondaryDate {
+                Text(Self.capitalizedFirst(secondaryDate))
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
             HStack(spacing: 6) {
                 Text(TranscriptFormatter.timestamp(recording.duration)).monospacedDigit()
                 Text("·")
                 StatusLabel(status: library.status(recording))
+                if !recording.tags.isEmpty {
+                    Image(systemName: "tag")
+                }
             }
             .font(.caption)
             .foregroundStyle(.secondary)
             if let snippet {
                 Text(snippet).font(.caption).foregroundStyle(.secondary).lineLimit(2)
+            } else if !recording.tags.summary.isEmpty {
+                Text(recording.tags.summary)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .lineLimit(2)
             }
         }
         .padding(.vertical, 3)
@@ -218,6 +232,18 @@ struct RecordingRow: View {
         formatter.locale = language.locale
         formatter.setLocalizedDateFormatFromTemplate("EEEdMMM HHmm")
         return formatter.string(from: recording.date)
+    }
+
+    private var customTitle: String {
+        recording.tags.title.trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+
+    private var primaryTitle: String {
+        customTitle.isEmpty ? formattedDate : customTitle
+    }
+
+    private var secondaryDate: String? {
+        customTitle.isEmpty ? nil : formattedDate
     }
 
     /// Con una ricerca attiva mostra la frase che contiene la parola cercata.
@@ -251,10 +277,18 @@ struct StatusLabel: View {
 }
 
 struct RecordingDetail: View {
+    private struct TagEditorRequest: Identifiable {
+        let id = UUID()
+        let recording: Library.Recording
+        let tags: RecordingTags
+    }
+
     let recording: Library.Recording
     @ObservedObject var library: Library
     @ObservedObject var player: AudioPlayer
     @State private var confirmDelete = false
+    @State private var tagEditor: TagEditorRequest?
+    @State private var tagLoadFailed = false
     @State private var copied = false
     @Environment(\.appLanguage) private var language
 
@@ -276,6 +310,15 @@ struct RecordingDetail: View {
         } message: {
             Text(L10n.text(.libraryDeleteMessage, language: language))
         }
+        .sheet(item: $tagEditor) { request in
+            RecordingTagsEditor(recording: request.recording, tags: request.tags) { tags in
+                try await library.updateTags(request.recording, tags: tags)
+            }
+            .localizedRoot()
+        }
+        .alert(L10n.text(.libraryTagsLoadError, language: language), isPresented: $tagLoadFailed) {
+            Button(L10n.text(.commonClose, language: language)) {}
+        }
     }
 
     private var header: some View {
@@ -294,6 +337,12 @@ struct RecordingDetail: View {
             VStack(alignment: .leading, spacing: 2) {
                 Text(library.title(for: recording)).font(.title3.weight(.semibold))
                 Text(meta).font(.callout).foregroundStyle(.secondary).monospacedDigit()
+                if !recording.tags.summary.isEmpty {
+                    Text(recording.tags.summary)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
             }
             Spacer()
             if transcript != nil {
@@ -305,10 +354,17 @@ struct RecordingDetail: View {
                 }
                 Button(L10n.text(.libraryExport, language: language)) { export() }
             }
+            Button {
+                openTagEditor()
+            } label: {
+                Image(systemName: "tag")
+            }
+            .help(L10n.text(.libraryTagsEdit, language: language))
             Menu {
                 Button(L10n.text(.commonShowInFinder, language: language)) {
                     NSWorkspace.shared.activateFileViewerSelecting([recording.url])
                 }
+                Button(L10n.text(.libraryTagsEdit, language: language)) { openTagEditor() }
                 if transcript != nil, TranscriptionRunner.isAvailable, !inProgress {
                     Button(L10n.text(.libraryTranscribeAgain, language: language)) { library.enqueue(recording.url) }
                 }
@@ -333,14 +389,30 @@ struct RecordingDetail: View {
     }
 
     private var meta: String {
-        var parts = [L10n.format(.libraryDuration, language: language,
-                                 TranscriptFormatter.timestamp(recording.duration))]
+        var parts: [String] = []
+        if !recording.tags.title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+            parts.append(library.dateText(for: recording))
+        }
+        parts.append(L10n.format(.libraryDuration, language: language,
+                                 TranscriptFormatter.timestamp(recording.duration)))
         if playingThis { parts.insert(TranscriptFormatter.timestamp(player.currentTime), at: 0) }
         if transcript != nil {
             parts.append(L10n.text(recording.hasTracks ? .libraryTracksSeparated : .libraryTracksMixed,
                                    language: language))
         }
         return parts.joined(separator: " · ")
+    }
+
+    private func openTagEditor() {
+        Task {
+            do {
+                let tags = try await library.tags(for: recording)
+                let current = library.recordings.first(where: { $0.id == recording.id }) ?? recording
+                tagEditor = TagEditorRequest(recording: current, tags: tags)
+            } catch {
+                tagLoadFailed = true
+            }
+        }
     }
 
     @ViewBuilder

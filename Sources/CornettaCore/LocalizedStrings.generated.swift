@@ -71,6 +71,17 @@ public enum L10nKey: String, CaseIterable, Sendable {
     case libraryStatusQueued = "library.status.queued"
     case libraryStatusTranscribed = "library.status.transcribed"
     case libraryStatusTranscribing = "library.status.transcribing"
+    case libraryTagsAlbum = "library.tags.album"
+    case libraryTagsArtist = "library.tags.artist"
+    case libraryTagsComment = "library.tags.comment"
+    case libraryTagsDate = "library.tags.date"
+    case libraryTagsDatePlaceholder = "library.tags.date.placeholder"
+    case libraryTagsEdit = "library.tags.edit"
+    case libraryTagsEditorTitle = "library.tags.editorTitle"
+    case libraryTagsHelp = "library.tags.help"
+    case libraryTagsLoadError = "library.tags.loadError"
+    case libraryTagsSaveError = "library.tags.saveError"
+    case libraryTagsTitle = "library.tags.title"
     case libraryTracksMixed = "library.tracksMixed"
     case libraryTracksSeparated = "library.tracksSeparated"
     case libraryTranscribe = "library.transcribe"
@@ -344,6 +355,17 @@ public enum L10n {
         .libraryStatusQueued: "In coda",
         .libraryStatusTranscribed: "Trascritta",
         .libraryStatusTranscribing: "Trascrivo {0}%",
+        .libraryTagsAlbum: "Album / progetto",
+        .libraryTagsArtist: "Artista / autore",
+        .libraryTagsComment: "Commento / argomento",
+        .libraryTagsDate: "Data",
+        .libraryTagsDatePlaceholder: "AAAA-MM-GG",
+        .libraryTagsEdit: "Modifica tag…",
+        .libraryTagsEditorTitle: "Tag della registrazione",
+        .libraryTagsHelp: "Sono tag audio standard, salvati nel file .m4a. Il titolo sostituisce la data nella libreria.",
+        .libraryTagsLoadError: "Non riesco a leggere i tag da questo file audio.",
+        .libraryTagsSaveError: "Non riesco a salvare i tag nel file audio.",
+        .libraryTagsTitle: "Titolo",
         .libraryTracksMixed: "Voci non separate",
         .libraryTracksSeparated: "Tu e Altri separati",
         .libraryTranscribe: "Trascrivi",
@@ -616,6 +638,17 @@ public enum L10n {
         .libraryStatusQueued: "Queued",
         .libraryStatusTranscribed: "Transcribed",
         .libraryStatusTranscribing: "Transcribing {0}%",
+        .libraryTagsAlbum: "Album / project",
+        .libraryTagsArtist: "Artist / author",
+        .libraryTagsComment: "Comment / topic",
+        .libraryTagsDate: "Date",
+        .libraryTagsDatePlaceholder: "YYYY-MM-DD",
+        .libraryTagsEdit: "Edit tags…",
+        .libraryTagsEditorTitle: "Recording tags",
+        .libraryTagsHelp: "These are standard audio tags saved in the .m4a file. The title replaces the call date in the library.",
+        .libraryTagsLoadError: "Could not read the tags from this audio file.",
+        .libraryTagsSaveError: "Could not save the tags to the audio file.",
+        .libraryTagsTitle: "Title",
         .libraryTracksMixed: "Voices not separated",
         .libraryTracksSeparated: "You and Others separated",
         .libraryTranscribe: "Transcribe",

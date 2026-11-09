@@ -84,7 +84,11 @@ struct LevelBar: View {
 
     var body: some View {
         HStack(spacing: 6) {
-            Text(label).font(.caption2.weight(.medium)).foregroundStyle(.secondary).frame(width: 28, alignment: .leading)
+            Text(label)
+                .font(.caption2.weight(.medium))
+                .foregroundStyle(.secondary)
+                .lineLimit(1)
+                .frame(width: 42, alignment: .leading)
             GeometryReader { proxy in
                 ZStack(alignment: .leading) {
                     Capsule().fill(.primary.opacity(0.1))

@@ -156,6 +156,11 @@ hai attivato **Trascrivi subito dopo la registrazione**.
   all'audio.
 - La finestra **Registrazioni** (⌘T dal menu) ha l'elenco, la ricerca, il testo diviso per voce e l'ascolto
   dal punto scelto.
+- Nella finestra **Registrazioni e trascrizioni** premi l'icona del tag per descrivere la registrazione.
+  I cinque campi sono **Titolo**, **Artista / autore**, **Album / progetto**, **Data** e
+  **Commento / argomento**. Sono metadati audio standard scritti nel file `.m4a`, quindi restano visibili
+  anche in Finder e negli altri lettori. Il titolo personalizzato sostituisce la data generata
+  nell'elenco; gli altri valori compaiono nel riepilogo e nella ricerca.
 
 La trascrizione automatica è disattivata per impostazione predefinita. Se il servizio non è raggiungibile,
 la registrazione resta disponibile e lo stato passa a «Errore» con il pulsante **Riprova**. Chi

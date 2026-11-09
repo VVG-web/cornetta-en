@@ -652,21 +652,7 @@ final class RecorderModel: ObservableObject {
         systemLevel = 0.81
         refreshOverlay()
         showCallNotice(appName: "WhatsApp")
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-            let panel = FloatingPanel(rootView: NoticeView(
-                icon: "arrow.down.circle.fill", tint: .blue,
-                title: tr(.noticeUpdateTitle),
-                message: tr(.noticeUpdateMessage, "0.3.0"),
-                primary: tr(.noticeUpdateNow), secondary: tr(.noticeUpdateLater),
-                onPrimary: {}, onSecondary: {}).localizedRoot(),
-                autosaveName: "CornettaDemoUpdate")
-            panel.setFrameOrigin(NSPoint(x: 80, y: 120))
-            panel.show()
-            self.demoPanels.append(panel)
-        }
     }
-
-    private var demoPanels: [FloatingPanel] = []
 
     // MARK: - Finder
 

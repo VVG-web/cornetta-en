@@ -1,4 +1,5 @@
 import Foundation
+import CornettaCore
 
 enum AppInfo {
     static var version: String { Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "dev" }
@@ -11,6 +12,13 @@ enum AppInfo {
 
     static var latestReleaseURL: URL {
         URL(string: "https://github.com/\(githubRepository)/releases/latest")!
+    }
+
+    /// The only release page an update notice may open. Building it here, instead
+    /// of trusting the feed URL, keeps every update link inside the fork.
+    static func releaseURL(for version: String) -> URL? {
+        guard let normalized = ReleaseVersion.normalized(version) else { return nil }
+        return URL(string: "https://github.com/\(githubRepository)/releases/tag/v\(normalized)")
     }
 
     static var newIssueURL: URL {
