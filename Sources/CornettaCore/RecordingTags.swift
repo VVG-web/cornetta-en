@@ -117,7 +117,25 @@ public enum RecordingTagStore {
     /// not manage, then replaces the original atomically.
     public static func write(_ tags: RecordingTags, to url: URL) async throws {
         let tags = tags.normalized
-        let asset = AVURLAsset(url: url)
+        let container = containerExtension(for: url)
+        let directory = url.deletingLastPathComponent()
+        let source = directory.appendingPathComponent(".cornetta-tags-source-\(UUID().uuidString).\(container)")
+        let temporary = directory.appendingPathComponent(".cornetta-tags-output-\(UUID().uuidString).m4a")
+        try? FileManager.default.removeItem(at: source)
+        try? FileManager.default.removeItem(at: temporary)
+        do {
+            try FileManager.default.copyItem(at: url, to: source)
+        } catch {
+            throw RecordingTagError.cannotExport
+        }
+        defer {
+            try? FileManager.default.removeItem(at: source)
+            try? FileManager.default.removeItem(at: temporary)
+        }
+        // Cornetta's own recordings are AAC in a CAF container even though the
+        // file is named .m4a. AVAssetExportSession refuses a .m4a path with CAF
+        // bytes, so the working copy uses the real container extension.
+        let asset = AVURLAsset(url: source)
         let existing = (try? await asset.load(.metadata)) ?? []
         let preserved = existing.filter {
             guard let identifier = $0.identifier?.rawValue else { return true }
@@ -130,9 +148,6 @@ public enum RecordingTagStore {
             throw RecordingTagError.cannotExport
         }
         session.metadata = metadata
-        let temporary = url.deletingLastPathComponent()
-            .appendingPathComponent(".cornetta-tags-\(UUID().uuidString).m4a")
-        try? FileManager.default.removeItem(at: temporary)
         do {
             try await session.export(to: temporary, as: .m4a)
             let size = (try? temporary.resourceValues(forKeys: [.fileSizeKey]).fileSize) ?? 0
@@ -147,6 +162,17 @@ public enum RecordingTagStore {
             try? FileManager.default.removeItem(at: temporary)
             throw error
         }
+    }
+
+    private static func containerExtension(for url: URL) -> String {
+        guard let handle = try? FileHandle(forReadingFrom: url) else {
+            return url.pathExtension.lowercased() == "caf" ? "caf" : "m4a"
+        }
+        defer { try? handle.close() }
+        let header = (try? handle.read(upToCount: 12)) ?? Data()
+        if header.starts(with: Data("caff".utf8)) { return "caf" }
+        if header.count >= 8, Data(header[4..<8]) == Data("ftyp".utf8) { return "m4a" }
+        return url.pathExtension.lowercased() == "caf" ? "caf" : "m4a"
     }
 
     public static func removeTemporaryFiles(in folder: URL) {

@@ -6,6 +6,21 @@ import Testing
 struct RecordingTagsTests {
     private func makeM4A(in folder: URL) throws -> URL {
         let url = folder.appendingPathComponent("CornettaTags-\(UUID().uuidString).m4a")
+        try writeAudio(to: url)
+        return url
+    }
+
+    /// Cornetta writes AAC through AVAudioFile into a `.m4a.parziale` path,
+    /// which creates a CAF container, then renames it to `.m4a`.
+    private func makeCAFNamedM4A(in folder: URL) throws -> URL {
+        let url = folder.appendingPathComponent("CornettaTags-\(UUID().uuidString).m4a")
+        let partial = url.appendingPathExtension("parziale")
+        try writeAudio(to: partial)
+        try FileManager.default.moveItem(at: partial, to: url)
+        return url
+    }
+
+    private func writeAudio(to url: URL) throws {
         let settings: [String: Any] = [
             AVFormatIDKey: kAudioFormatMPEG4AAC,
             AVSampleRateKey: 22_050,
@@ -26,7 +41,6 @@ struct RecordingTagsTests {
             }
             try file.write(from: buffer)
         }
-        return url
     }
 
     private func folder() throws -> URL {
@@ -59,6 +73,20 @@ struct RecordingTagsTests {
         try await RecordingTagStore.write(tags, to: url)
         #expect(await RecordingTagStore.read(from: url) == tags)
         #expect(try AVAudioFile(forReading: url).length > 0)
+    }
+
+    @Test func writesTagsToCAFStoredWithM4AExtension() async throws {
+        let directory = try folder()
+        defer { try? FileManager.default.removeItem(at: directory) }
+        let url = try makeCAFNamedM4A(in: directory)
+        #expect(Data((try? Data(contentsOf: url))?.prefix(4) ?? Data()) == Data("caff".utf8))
+        let tags = RecordingTags(title: "CAF call", artist: "Vadim",
+                                 album: "Project X", date: "2026-11-09",
+                                 comment: "Recorded by Cornetta")
+        try await RecordingTagStore.write(tags, to: url)
+        #expect(await RecordingTagStore.read(from: url) == tags)
+        #expect(try AVAudioFile(forReading: url).length > 0)
+        #expect(Data((try? Data(contentsOf: url))?.prefix(4) ?? Data()) != Data("caff".utf8))
     }
 
     @Test func clearingTagsKeepsAudioReadable() async throws {

@@ -488,7 +488,12 @@ final class Library: ObservableObject {
         let tags = tags.normalized
         guard tags != recording.tags else { return }
         if AudioPlayer.shared.playingID == recording.id { AudioPlayer.shared.stop() }
-        try await RecordingTagStore.write(tags, to: recording.url)
+        do {
+            try await RecordingTagStore.write(tags, to: recording.url)
+        } catch {
+            Diagnostics.log("Tag non salvati per \(recording.id): \(error.localizedDescription)")
+            throw error
+        }
         let modified = (try? recording.url.resourceValues(
             forKeys: [.contentModificationDateKey]).contentModificationDate) ?? .distantPast
         tagCache[recording.url] = (modified, tags)
