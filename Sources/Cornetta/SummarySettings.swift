@@ -56,11 +56,14 @@ struct SummarySettingsView: View {
             .pickerStyle(.segmented)
             .labelsHidden()
 
-            if tab == 0 {
-                providerSettings
-            } else {
-                promptSettings
+            Group {
+                if tab == 0 {
+                    providerSettings
+                } else {
+                    promptSettings
+                }
             }
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
 
             HStack {
                 Spacer()
@@ -83,7 +86,7 @@ struct SummarySettingsView: View {
             }
         }
         .padding(24)
-        .frame(width: 700, height: 650, alignment: .topLeading)
+        .frame(minWidth: 700, minHeight: 650, alignment: .topLeading)
         .task { await loadProviderModels() }
         .onChange(of: providerID) { _, id in
             guard let provider = providers.first(where: { $0.id == id }) else { return }
@@ -281,7 +284,8 @@ struct SummarySettingsView: View {
                     .font(.callout.weight(.medium))
                 TextEditor(text: $promptDraft.body)
                     .font(.system(.body, design: .monospaced))
-                    .frame(height: 210)
+                    .frame(minHeight: 210, maxHeight: .infinity)
+                    .layoutPriority(1)
                     .overlay(RoundedRectangle(cornerRadius: 6).strokeBorder(.secondary.opacity(0.25)))
                 Text(L10n.text(.summarySettingsPromptHelp, language: language))
                     .font(.caption)
@@ -548,10 +552,11 @@ enum SummarySettingsWindow {
     static func show() {
         if window == nil {
             let window = NSWindow(contentRect: .zero,
-                                  styleMask: [.titled, .closable, .miniaturizable],
+                                  styleMask: [.titled, .closable, .miniaturizable, .resizable],
                                   backing: .buffered, defer: false)
             window.title = tr(.summarySettingsWindow)
             window.isReleasedWhenClosed = false
+            window.contentMinSize = NSSize(width: 700, height: 650)
             window.setFrameAutosaveName("CornettaSummarySettings")
             if !window.setFrameUsingName("CornettaSummarySettings") { window.center() }
             self.window = window

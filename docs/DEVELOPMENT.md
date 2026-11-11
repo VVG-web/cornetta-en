@@ -136,6 +136,14 @@ The saved key is `appLanguage` (`it` or `en`). English is the default for new in
 without a saved choice. An explicit saved choice always wins. This choice is independent from the
 speech-recognition language.
 
+## UI measurement
+
+Native layout work uses Accessibility frames and a point grid instead of guessing from a screenshot.
+`scripts/ui_probe.swift` reports window, scroll, text and button frames with edge gaps.
+`scripts/ui_grid.py` annotates a window screenshot and measures the empty bottom or right area.
+The workflow, permissions, and the before/after Summary settings measurements are in
+`docs/UI-TOOLING.md`.
+
 ## Releases
 
 There is no automatic updater and no production deployment script. The static site is deployed by

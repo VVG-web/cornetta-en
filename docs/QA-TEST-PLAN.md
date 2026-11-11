@@ -41,6 +41,7 @@ subset is relevant, set it to the completed IDs instead of `all`; the script rej
 | TC-21 | Summary providers, unique default prompt, prompt variable rendering, meeting metadata and summary provenance round-trip through separate files | `Tests/CornettaCoreTests/SummaryModelsTests.swift` |
 | TC-22 | Summary base URLs accept a host, host with port, `/v1` and a complete chat-completions endpoint; check and model loading use `/v1/models`; one model selector; meeting information opens independently with multi-line participants and notes | `Tests/CornettaCoreTests/SummaryModelsTests.swift` |
 | TC-23 | Summary settings load the provider model list for a default-model picker with a manual fallback; the summary reader parses Markdown blocks, offers Read and Code views and copies the raw summary | `Tests/CornettaCoreTests/SummaryMarkdownTests.swift` |
+| TC-24 | Summary settings keep Close and Save 24 points from the content bottom, the prompt editor expands with the window, and the measurement tools report the same geometry | manual TS-24, `scripts/ui_probe.swift`, `scripts/ui_grid.py` |
 
 ## Manual test scenarios
 
@@ -283,6 +284,21 @@ blocks the release until it is fixed and all affected scenarios are repeated.
 4. Switch to **Code**. Expected: the original Markdown source is shown in a monospaced block and
    remains selectable. Press **Copy summary** and verify the clipboard contains the raw Markdown.
 5. Switch back to **Read** and verify **Regenerate** still works. Verify English and Italian.
+
+### TS-24: Summary settings footer and flexible prompt editor
+
+1. Open **Summary settings** and run:
+   `swift scripts/ui_probe.swift --app Cornetta --window Summary`.
+   Expected on the provider tab: **Close** and **Save** have a bottom gap of about 24 points, and
+   the empty bottom is about 24 points, not a quarter of the window.
+2. Switch to **Prompt templates**. Expected: the prompt editor is taller than its old 210-point
+   minimum and the footer stays at the bottom.
+3. Resize the window taller. Expected: the prompt editor grows with the window, the footer keeps
+   its 24-point gap, and the window accepts resizing.
+4. Capture the window with `screencapture -l <id> shot.png` and run
+   `python3 scripts/ui_grid.py shot.png --scale 2 --content-top 28`. Expected: the measured
+   `blank_bottom_points` matches the probe within 1 point.
+5. Verify English and Italian.
 
 ## Sign-off
 
