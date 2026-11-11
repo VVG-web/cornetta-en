@@ -200,6 +200,9 @@ struct SummarySheet: View {
         loadingModels = true
         let key = SummaryProviderCatalog.apiKey(for: provider)
         let available = await SummaryService.availableModels(provider: provider, apiKey: key)
+        // A quick provider switch can finish an older request later. Never let
+        // that response replace the list for the provider now selected.
+        guard providerID == provider.id else { return }
         models = available ?? []
         if model.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
             model = models.first ?? provider.model
