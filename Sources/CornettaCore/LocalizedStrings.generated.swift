@@ -216,6 +216,8 @@ public enum L10nKey: String, CaseIterable, Sendable {
     case summarySettingsCheckModelMissing = "summary.settings.checkModelMissing"
     case summarySettingsCheckNoModels = "summary.settings.checkNoModels"
     case summarySettingsChecking = "summary.settings.checking"
+    case summarySettingsDefaultModel = "summary.settings.defaultModel"
+    case summarySettingsDefaultModelHelp = "summary.settings.defaultModelHelp"
     case summarySettingsDefaultPrompt = "summary.settings.defaultPrompt"
     case summarySettingsDefaultProvider = "summary.settings.defaultProvider"
     case summarySettingsDeletePrompt = "summary.settings.deletePrompt"
@@ -226,8 +228,11 @@ public enum L10nKey: String, CaseIterable, Sendable {
     case summarySettingsDeleteProviderTitle = "summary.settings.deleteProviderTitle"
     case summarySettingsInvalid = "summary.settings.invalid"
     case summarySettingsKeychainError = "summary.settings.keychainError"
+    case summarySettingsLoadModels = "summary.settings.loadModels"
+    case summarySettingsLoadModelsHelp = "summary.settings.loadModelsHelp"
     case summarySettingsModel = "summary.settings.model"
     case summarySettingsModelPlaceholder = "summary.settings.modelPlaceholder"
+    case summarySettingsModelsUnavailable = "summary.settings.modelsUnavailable"
     case summarySettingsName = "summary.settings.name"
     case summarySettingsNamePlaceholder = "summary.settings.namePlaceholder"
     case summarySettingsNoPrompts = "summary.settings.noPrompts"
@@ -271,6 +276,8 @@ public enum L10nKey: String, CaseIterable, Sendable {
     case summarySheetTitle = "summary.sheet.title"
     case summarySheetTopic = "summary.sheet.topic"
     case summarySheetTopicPlaceholder = "summary.sheet.topicPlaceholder"
+    case summaryViewCode = "summary.view.code"
+    case summaryViewCopy = "summary.view.copy"
     case summaryViewEditInfo = "summary.view.editInfo"
     case summaryViewEmptyMessage = "summary.view.emptyMessage"
     case summaryViewEmptyTitle = "summary.view.emptyTitle"
@@ -282,6 +289,7 @@ public enum L10nKey: String, CaseIterable, Sendable {
     case summaryViewNoTranscriptTitle = "summary.view.noTranscriptTitle"
     case summaryViewNotes = "summary.view.notes"
     case summaryViewParticipants = "summary.view.participants"
+    case summaryViewRead = "summary.view.read"
     case summaryViewRegenerate = "summary.view.regenerate"
     case summaryViewStart = "summary.view.start"
     case summaryViewSummary = "summary.view.summary"
@@ -598,6 +606,8 @@ public enum L10n {
         .summarySettingsCheckModelMissing: "Il modello configurato non è nell'elenco. Puoi inserirlo manualmente.",
         .summarySettingsCheckNoModels: "Il provider non espone l'elenco modelli. Inserisci il modello manualmente.",
         .summarySettingsChecking: "Verifico…",
+        .summarySettingsDefaultModel: "Modello predefinito",
+        .summarySettingsDefaultModelHelp: "Scegli il modello predefinito usato da questo provider.",
         .summarySettingsDefaultPrompt: "Prompt predefinito",
         .summarySettingsDefaultProvider: "Provider predefinito",
         .summarySettingsDeletePrompt: "Elimina prompt",
@@ -608,8 +618,11 @@ public enum L10n {
         .summarySettingsDeleteProviderTitle: "Eliminare questo provider?",
         .summarySettingsInvalid: "L'indirizzo del provider non è valido.",
         .summarySettingsKeychainError: "Non riesco a salvare la chiave nel Portachiavi.",
+        .summarySettingsLoadModels: "Carica modelli",
+        .summarySettingsLoadModelsHelp: "Scarica l'elenco dei modelli dal provider. Non invia la trascrizione.",
         .summarySettingsModel: "Modello",
         .summarySettingsModelPlaceholder: "Modello chat",
+        .summarySettingsModelsUnavailable: "Elenco modelli non disponibile. Inserisci il modello manualmente o riprova.",
         .summarySettingsName: "Nome",
         .summarySettingsNamePlaceholder: "Il mio provider",
         .summarySettingsNoPrompts: "Aggiungi un prompt per creare i riassunti.",
@@ -653,6 +666,8 @@ public enum L10n {
         .summarySheetTitle: "Genera riassunto",
         .summarySheetTopic: "Tema",
         .summarySheetTopicPlaceholder: "Di cosa parla la riunione",
+        .summaryViewCode: "Codice",
+        .summaryViewCopy: "Copia riassunto",
         .summaryViewEditInfo: "Modifica informazioni",
         .summaryViewEmptyMessage: "Genera un riassunto dalla trascrizione e dalle informazioni sulla riunione.",
         .summaryViewEmptyTitle: "Nessun riassunto",
@@ -664,6 +679,7 @@ public enum L10n {
         .summaryViewNoTranscriptTitle: "Nessuna trascrizione",
         .summaryViewNotes: "Note: {0}",
         .summaryViewParticipants: "Partecipanti: {0}",
+        .summaryViewRead: "Lettura",
         .summaryViewRegenerate: "Rigenera",
         .summaryViewStart: "Inizio: {0}",
         .summaryViewSummary: "Riassunto",
@@ -979,6 +995,8 @@ public enum L10n {
         .summarySettingsCheckModelMissing: "The configured model is not in the list. You can enter it manually.",
         .summarySettingsCheckNoModels: "The provider does not expose a model list. Enter the model manually.",
         .summarySettingsChecking: "Checking…",
+        .summarySettingsDefaultModel: "Default model",
+        .summarySettingsDefaultModelHelp: "Choose the default model used by this provider.",
         .summarySettingsDefaultPrompt: "Default prompt",
         .summarySettingsDefaultProvider: "Default provider",
         .summarySettingsDeletePrompt: "Delete prompt",
@@ -989,8 +1007,11 @@ public enum L10n {
         .summarySettingsDeleteProviderTitle: "Delete this provider?",
         .summarySettingsInvalid: "The provider URL is invalid.",
         .summarySettingsKeychainError: "Could not save the key in the Keychain.",
+        .summarySettingsLoadModels: "Load models",
+        .summarySettingsLoadModelsHelp: "Loads the provider's model list. No transcript is sent.",
         .summarySettingsModel: "Model",
         .summarySettingsModelPlaceholder: "Chat model",
+        .summarySettingsModelsUnavailable: "Model list unavailable. Enter the model manually or try again.",
         .summarySettingsName: "Name",
         .summarySettingsNamePlaceholder: "My provider",
         .summarySettingsNoPrompts: "Add a prompt to generate summaries.",
@@ -1034,6 +1055,8 @@ public enum L10n {
         .summarySheetTitle: "Generate summary",
         .summarySheetTopic: "Topic",
         .summarySheetTopicPlaceholder: "What the meeting is about",
+        .summaryViewCode: "Code",
+        .summaryViewCopy: "Copy summary",
         .summaryViewEditInfo: "Edit information",
         .summaryViewEmptyMessage: "Generate a summary from the transcript and meeting information.",
         .summaryViewEmptyTitle: "No summary yet",
@@ -1045,6 +1068,7 @@ public enum L10n {
         .summaryViewNoTranscriptTitle: "No transcript yet",
         .summaryViewNotes: "Notes: {0}",
         .summaryViewParticipants: "Participants: {0}",
+        .summaryViewRead: "Read",
         .summaryViewRegenerate: "Regenerate",
         .summaryViewStart: "Start: {0}",
         .summaryViewSummary: "Summary",

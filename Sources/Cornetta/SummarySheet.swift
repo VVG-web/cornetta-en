@@ -228,7 +228,7 @@ struct SummarySheet: View {
                     .foregroundStyle(.secondary)
             }
             .frame(width: 360, alignment: .leading)
-        } else if modelOptions.isEmpty {
+        } else if models.isEmpty {
             VStack(alignment: .leading, spacing: 3) {
                 HStack(spacing: 6) {
                     TextField(L10n.text(.summarySettingsModelPlaceholder, language: language),

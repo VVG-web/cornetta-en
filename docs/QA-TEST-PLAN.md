@@ -40,6 +40,7 @@ subset is relevant, set it to the completed IDs instead of `all`; the script rej
 | TC-20 | Per-provider diarization settings survive old provider JSON; server speaker labels become readable Speaker N labels; the owner track remains You | `Tests/CornettaCoreTests/TranscriptionProvidersTests.swift`, `Tests/CornettaCoreTests/TranscriptTests.swift` |
 | TC-21 | Summary providers, unique default prompt, prompt variable rendering, meeting metadata and summary provenance round-trip through separate files | `Tests/CornettaCoreTests/SummaryModelsTests.swift` |
 | TC-22 | Summary base URLs accept a host, host with port, `/v1` and a complete chat-completions endpoint; check and model loading use `/v1/models`; one model selector; meeting information opens independently with multi-line participants and notes | `Tests/CornettaCoreTests/SummaryModelsTests.swift` |
+| TC-23 | Summary settings load the provider model list for a default-model picker with a manual fallback; the summary reader parses Markdown blocks, offers Read and Code views and copies the raw summary | `Tests/CornettaCoreTests/SummaryMarkdownTests.swift` |
 
 ## Manual test scenarios
 
@@ -268,6 +269,20 @@ blocks the release until it is fixed and all affected scenarios are repeated.
    notes, and the Summary tab reflects the saved values.
 5. Expected: participants and notes show at least five lines and scroll internally for longer text.
    Verify English and Italian.
+
+### TS-23: Provider default model and Markdown summary reader
+
+1. Open **Summary settings**, select a provider and wait for the model list. Expected: **Default
+   model** is a dropdown populated from `/v1/models`; choose another model, press **Save**, and open
+   the summary window for the default provider. Expected: the chosen model is preselected.
+2. Stop the model service and press the reload button. Expected: a manual model field and **Load
+   models** button appear with a clear hint; the saved model is still usable.
+3. Open a transcript with a Markdown summary containing headings, bold text, bullets, a numbered
+   list, a quote, a code block and a table. Expected: **Read** renders them as an article, not as raw
+   punctuation.
+4. Switch to **Code**. Expected: the original Markdown source is shown in a monospaced block and
+   remains selectable. Press **Copy summary** and verify the clipboard contains the raw Markdown.
+5. Switch back to **Read** and verify **Regenerate** still works. Verify English and Italian.
 
 ## Sign-off
 

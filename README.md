@@ -159,9 +159,11 @@ hai attivato **Trascrivi subito dopo la registrazione**.
   uso macOS può scaricare il modello della lingua. Su macOS precedenti il provider è visibile ma non
   disponibile.
 - **Riassunti**: in **Summary settings…** puoi salvare più provider LLM compatibili con OpenAI e più
-  template di prompt, con un solo template predefinito. Nella finestra Registrazioni puoi passare da
-  **Trascrizione** a **Riassunto**, modificare tema, partecipanti, data/ora e note della riunione, e
-  scegliere provider, modello e prompt solo per quel riassunto.
+  template di prompt, con un solo template predefinito. Il modello predefinito si sceglie dall'elenco
+  `/v1/models` del provider. Nella finestra Registrazioni puoi passare da **Trascrizione** a
+  **Riassunto**, modificare tema, partecipanti, data/ora e note della riunione, e scegliere provider,
+  modello e prompt solo per quel riassunto. Il riassunto si legge come articolo Markdown, con viste
+  **Lettura** e **Codice** e il pulsante **Copia riassunto**.
 - Cornetta invia il file audio con una richiesta `multipart/form-data`; il servizio risponde con
   `verbose_json` (segmenti con orari) o, se non lo supporta, con `json` o testo semplice.
 - Il testo si salva in JSON (`~/Library/Application Support/Cornetta/Trascrizioni/`) e come `.md` accanto

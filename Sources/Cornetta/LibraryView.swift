@@ -282,6 +282,11 @@ struct RecordingDetail: View {
         case summary
     }
 
+    private enum SummaryDisplayMode: Hashable {
+        case reading
+        case code
+    }
+
     private struct TagEditorRequest: Identifiable {
         let id = UUID()
         let recording: Library.Recording
@@ -295,7 +300,9 @@ struct RecordingDetail: View {
     @State private var tagEditor: TagEditorRequest?
     @State private var tagLoadFailed = false
     @State private var copied = false
+    @State private var summaryCopied = false
     @State private var mode: DetailMode = .transcript
+    @State private var summaryDisplay: SummaryDisplayMode = .reading
     @State private var showingSummarySheet = false
     @State private var showingMeetingEditor = false
     @Environment(\.appLanguage) private var language
@@ -561,11 +568,42 @@ struct RecordingDetail: View {
                             .fixedSize(horizontal: false, vertical: true)
                     }
                     Divider()
-                    Text(summary.text)
-                        .font(.body)
-                        .lineSpacing(3)
-                        .textSelection(.enabled)
-                        .fixedSize(horizontal: false, vertical: true)
+                    HStack(spacing: 10) {
+                        Picker(L10n.text(.summaryViewRead, language: language),
+                               selection: $summaryDisplay) {
+                            Text(L10n.text(.summaryViewRead, language: language))
+                                .tag(SummaryDisplayMode.reading)
+                            Text(L10n.text(.summaryViewCode, language: language))
+                                .tag(SummaryDisplayMode.code)
+                        }
+                        .pickerStyle(.segmented)
+                        .labelsHidden()
+                        .frame(width: 190)
+                        Spacer()
+                        Button {
+                            copySummary(summary)
+                        } label: {
+                            Label(L10n.text(summaryCopied ? .libraryCopied : .summaryViewCopy,
+                                            language: language),
+                                  systemImage: summaryCopied ? "checkmark" : "doc.on.doc")
+                        }
+                        .buttonStyle(.bordered)
+                    }
+                    switch summaryDisplay {
+                    case .reading:
+                        SummaryMarkdownView(markdown: summary.text)
+                    case .code:
+                        Text(summary.text)
+                            .font(.system(.callout, design: .monospaced))
+                            .textSelection(.enabled)
+                            .fixedSize(horizontal: false, vertical: true)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .padding(14)
+                            .background(RoundedRectangle(cornerRadius: 8)
+                                .fill(Color(nsColor: .textBackgroundColor)))
+                            .overlay(RoundedRectangle(cornerRadius: 8)
+                                .strokeBorder(.secondary.opacity(0.22)))
+                    }
                     Text(L10n.format(.summaryViewGeneratedWith, language: language,
                                      summary.model, summary.promptName, summary.providerName))
                         .font(.caption)
@@ -610,6 +648,13 @@ struct RecordingDetail: View {
         case .transcript: return library.markdown(for: recording)
         case .summary: return library.summaryMarkdown(for: recording)
         }
+    }
+
+    private func copySummary(_ summary: SummaryRecord) {
+        NSPasteboard.general.clearContents()
+        NSPasteboard.general.setString(summary.text, forType: .string)
+        summaryCopied = true
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) { summaryCopied = false }
     }
 
     private var summaryStartDate: String {

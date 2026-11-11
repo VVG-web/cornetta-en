@@ -14,6 +14,10 @@ struct SummarySettingsView: View {
     @State private var checkResult: ProviderCheckResult?
     @State private var providerError: String?
     @State private var confirmDeleteProvider = false
+    @State private var providerModels: [String] = []
+    @State private var loadingProviderModels = false
+    @State private var providerModelsLoaded = false
+    @State private var modelLoadGeneration = 0
 
     @State private var prompts: [SummaryPrompt]
     @State private var promptID: UUID?
@@ -80,6 +84,7 @@ struct SummarySettingsView: View {
         }
         .padding(24)
         .frame(width: 700, height: 650, alignment: .topLeading)
+        .task { await loadProviderModels() }
         .onChange(of: providerID) { _, id in
             guard let provider = providers.first(where: { $0.id == id }) else { return }
             providerDraft = provider
@@ -87,6 +92,13 @@ struct SummarySettingsView: View {
             apiKeyDirty = false
             checkResult = nil
             providerError = nil
+            clearProviderModels()
+            Task { await loadProviderModels() }
+        }
+        .onChange(of: providerDraft.baseURL) { _, _ in
+            guard let saved = providers.first(where: { $0.id == providerDraft.id }),
+                  providerDraft.baseURL != saved.baseURL else { return }
+            clearProviderModels()
         }
         .onChange(of: promptID) { _, id in
             guard let prompt = prompts.first(where: { $0.id == id }) else { return }
@@ -165,11 +177,8 @@ struct SummarySettingsView: View {
                             .help(L10n.text(.summarySettingsBaseURLHelp, language: language))
                     }
                     GridRow {
-                        Text(L10n.text(.summarySettingsModel, language: language))
-                        TextField(L10n.text(.summarySettingsModelPlaceholder, language: language),
-                                  text: $providerDraft.model)
-                            .textFieldStyle(.roundedBorder)
-                            .frame(width: 320)
+                        Text(L10n.text(.summarySettingsDefaultModel, language: language))
+                        providerModelControl
                     }
                     GridRow {
                         Text(L10n.text(.summarySettingsApiKey, language: language))
@@ -322,6 +331,104 @@ struct SummarySettingsView: View {
         )
     }
 
+    private var providerModelOptions: [String] {
+        var options = providerModels
+        let current = providerDraft.model.trimmingCharacters(in: .whitespacesAndNewlines)
+        if !current.isEmpty, !options.contains(current) {
+            options.insert(current, at: 0)
+        }
+        return options
+    }
+
+    @ViewBuilder
+    private var providerModelControl: some View {
+        if loadingProviderModels {
+            HStack(spacing: 8) {
+                ProgressView().controlSize(.small)
+                Text(L10n.text(.summarySheetLoadingModels, language: language))
+                    .foregroundStyle(.secondary)
+            }
+            .frame(width: 360, alignment: .leading)
+        } else if providerModels.isEmpty {
+            VStack(alignment: .leading, spacing: 4) {
+                HStack(spacing: 6) {
+                    TextField(L10n.text(.summarySettingsModelPlaceholder, language: language),
+                              text: $providerDraft.model)
+                        .textFieldStyle(.roundedBorder)
+                        .frame(width: 300)
+                    Button {
+                        Task { await loadProviderModels() }
+                    } label: {
+                        Label(L10n.text(.summarySettingsLoadModels, language: language),
+                              systemImage: "arrow.clockwise")
+                    }
+                    .disabled(!providerDraft.config.isConfigured)
+                    .help(L10n.text(.summarySettingsLoadModelsHelp, language: language))
+                }
+                Text(L10n.text(providerModelsLoaded ? .summarySettingsModelsUnavailable
+                                                    : .summarySettingsDefaultModelHelp,
+                               language: language))
+                    .font(.caption)
+                    .foregroundStyle(providerModelsLoaded ? Color.orange : Color.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+        } else {
+            VStack(alignment: .leading, spacing: 4) {
+                HStack(spacing: 6) {
+                    Picker(L10n.text(.summarySettingsDefaultModel, language: language),
+                           selection: $providerDraft.model) {
+                        ForEach(providerModelOptions, id: \.self) { item in
+                            Text(item).tag(item)
+                        }
+                    }
+                    .labelsHidden()
+                    .frame(width: 320)
+                    Button {
+                        Task { await loadProviderModels() }
+                    } label: {
+                        Image(systemName: "arrow.clockwise")
+                    }
+                    .help(L10n.text(.summarySettingsLoadModelsHelp, language: language))
+                }
+                Text(L10n.text(.summarySettingsDefaultModelHelp, language: language))
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+        }
+    }
+
+    private func clearProviderModels() {
+        modelLoadGeneration += 1
+        providerModels = []
+        providerModelsLoaded = false
+        loadingProviderModels = false
+    }
+
+    private func loadProviderModels() async {
+        guard providers.contains(where: { $0.id == providerDraft.id }),
+              providerDraft.config.isConfigured else {
+            clearProviderModels()
+            return
+        }
+        modelLoadGeneration += 1
+        let generation = modelLoadGeneration
+        let id = providerDraft.id
+        let baseURL = providerDraft.baseURL
+        loadingProviderModels = true
+        providerModelsLoaded = false
+        let available = await SummaryService.availableModels(provider: providerDraft, apiKey: apiKey)
+        guard generation == modelLoadGeneration, providerDraft.id == id,
+              providerDraft.baseURL == baseURL else { return }
+        providerModels = available ?? []
+        providerModelsLoaded = true
+        loadingProviderModels = false
+        if providerModels.first != nil,
+           providerDraft.model.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+            providerDraft.model = providerModels[0]
+        }
+    }
+
     private func saveProvider() {
         do {
             try SummaryProviderCatalog.save(providerDraft,
@@ -331,6 +438,7 @@ struct SummarySettingsView: View {
             providerID = providerDraft.id
             apiKeyDirty = false
             providerError = nil
+            Task { await loadProviderModels() }
         } catch {
             providerError = L10n.text(.summarySettingsKeychainError, language: language)
         }

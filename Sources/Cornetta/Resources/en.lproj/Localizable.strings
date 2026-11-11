@@ -179,6 +179,8 @@
 "Il modello configurato non è nell'elenco. Puoi inserirlo manualmente." = "The configured model is not in the list. You can enter it manually.";
 "Il provider non espone l'elenco modelli. Inserisci il modello manualmente." = "The provider does not expose a model list. Enter the model manually.";
 "Verifico…" = "Checking…";
+"Modello predefinito" = "Default model";
+"Scegli il modello predefinito usato da questo provider." = "Choose the default model used by this provider.";
 "Prompt predefinito" = "Default prompt";
 "Provider predefinito" = "Default provider";
 "Elimina prompt" = "Delete prompt";
@@ -189,8 +191,11 @@
 "Eliminare questo provider?" = "Delete this provider?";
 "L'indirizzo del provider non è valido." = "The provider URL is invalid.";
 "Non riesco a salvare la chiave nel Portachiavi." = "Could not save the key in the Keychain.";
+"Carica modelli" = "Load models";
+"Scarica l'elenco dei modelli dal provider. Non invia la trascrizione." = "Loads the provider's model list. No transcript is sent.";
 "Modello" = "Model";
 "Modello chat" = "Chat model";
+"Elenco modelli non disponibile. Inserisci il modello manualmente o riprova." = "Model list unavailable. Enter the model manually or try again.";
 "Nome" = "Name";
 "Il mio provider" = "My provider";
 "Aggiungi un prompt per creare i riassunti." = "Add a prompt to generate summaries.";
@@ -230,12 +235,15 @@
 "Genera riassunto" = "Generate summary";
 "Tema" = "Topic";
 "Di cosa parla la riunione" = "What the meeting is about";
+"Codice" = "Code";
+"Copia riassunto" = "Copy summary";
 "Modifica informazioni" = "Edit information";
 "Genera un riassunto dalla trascrizione e dalle informazioni sulla riunione." = "Generate a summary from the transcript and meeting information.";
 "Nessun riassunto" = "No summary yet";
 "riassunto" = "summary";
 "Trascrivi la registrazione prima di creare un riassunto." = "Transcribe the recording before generating a summary.";
 "Nessuna trascrizione" = "No transcript yet";
+"Lettura" = "Read";
 "Rigenera" = "Regenerate";
 "Trascrizione" = "Transcript";
 "Resta nel Portachiavi di macOS e viene inviata solo al provider selezionato. Non compare nei log." = "Stored in the macOS Keychain and sent only to the selected provider. Never written to logs.";

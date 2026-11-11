@@ -13,7 +13,7 @@ Each provider is an OpenAI-compatible chat-completions endpoint:
 
 - name;
 - base URL, for example `https://api.example.com/v1`;
-- model;
+- default model;
 - optional API key in the macOS Keychain;
 - one provider can be marked as the default.
 
@@ -22,6 +22,11 @@ such as `http://host:8081` and the complete
 `http://host:8081/v1/chat/completions` endpoint. **Check service** sends
 `GET /v1/models` (or the matching path) with the draft API key and never sends
 the transcript.
+
+**Default model** loads a dropdown from the provider's `/v1/models` list. Choose
+the model and press **Save**; the summary window preselects it for this provider
+while still allowing a one-off model. If the list is unavailable, the same row
+shows a manual field, the saved model and a **Load models** button.
 
 ### Prompt templates
 
@@ -89,6 +94,11 @@ and provider used. The same snapshot is saved in the summary files:
 The summary record includes `providerID`, `providerName`, `model`, `promptID`,
 `promptName`, `createdAt` and `language`. Prompt and provider names are snapshots,
 so renaming a prompt later does not rewrite old summaries.
+
+The Summary tab opens in **Read** mode, which formats headings, paragraphs,
+lists, quotes, code blocks and tables as an article. Switch to **Code** to see
+and select the original Markdown. **Copy summary** puts the raw Markdown on the
+clipboard.
 
 ## Privacy boundary
 

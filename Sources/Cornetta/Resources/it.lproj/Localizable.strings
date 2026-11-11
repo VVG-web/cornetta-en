@@ -179,6 +179,8 @@
 "Il modello configurato non è nell'elenco. Puoi inserirlo manualmente." = "Il modello configurato non è nell'elenco. Puoi inserirlo manualmente.";
 "Il provider non espone l'elenco modelli. Inserisci il modello manualmente." = "Il provider non espone l'elenco modelli. Inserisci il modello manualmente.";
 "Verifico…" = "Verifico…";
+"Modello predefinito" = "Modello predefinito";
+"Scegli il modello predefinito usato da questo provider." = "Scegli il modello predefinito usato da questo provider.";
 "Prompt predefinito" = "Prompt predefinito";
 "Provider predefinito" = "Provider predefinito";
 "Elimina prompt" = "Elimina prompt";
@@ -189,8 +191,11 @@
 "Eliminare questo provider?" = "Eliminare questo provider?";
 "L'indirizzo del provider non è valido." = "L'indirizzo del provider non è valido.";
 "Non riesco a salvare la chiave nel Portachiavi." = "Non riesco a salvare la chiave nel Portachiavi.";
+"Carica modelli" = "Carica modelli";
+"Scarica l'elenco dei modelli dal provider. Non invia la trascrizione." = "Scarica l'elenco dei modelli dal provider. Non invia la trascrizione.";
 "Modello" = "Modello";
 "Modello chat" = "Modello chat";
+"Elenco modelli non disponibile. Inserisci il modello manualmente o riprova." = "Elenco modelli non disponibile. Inserisci il modello manualmente o riprova.";
 "Nome" = "Nome";
 "Il mio provider" = "Il mio provider";
 "Aggiungi un prompt per creare i riassunti." = "Aggiungi un prompt per creare i riassunti.";
@@ -230,12 +235,15 @@
 "Genera riassunto" = "Genera riassunto";
 "Tema" = "Tema";
 "Di cosa parla la riunione" = "Di cosa parla la riunione";
+"Codice" = "Codice";
+"Copia riassunto" = "Copia riassunto";
 "Modifica informazioni" = "Modifica informazioni";
 "Genera un riassunto dalla trascrizione e dalle informazioni sulla riunione." = "Genera un riassunto dalla trascrizione e dalle informazioni sulla riunione.";
 "Nessun riassunto" = "Nessun riassunto";
 "riassunto" = "riassunto";
 "Trascrivi la registrazione prima di creare un riassunto." = "Trascrivi la registrazione prima di creare un riassunto.";
 "Nessuna trascrizione" = "Nessuna trascrizione";
+"Lettura" = "Lettura";
 "Rigenera" = "Rigenera";
 "Trascrizione" = "Trascrizione";
 "Resta nel Portachiavi di macOS e viene inviata solo al provider selezionato. Non compare nei log." = "Resta nel Portachiavi di macOS e viene inviata solo al provider selezionato. Non compare nei log.";
