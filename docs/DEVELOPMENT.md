@@ -78,6 +78,9 @@ The app must not open background connections. The only allowed network actions a
 - a user-triggered **Check service** request to `<baseURL>/models` from
   `Sources/Cornetta/ProviderCheck.swift`. It carries the optional API key, no audio, and does not save
   settings. Each key is stored only in the macOS Keychain (`TranscriptionCredential.swift`).
+- a user-triggered summary request from `Sources/Cornetta/SummaryService.swift` to the selected
+  OpenAI-compatible LLM provider. It carries the transcript, meeting information and prompt only after
+  **Generate**. Each summary API key is stored in the macOS Keychain (`SummaryCredential.swift`).
 
 Do not add telemetry, analytics, crash reporting, ad SDKs, a feedback server, or an automatic updater.
 `python3 -m unittest discover -s scripts/tests -p 'test_privacy_guard.py'` checks that the old endpoints

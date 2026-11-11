@@ -38,6 +38,7 @@ subset is relevant, set it to the completed IDs instead of `all`; the script rej
 | TC-18 | The five recording tags are read and written in the .m4a, empty tags can be removed, and the audio remains readable after the atomic replacement | `Tests/CornettaCoreTests/RecordingTagsTests.swift` |
 | TC-19 | Floating recording, suggestion and notice panels size themselves to their SwiftUI content, including the Feedback button and long update messages | manual TS-19, release screenshots |
 | TC-20 | Per-provider diarization settings survive old provider JSON; server speaker labels become readable Speaker N labels; the owner track remains You | `Tests/CornettaCoreTests/TranscriptionProvidersTests.swift`, `Tests/CornettaCoreTests/TranscriptTests.swift` |
+| TC-21 | Summary providers, unique default prompt, prompt variable rendering, meeting metadata and summary provenance round-trip through separate files | `Tests/CornettaCoreTests/SummaryModelsTests.swift` |
 
 ## Manual test scenarios
 
@@ -231,6 +232,25 @@ blocks the release until it is fixed and all affected scenarios are repeated.
 4. Disable diarization and transcribe again. Expected: the request includes `diarize=false`, the
    transcript falls back to Others, and the audio still succeeds.
 5. Use a local provider only for this test. Do not commit its URL, name, model or API key.
+
+### TS-21: Summary providers, prompts and meeting metadata
+
+1. Open **Summary settings**. Add two OpenAI-compatible providers, edit their base URL, model and key,
+   and mark one as the one used by default. Expected: both persist independently; Check service sends
+   no transcript.
+2. Add two prompt templates. Expected: exactly one is marked **Default** and changing the default
+   replaces the previous one. Delete a non-default prompt without affecting existing summaries.
+3. Open a recording with a transcript in **Recordings and transcripts**. The segmented control under
+   the header shows **Testo / Transcript** and **Riassunto / Summary**.
+4. In the summary window, edit topic, participants, start date/time and notes, choose a non-default
+   provider, another model and a non-default prompt, then generate. Expected: metadata is saved in
+   `Incontri/<recording>.json`, the summary is saved in `Riassunti/<recording>.json` and `.md`, and
+   the Summary tab shows the generated text.
+5. Expected: the Summary tab shows the model, prompt name and provider used at generation time, even
+   after the prompt is renamed. Switching providers/models/prompts in the window does not change the
+   saved defaults.
+6. Verify both English and Italian interfaces. All labels, tabs, empty states and errors must be
+   localized.
 
 ## Sign-off
 

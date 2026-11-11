@@ -120,6 +120,7 @@ public enum L10nKey: String, CaseIterable, Sendable {
     case menuScreenStop = "menu.screen.stop"
     case menuScreenTitle = "menu.screen.title"
     case menuScreenWithoutMicrophone = "menu.screen.withoutMicrophone"
+    case menuSummarySettings = "menu.summarySettings"
     case menuTranscribe = "menu.transcribe"
     case menuTranscriptionSettings = "menu.transcriptionSettings"
     case menuUpdates = "menu.updates"
@@ -199,6 +200,86 @@ public enum L10nKey: String, CaseIterable, Sendable {
     case speakerOthers = "speaker.others"
     case speakerRemote = "speaker.remote"
     case speechPreparing = "speech.preparing"
+    case summaryMarkdownOrigin = "summary.markdown.origin"
+    case summarySettingsAddPrompt = "summary.settings.addPrompt"
+    case summarySettingsAddProvider = "summary.settings.addProvider"
+    case summarySettingsApiKey = "summary.settings.apiKey"
+    case summarySettingsApiKeyHelp = "summary.settings.apiKeyHelp"
+    case summarySettingsApiKeyPlaceholder = "summary.settings.apiKeyPlaceholder"
+    case summarySettingsBaseURL = "summary.settings.baseURL"
+    case summarySettingsBaseURLPlaceholder = "summary.settings.baseURLPlaceholder"
+    case summarySettingsCheck = "summary.settings.check"
+    case summarySettingsCheckHelp = "summary.settings.checkHelp"
+    case summarySettingsChecking = "summary.settings.checking"
+    case summarySettingsDefaultPrompt = "summary.settings.defaultPrompt"
+    case summarySettingsDefaultProvider = "summary.settings.defaultProvider"
+    case summarySettingsDeletePrompt = "summary.settings.deletePrompt"
+    case summarySettingsDeletePromptMessage = "summary.settings.deletePromptMessage"
+    case summarySettingsDeletePromptTitle = "summary.settings.deletePromptTitle"
+    case summarySettingsDeleteProvider = "summary.settings.deleteProvider"
+    case summarySettingsDeleteProviderMessage = "summary.settings.deleteProviderMessage"
+    case summarySettingsDeleteProviderTitle = "summary.settings.deleteProviderTitle"
+    case summarySettingsInvalid = "summary.settings.invalid"
+    case summarySettingsKeychainError = "summary.settings.keychainError"
+    case summarySettingsModel = "summary.settings.model"
+    case summarySettingsModelPlaceholder = "summary.settings.modelPlaceholder"
+    case summarySettingsName = "summary.settings.name"
+    case summarySettingsNamePlaceholder = "summary.settings.namePlaceholder"
+    case summarySettingsNoPrompts = "summary.settings.noPrompts"
+    case summarySettingsNoProviders = "summary.settings.noProviders"
+    case summarySettingsPrompt = "summary.settings.prompt"
+    case summarySettingsPromptBody = "summary.settings.promptBody"
+    case summarySettingsPromptDescription = "summary.settings.promptDescription"
+    case summarySettingsPromptEmpty = "summary.settings.promptEmpty"
+    case summarySettingsPromptHelp = "summary.settings.promptHelp"
+    case summarySettingsPromptName = "summary.settings.promptName"
+    case summarySettingsPromptNamePlaceholder = "summary.settings.promptNamePlaceholder"
+    case summarySettingsPrompts = "summary.settings.prompts"
+    case summarySettingsProvider = "summary.settings.provider"
+    case summarySettingsProviderDescription = "summary.settings.providerDescription"
+    case summarySettingsProviders = "summary.settings.providers"
+    case summarySettingsTitle = "summary.settings.title"
+    case summarySettingsWindow = "summary.settings.window"
+    case summarySheetAvailableModels = "summary.sheet.availableModels"
+    case summarySheetError = "summary.sheet.error"
+    case summarySheetGenerate = "summary.sheet.generate"
+    case summarySheetGenerating = "summary.sheet.generating"
+    case summarySheetLlm = "summary.sheet.llm"
+    case summarySheetLoadingModels = "summary.sheet.loadingModels"
+    case summarySheetMeetingInfo = "summary.sheet.meetingInfo"
+    case summarySheetModel = "summary.sheet.model"
+    case summarySheetNoProviders = "summary.sheet.noProviders"
+    case summarySheetNoTranscript = "summary.sheet.noTranscript"
+    case summarySheetNotes = "summary.sheet.notes"
+    case summarySheetNotesPlaceholder = "summary.sheet.notesPlaceholder"
+    case summarySheetOpenSettings = "summary.sheet.openSettings"
+    case summarySheetParticipants = "summary.sheet.participants"
+    case summarySheetParticipantsPlaceholder = "summary.sheet.participantsPlaceholder"
+    case summarySheetPrivacy = "summary.sheet.privacy"
+    case summarySheetPrompt = "summary.sheet.prompt"
+    case summarySheetProvider = "summary.sheet.provider"
+    case summarySheetSaveInfo = "summary.sheet.saveInfo"
+    case summarySheetSavedInfo = "summary.sheet.savedInfo"
+    case summarySheetStart = "summary.sheet.start"
+    case summarySheetTitle = "summary.sheet.title"
+    case summarySheetTopic = "summary.sheet.topic"
+    case summarySheetTopicPlaceholder = "summary.sheet.topicPlaceholder"
+    case summaryViewEditInfo = "summary.view.editInfo"
+    case summaryViewEmptyMessage = "summary.view.emptyMessage"
+    case summaryViewEmptyTitle = "summary.view.emptyTitle"
+    case summaryViewExportSuffix = "summary.view.exportSuffix"
+    case summaryViewGenerate = "summary.view.generate"
+    case summaryViewGeneratedWith = "summary.view.generatedWith"
+    case summaryViewInfo = "summary.view.info"
+    case summaryViewNoTranscriptMessage = "summary.view.noTranscriptMessage"
+    case summaryViewNoTranscriptTitle = "summary.view.noTranscriptTitle"
+    case summaryViewNotes = "summary.view.notes"
+    case summaryViewParticipants = "summary.view.participants"
+    case summaryViewRegenerate = "summary.view.regenerate"
+    case summaryViewStart = "summary.view.start"
+    case summaryViewSummary = "summary.view.summary"
+    case summaryViewTopic = "summary.view.topic"
+    case summaryViewTranscript = "summary.view.transcript"
     case transcriptionSettingsAddProvider = "transcription.settings.addProvider"
     case transcriptionSettingsApiKey = "transcription.settings.apiKey"
     case transcriptionSettingsApiKeyHelp = "transcription.settings.apiKey.help"
@@ -414,6 +495,7 @@ public enum L10n {
         .menuScreenStop: "Ferma il video dello schermo",
         .menuScreenTitle: "Video dello schermo",
         .menuScreenWithoutMicrophone: "Senza microfono: serve macOS 15",
+        .menuSummarySettings: "Impostazioni riassunto…",
         .menuTranscribe: "Trascrivi subito dopo la registrazione",
         .menuTranscriptionSettings: "Impostazioni trascrizione…",
         .menuUpdates: "Controlla gli aggiornamenti su GitHub…",
@@ -493,6 +575,86 @@ public enum L10n {
         .speakerOthers: "Altri",
         .speakerRemote: "Interlocutore {0}",
         .speechPreparing: "Preparo il modello della lingua…",
+        .summaryMarkdownOrigin: "Generato con il modello {0} · prompt «{1}» · {2}",
+        .summarySettingsAddPrompt: "Aggiungi prompt…",
+        .summarySettingsAddProvider: "Aggiungi provider…",
+        .summarySettingsApiKey: "Chiave API (facoltativa)",
+        .summarySettingsApiKeyHelp: "Resta nel Portachiavi di macOS e viene inviata solo a questo provider.",
+        .summarySettingsApiKeyPlaceholder: "Incolla la chiave",
+        .summarySettingsBaseURL: "Indirizzo base",
+        .summarySettingsBaseURLPlaceholder: "https://api.example.com/v1",
+        .summarySettingsCheck: "Verifica servizio",
+        .summarySettingsCheckHelp: "Controlla connessione e modello senza inviare la trascrizione.",
+        .summarySettingsChecking: "Verifico…",
+        .summarySettingsDefaultPrompt: "Prompt predefinito",
+        .summarySettingsDefaultProvider: "Provider predefinito",
+        .summarySettingsDeletePrompt: "Elimina prompt",
+        .summarySettingsDeletePromptMessage: "Il template verrà rimosso. I riassunti già creati non cambiano.",
+        .summarySettingsDeletePromptTitle: "Eliminare questo prompt?",
+        .summarySettingsDeleteProvider: "Elimina provider",
+        .summarySettingsDeleteProviderMessage: "La configurazione e la chiave API salvata vengono eliminate.",
+        .summarySettingsDeleteProviderTitle: "Eliminare questo provider?",
+        .summarySettingsInvalid: "L'indirizzo del provider non è valido.",
+        .summarySettingsKeychainError: "Non riesco a salvare la chiave nel Portachiavi.",
+        .summarySettingsModel: "Modello",
+        .summarySettingsModelPlaceholder: "Modello chat",
+        .summarySettingsName: "Nome",
+        .summarySettingsNamePlaceholder: "Il mio provider",
+        .summarySettingsNoPrompts: "Aggiungi un prompt per creare i riassunti.",
+        .summarySettingsNoProviders: "Aggiungi un provider LLM per creare i riassunti.",
+        .summarySettingsPrompt: "Prompt",
+        .summarySettingsPromptBody: "Testo del prompt",
+        .summarySettingsPromptDescription: "I template usano le variabili tra doppie graffe. Un solo template è quello predefinito.",
+        .summarySettingsPromptEmpty: "Il prompt non può essere vuoto.",
+        .summarySettingsPromptHelp: "Variabili: {{topic}}, {{participants}}, {{date}}, {{time}}, {{notes}}, {{transcript}}, {{language}}. La trascrizione viene aggiunta anche se manca {{transcript}}.",
+        .summarySettingsPromptName: "Nome del prompt",
+        .summarySettingsPromptNamePlaceholder: "Riepilogo riunione",
+        .summarySettingsPrompts: "Modelli di prompt",
+        .summarySettingsProvider: "Provider",
+        .summarySettingsProviderDescription: "Provider compatibili con l'API chat completions di OpenAI. La verifica del servizio non invia la trascrizione.",
+        .summarySettingsProviders: "Provider LLM",
+        .summarySettingsTitle: "Impostazioni riassunto",
+        .summarySettingsWindow: "Riassunto",
+        .summarySheetAvailableModels: "Modelli disponibili",
+        .summarySheetError: "Non riesco a creare il riassunto.",
+        .summarySheetGenerate: "Genera",
+        .summarySheetGenerating: "Genero…",
+        .summarySheetLlm: "Modello linguistico",
+        .summarySheetLoadingModels: "Carico i modelli…",
+        .summarySheetMeetingInfo: "Informazioni sulla riunione",
+        .summarySheetModel: "Modello",
+        .summarySheetNoProviders: "Aggiungi un provider nelle Impostazioni riassunto.",
+        .summarySheetNoTranscript: "Trascrivi prima la registrazione per creare un riassunto.",
+        .summarySheetNotes: "Note",
+        .summarySheetNotesPlaceholder: "Appunti personali sulla riunione",
+        .summarySheetOpenSettings: "Apri Impostazioni riassunto…",
+        .summarySheetParticipants: "Partecipanti",
+        .summarySheetParticipantsPlaceholder: "Nomi o ruoli, uno per riga",
+        .summarySheetPrivacy: "Solo quando premi Genera, la trascrizione e le informazioni sulla riunione vengono inviate al provider scelto. La chiave API resta nel Portachiavi.",
+        .summarySheetPrompt: "Prompt",
+        .summarySheetProvider: "Provider",
+        .summarySheetSaveInfo: "Salva informazioni",
+        .summarySheetSavedInfo: "Informazioni sulla riunione salvate.",
+        .summarySheetStart: "Data e ora di inizio",
+        .summarySheetTitle: "Genera riassunto",
+        .summarySheetTopic: "Tema",
+        .summarySheetTopicPlaceholder: "Di cosa parla la riunione",
+        .summaryViewEditInfo: "Modifica informazioni",
+        .summaryViewEmptyMessage: "Genera un riassunto dalla trascrizione e dalle informazioni sulla riunione.",
+        .summaryViewEmptyTitle: "Nessun riassunto",
+        .summaryViewExportSuffix: "riassunto",
+        .summaryViewGenerate: "Genera riassunto",
+        .summaryViewGeneratedWith: "Generato con il modello {0} · prompt «{1}» · {2}",
+        .summaryViewInfo: "Informazioni sulla riunione",
+        .summaryViewNoTranscriptMessage: "Trascrivi la registrazione prima di creare un riassunto.",
+        .summaryViewNoTranscriptTitle: "Nessuna trascrizione",
+        .summaryViewNotes: "Note: {0}",
+        .summaryViewParticipants: "Partecipanti: {0}",
+        .summaryViewRegenerate: "Rigenera",
+        .summaryViewStart: "Inizio: {0}",
+        .summaryViewSummary: "Riassunto",
+        .summaryViewTopic: "Tema: {0}",
+        .summaryViewTranscript: "Trascrizione",
         .transcriptionSettingsAddProvider: "Aggiungi provider…",
         .transcriptionSettingsApiKey: "Chiave API (facoltativa)",
         .transcriptionSettingsApiKeyHelp: "Resta nel Portachiavi di macOS e viene inviata solo al provider selezionato. Non compare nei log.",
@@ -544,7 +706,7 @@ public enum L10n {
         .transcriptionSettingsProviderNamePlaceholder: "Il mio provider",
         .transcriptionSettingsTitle: "Provider di trascrizione",
         .transcriptionSettingsTransport: "HTTP va bene per un servizio sul Mac o sulla rete locale; per un servizio su Internet usa HTTPS.",
-        .transcriptionSettingsWindow: "Trascrizione",
+        .transcriptionSettingsWindow: "Impostazioni trascrizione",
         .welcomeAllow: "Consenti",
         .welcomeCallAudio: "Audio delle chiamate",
         .welcomeCallAudioDetail: "Per registrare la voce degli altri. macOS lo chiama «Registrazione audio di sistema».",
@@ -707,6 +869,7 @@ public enum L10n {
         .menuScreenStop: "Stop screen recording",
         .menuScreenTitle: "Screen recording",
         .menuScreenWithoutMicrophone: "Without microphone: requires macOS 15",
+        .menuSummarySettings: "Summary settings…",
         .menuTranscribe: "Transcribe immediately after recording",
         .menuTranscriptionSettings: "Transcription settings…",
         .menuUpdates: "Check for updates on GitHub…",
@@ -786,6 +949,86 @@ public enum L10n {
         .speakerOthers: "Others",
         .speakerRemote: "Speaker {0}",
         .speechPreparing: "Preparing the language model…",
+        .summaryMarkdownOrigin: "Generated with model {0} · prompt “{1}” · {2}",
+        .summarySettingsAddPrompt: "Add prompt…",
+        .summarySettingsAddProvider: "Add provider…",
+        .summarySettingsApiKey: "API key (optional)",
+        .summarySettingsApiKeyHelp: "Stored in the macOS Keychain and sent only to this provider.",
+        .summarySettingsApiKeyPlaceholder: "Paste the key",
+        .summarySettingsBaseURL: "Base URL",
+        .summarySettingsBaseURLPlaceholder: "https://api.example.com/v1",
+        .summarySettingsCheck: "Check service",
+        .summarySettingsCheckHelp: "Checks connectivity and the model without sending the transcript.",
+        .summarySettingsChecking: "Checking…",
+        .summarySettingsDefaultPrompt: "Default prompt",
+        .summarySettingsDefaultProvider: "Default provider",
+        .summarySettingsDeletePrompt: "Delete prompt",
+        .summarySettingsDeletePromptMessage: "The template will be removed. Existing summaries do not change.",
+        .summarySettingsDeletePromptTitle: "Delete this prompt?",
+        .summarySettingsDeleteProvider: "Delete provider",
+        .summarySettingsDeleteProviderMessage: "The configuration and saved API key are deleted.",
+        .summarySettingsDeleteProviderTitle: "Delete this provider?",
+        .summarySettingsInvalid: "The provider URL is invalid.",
+        .summarySettingsKeychainError: "Could not save the key in the Keychain.",
+        .summarySettingsModel: "Model",
+        .summarySettingsModelPlaceholder: "Chat model",
+        .summarySettingsName: "Name",
+        .summarySettingsNamePlaceholder: "My provider",
+        .summarySettingsNoPrompts: "Add a prompt to generate summaries.",
+        .summarySettingsNoProviders: "Add an LLM provider to generate summaries.",
+        .summarySettingsPrompt: "Prompt",
+        .summarySettingsPromptBody: "Prompt text",
+        .summarySettingsPromptDescription: "Templates use double-brace variables. Exactly one template is the default.",
+        .summarySettingsPromptEmpty: "The prompt cannot be empty.",
+        .summarySettingsPromptHelp: "Variables: {{topic}}, {{participants}}, {{date}}, {{time}}, {{notes}}, {{transcript}}, {{language}}. The transcript is appended even when {{transcript}} is missing.",
+        .summarySettingsPromptName: "Prompt name",
+        .summarySettingsPromptNamePlaceholder: "Meeting summary",
+        .summarySettingsPrompts: "Prompt templates",
+        .summarySettingsProvider: "Provider",
+        .summarySettingsProviderDescription: "OpenAI chat-completions compatible providers. Check service does not send the transcript.",
+        .summarySettingsProviders: "LLM providers",
+        .summarySettingsTitle: "Summary settings",
+        .summarySettingsWindow: "Summary",
+        .summarySheetAvailableModels: "Available models",
+        .summarySheetError: "Could not generate the summary.",
+        .summarySheetGenerate: "Generate",
+        .summarySheetGenerating: "Generating…",
+        .summarySheetLlm: "Language model",
+        .summarySheetLoadingModels: "Loading models…",
+        .summarySheetMeetingInfo: "Meeting information",
+        .summarySheetModel: "Model",
+        .summarySheetNoProviders: "Add a provider in Summary settings.",
+        .summarySheetNoTranscript: "Transcribe the recording before generating a summary.",
+        .summarySheetNotes: "Notes",
+        .summarySheetNotesPlaceholder: "Your notes about the meeting",
+        .summarySheetOpenSettings: "Open Summary settings…",
+        .summarySheetParticipants: "Participants",
+        .summarySheetParticipantsPlaceholder: "Names or roles, one per line",
+        .summarySheetPrivacy: "Only when you press Generate are the transcript and meeting information sent to the selected provider. The API key stays in the Keychain.",
+        .summarySheetPrompt: "Prompt",
+        .summarySheetProvider: "Provider",
+        .summarySheetSaveInfo: "Save information",
+        .summarySheetSavedInfo: "Meeting information saved.",
+        .summarySheetStart: "Start date and time",
+        .summarySheetTitle: "Generate summary",
+        .summarySheetTopic: "Topic",
+        .summarySheetTopicPlaceholder: "What the meeting is about",
+        .summaryViewEditInfo: "Edit information",
+        .summaryViewEmptyMessage: "Generate a summary from the transcript and meeting information.",
+        .summaryViewEmptyTitle: "No summary yet",
+        .summaryViewExportSuffix: "summary",
+        .summaryViewGenerate: "Generate summary",
+        .summaryViewGeneratedWith: "Generated with model {0} · prompt “{1}” · {2}",
+        .summaryViewInfo: "Meeting information",
+        .summaryViewNoTranscriptMessage: "Transcribe the recording before generating a summary.",
+        .summaryViewNoTranscriptTitle: "No transcript yet",
+        .summaryViewNotes: "Notes: {0}",
+        .summaryViewParticipants: "Participants: {0}",
+        .summaryViewRegenerate: "Regenerate",
+        .summaryViewStart: "Start: {0}",
+        .summaryViewSummary: "Summary",
+        .summaryViewTopic: "Topic: {0}",
+        .summaryViewTranscript: "Transcript",
         .transcriptionSettingsAddProvider: "Add provider…",
         .transcriptionSettingsApiKey: "API key (optional)",
         .transcriptionSettingsApiKeyHelp: "Stored in the macOS Keychain and sent only to the selected provider. Never written to logs.",
@@ -837,7 +1080,7 @@ public enum L10n {
         .transcriptionSettingsProviderNamePlaceholder: "My provider",
         .transcriptionSettingsTitle: "Transcription providers",
         .transcriptionSettingsTransport: "HTTP works for a service on this Mac or the local network; use HTTPS for a service on the internet.",
-        .transcriptionSettingsWindow: "Transcription",
+        .transcriptionSettingsWindow: "Transcription settings",
         .welcomeAllow: "Allow",
         .welcomeCallAudio: "Call audio",
         .welcomeCallAudioDetail: "To record the other people. macOS calls this “System Audio Recording”.",

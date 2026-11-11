@@ -29,6 +29,8 @@ final class Library: ObservableObject {
     @Published private(set) var transcripts: [String: Transcript] = [:] {
         didSet { searchText = [:]; turnsCache = [:] }
     }
+    @Published private(set) var summaries: [String: SummaryRecord] = [:]
+    @Published private(set) var meetingInfoCache: [String: MeetingInfo] = [:]
     @Published private(set) var statuses: [String: Status] = [:]
     @AppStorage(TranscriptionPreferences.autoTranscribeKey) var autoTranscribe = false
     @AppStorage("saveMarkdown") var saveMarkdown = true
@@ -191,6 +193,8 @@ final class Library: ObservableObject {
         let ids = Set(recordings.map(\.id))
         for id in transcripts.keys where !ids.contains(id) { transcripts[id] = nil }
         for id in statuses.keys where !ids.contains(id) { statuses[id] = nil }
+        for id in summaries.keys where !ids.contains(id) { summaries[id] = nil }
+        for id in meetingInfoCache.keys where !ids.contains(id) { meetingInfoCache[id] = nil }
         durations = durations.filter { ids.contains($0.key.lastPathComponent) }
         tagCache = tagCache.filter { ids.contains($0.key.lastPathComponent) }
 
@@ -201,6 +205,11 @@ final class Library: ObservableObject {
                 statuses[recording.id] = .done
             } else if statuses[recording.id] == nil {
                 statuses[recording.id] = failure(for: recording.url).map { .failed($0.error) } ?? .notTranscribed
+            }
+        }
+        for recording in recordings where summaries[recording.id] == nil {
+            if let summary = SummaryStore.loadSummary(for: recording.url, support: support) {
+                summaries[recording.id] = summary
             }
         }
         measure(unmeasured)
@@ -517,6 +526,70 @@ final class Library: ObservableObject {
         }
     }
 
+    func meetingInfo(for recording: Recording) -> MeetingInfo {
+        if let cached = meetingInfoCache[recording.id] { return cached }
+        if let saved = SummaryStore.loadMeeting(for: recording.url, support: support) {
+            meetingInfoCache[recording.id] = saved
+            return saved
+        }
+        let fallback = MeetingInfo(
+            topic: title(for: recording),
+            participants: recording.tags.artist.trimmingCharacters(in: .whitespacesAndNewlines),
+            startDate: recording.date,
+            notes: "")
+        meetingInfoCache[recording.id] = fallback
+        return fallback
+    }
+
+    func saveMeetingInfo(_ info: MeetingInfo, for recording: Recording) throws {
+        try SummaryStore.saveMeeting(info, for: recording.url, support: support)
+        meetingInfoCache[recording.id] = info
+    }
+
+    func summary(for recording: Recording) -> SummaryRecord? {
+        summaries[recording.id]
+    }
+
+    func summaryMarkdown(for recording: Recording) -> String? {
+        guard let summary = summaries[recording.id] else { return nil }
+        let provenance = L10n.format(.summaryMarkdownOrigin,
+                                     language: Localization.shared.language,
+                                     summary.model, summary.promptName, summary.providerName)
+        return "# \(summary.title)\n\n\(summary.text)\n\n---\n\(provenance)\n"
+    }
+
+    @discardableResult
+    func generateSummary(_ recording: Recording, meetingInfo: MeetingInfo,
+                         provider: SummaryProvider, model: String,
+                         prompt: SummaryPrompt) async throws -> SummaryRecord {
+        guard let transcript = transcripts[recording.id] else {
+            throw SummaryServiceError.noTranscript
+        }
+        try saveMeetingInfo(meetingInfo, for: recording)
+        let language = Localization.shared.language
+        let apiKey = SummaryProviderCatalog.apiKey(for: provider)
+        let text = try await SummaryService.summarize(provider: provider, model: model,
+                                                      prompt: prompt, meeting: meetingInfo,
+                                                      transcript: transcript, language: language,
+                                                      apiKey: apiKey)
+        let title = meetingInfo.topic.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+            ? title(for: recording) : meetingInfo.topic
+        let record = SummaryRecord(recording: recording.id, title: title, text: text,
+                                   providerID: provider.id, providerName: provider.name,
+                                   model: model.trimmingCharacters(in: .whitespacesAndNewlines),
+                                   promptID: prompt.id, promptName: prompt.name,
+                                   language: language.rawValue)
+        let markdown = L10n.format(.summaryMarkdownOrigin,
+                                   language: language,
+                                   record.model, record.promptName, record.providerName)
+        let document = "# \(title)\n\n\(text)\n\n---\n\(markdown)\n"
+        try SummaryStore.saveSummary(record, for: recording.url, support: support,
+                                     markdown: document)
+        summaries[recording.id] = record
+        Diagnostics.log("Riassunto creato: \(recording.id), modello \(record.model), prompt \(record.promptName)")
+        return record
+    }
+
     /// Sposta nel Cestino audio e trascrizione Markdown, e cancella tracce e JSON interni.
     func delete(_ recording: Recording) {
         // Il lettore tiene il file aperto: senza stop la chiamata eliminata continua a suonare.
@@ -530,7 +603,10 @@ final class Library: ObservableObject {
         try? fm.removeItem(at: tracksDirectory(for: recording.url))
         try? fm.removeItem(at: transcriptURL(for: recording.url))
         try? fm.removeItem(at: failureURL(for: recording.url))
+        SummaryStore.delete(for: recording.url, support: support)
         transcripts[recording.id] = nil
+        summaries[recording.id] = nil
+        meetingInfoCache[recording.id] = nil
         statuses[recording.id] = nil
         Diagnostics.log("Registrazione eliminata: \(recording.id)")
         reload()

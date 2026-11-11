@@ -43,6 +43,9 @@
     <p>Il provider HTTP riceve il file audio, il nome del file e i campi <code>model</code>, <code>language</code> e <code>response_format</code>. Non riceve la trascrizione, altre registrazioni, i log dell'app, i contatti o i nomi dei dispositivi. Se scegli un servizio su un altro computer, quel gestore riceve anche il tuo indirizzo IP: usa HTTPS e un servizio di cui ti fidi. Ogni provider ha una chiave API separata: resta nel Portachiavi di macOS e viene inviata solo a quel provider come token <code>Bearer</code>.</p>
     <p>Il pulsante <strong>Verifica servizio</strong> invia una richiesta <code>GET</code> all'elenco modelli del provider HTTP selezionato. Non invia audio e non salva la configurazione.</p>
 
+    <h2>Riassunti</h2>
+    <p>Puoi salvare più provider LLM compatibili con OpenAI e più template di prompt. Quando premi <strong>Genera</strong> nella finestra del riassunto, la trascrizione, le informazioni sulla riunione che hai inserito e il prompt vengono inviati al provider selezionato. Non parte nulla in background e nessun riassunto viene creato automaticamente. Ogni chiave API resta nel Portachiavi di macOS e viene inviata solo al proprio provider.</p>
+
     <h2>Dati di funzionamento</h2>
     <p>Non ci sono telemetria, identificativi di installazione, analytics o rapporti automatici di errore. L'app non apre connessioni in background.</p>
 

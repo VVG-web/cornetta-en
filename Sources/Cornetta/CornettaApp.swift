@@ -90,6 +90,7 @@ struct MenuContent: View {
         Toggle(localization.text(.menuPropose), isOn: $model.proposeOnCall)
         Toggle(localization.text(.menuTranscribe), isOn: $autoTranscribe)
         Button(localization.text(.menuTranscriptionSettings)) { TranscriptionSettingsWindow.show() }
+        Button(localization.text(.menuSummarySettings)) { SummarySettingsWindow.show() }
         Toggle(localization.text(.menuLaunchAtLoginMac),
                isOn: Binding(get: { LaunchAtLogin.isEnabled }, set: { LaunchAtLogin.set($0) }))
         Button(localization.text(.menuUpdates)) { model.checkForUpdates() }
@@ -113,6 +114,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     func applicationDidFinishLaunching(_ notification: Notification) {
         Diagnostics.log("Avvio Cornetta \(AppInfo.version) da \(Bundle.main.bundlePath)")
         MainActor.assumeIsolated {
+            if CommandLine.arguments.contains("--summary-settings") {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { SummarySettingsWindow.show() }
+                return
+            }
             if CommandLine.arguments.contains("--transcription-settings") {
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { TranscriptionSettingsWindow.show() }
                 return

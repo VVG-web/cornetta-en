@@ -9,7 +9,8 @@ based on the original [Cornetta](https://github.com/stellakamikaze/cornetta) by 
 - Site: [vvg-web.github.io/cornetta-en](https://vvg-web.github.io/cornetta-en/)
 - Privacy: no telemetry, no analytics, no cookies, no feedback server.
   Recordings stay on the computer. With an HTTP provider, audio is sent only to the provider you select,
-  and only when you start a transcription. Apple Speech stays on the Mac.
+  and only when you start a transcription. Apple Speech stays on the Mac. Summary text and meeting
+  information leave the computer only when you press Generate in the summary window.
 - Updates: manual check against a signed feed on GitHub Pages. Nothing is downloaded or installed automatically.
 - Security review: [macOS Intel safety and uninstall](docs/SECURITY-REVIEW.md).
 - Stack: Swift and Core Audio process taps (`Sources/`), C# .NET Framework 4.8 with NAudio (`windows/`),
@@ -40,6 +41,9 @@ Le uniche connessioni possibili sono quelle avviate dall'utente:
   predefinito è `http://127.0.0.1:8080/v1/audio/transcriptions`: se il servizio gira sullo stesso Mac,
   l'audio non esce dal computer. Con **Apple Speech sul Mac** l'audio resta sul Mac. Cornetta non contatta
   alcun servizio di trascrizione in background.
+- **Riassunto**: solo quando premi **Genera** nella finestra del riassunto, la trascrizione, le
+  informazioni sulla riunione e il prompt vengono inviati al provider LLM scelto. La chiave API resta
+  nel Portachiavi. Non ci sono richieste automatiche né in background.
 - **Controlla gli aggiornamenti su GitHub…** scarica il feed firmato da GitHub Pages, verifica la firma
   ECDSA P-256 e solo allora legge la versione. La richiesta contiene la versione dell'app e un normale
   User-Agent, mai audio, testi o nomi di file.
@@ -154,6 +158,10 @@ hai attivato **Trascrivi subito dopo la registrazione**.
 - **Apple Speech sul Mac** usa il riconoscimento vocale di macOS 26 e non invia audio in rete; al primo
   uso macOS può scaricare il modello della lingua. Su macOS precedenti il provider è visibile ma non
   disponibile.
+- **Riassunti**: in **Summary settings…** puoi salvare più provider LLM compatibili con OpenAI e più
+  template di prompt, con un solo template predefinito. Nella finestra Registrazioni puoi passare da
+  **Trascrizione** a **Riassunto**, modificare tema, partecipanti, data/ora e note della riunione, e
+  scegliere provider, modello e prompt solo per quel riassunto.
 - Cornetta invia il file audio con una richiesta `multipart/form-data`; il servizio risponde con
   `verbose_json` (segmenti con orari) o, se non lo supporta, con `json` o testo semplice.
 - Il testo si salva in JSON (`~/Library/Application Support/Cornetta/Trascrizioni/`) e come `.md` accanto

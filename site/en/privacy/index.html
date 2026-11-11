@@ -43,6 +43,9 @@
     <p>The HTTP provider receives the audio file, its filename and the <code>model</code>, <code>language</code> and <code>response_format</code> fields. It does not receive the transcript, other recordings, app logs, contacts or device names. If you choose a service on another computer, that operator also receives your IP address: use HTTPS and a service you trust. Each provider has a separate API key: it stays in the macOS Keychain and is sent only to that provider as a <code>Bearer</code> token.</p>
     <p>The <strong>Check service</strong> button sends a <code>GET</code> request to the selected HTTP provider's model list. It sends no audio and does not save the settings.</p>
 
+    <h2>Summaries</h2>
+    <p>You can save several OpenAI-compatible LLM providers and several prompt templates. When you press <strong>Generate</strong> in the summary window, the transcript, the meeting information you entered and the prompt are sent to the selected provider. Nothing starts in the background and no summary is created automatically. Each API key stays in the macOS Keychain and is sent only to its provider.</p>
+
     <h2>Usage data</h2>
     <p>There is no telemetry, installation identifier, analytics or automatic crash report. The app opens no background connections.</p>
 

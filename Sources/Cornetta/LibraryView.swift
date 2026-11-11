@@ -277,6 +277,11 @@ struct StatusLabel: View {
 }
 
 struct RecordingDetail: View {
+    private enum DetailMode: Hashable {
+        case transcript
+        case summary
+    }
+
     private struct TagEditorRequest: Identifiable {
         let id = UUID()
         let recording: Library.Recording
@@ -290,14 +295,27 @@ struct RecordingDetail: View {
     @State private var tagEditor: TagEditorRequest?
     @State private var tagLoadFailed = false
     @State private var copied = false
+    @State private var mode: DetailMode = .transcript
+    @State private var showingSummarySheet = false
     @Environment(\.appLanguage) private var language
 
     private var transcript: Transcript? { library.transcripts[recording.id] }
+    private var summary: SummaryRecord? { library.summaries[recording.id] }
+    private var meetingInfo: MeetingInfo { library.meetingInfo(for: recording) }
     private var playingThis: Bool { player.playingID == recording.id }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             header
+            Picker(L10n.text(.summaryViewTranscript, language: language), selection: $mode) {
+                Text(L10n.text(.summaryViewTranscript, language: language)).tag(DetailMode.transcript)
+                Text(L10n.text(.summaryViewSummary, language: language)).tag(DetailMode.summary)
+            }
+            .pickerStyle(.segmented)
+            .labelsHidden()
+            .frame(width: 280)
+            .padding(.horizontal, 22)
+            .padding(.bottom, 10)
             Divider()
             content.frame(maxWidth: .infinity, maxHeight: .infinity)
         }
@@ -313,6 +331,12 @@ struct RecordingDetail: View {
         .sheet(item: $tagEditor) { request in
             RecordingTagsEditor(recording: request.recording, tags: request.tags) { tags in
                 try await library.updateTags(request.recording, tags: tags)
+            }
+            .localizedRoot()
+        }
+        .sheet(isPresented: $showingSummarySheet) {
+            SummarySheet(recording: recording, library: library) { _ in
+                mode = .summary
             }
             .localizedRoot()
         }
@@ -345,10 +369,10 @@ struct RecordingDetail: View {
                 }
             }
             Spacer()
-            if transcript != nil {
+            if currentMarkdown != nil {
                 Button(L10n.text(copied ? .libraryCopied : .libraryCopy, language: language)) {
                     NSPasteboard.general.clearContents()
-                    NSPasteboard.general.setString(library.markdown(for: recording) ?? "", forType: .string)
+                    NSPasteboard.general.setString(currentMarkdown ?? "", forType: .string)
                     copied = true
                     DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) { copied = false }
                 }
@@ -365,6 +389,11 @@ struct RecordingDetail: View {
                     NSWorkspace.shared.activateFileViewerSelecting([recording.url])
                 }
                 Button(L10n.text(.libraryTagsEdit, language: language)) { openTagEditor() }
+                if transcript != nil {
+                    Button(L10n.text(.summaryViewGenerate, language: language)) {
+                        showingSummarySheet = true
+                    }
+                }
                 if transcript != nil, TranscriptionRunner.isAvailable, !inProgress {
                     Button(L10n.text(.libraryTranscribeAgain, language: language)) { library.enqueue(recording.url) }
                 }
@@ -417,6 +446,16 @@ struct RecordingDetail: View {
 
     @ViewBuilder
     private var content: some View {
+        switch mode {
+        case .transcript:
+            transcriptContent
+        case .summary:
+            summaryContent
+        }
+    }
+
+    @ViewBuilder
+    private var transcriptContent: some View {
         switch library.status(recording) {
         case .done:
             if let transcript, !transcript.segments.isEmpty {
@@ -481,12 +520,102 @@ struct RecordingDetail: View {
         }
     }
 
+    @ViewBuilder
+    private var summaryContent: some View {
+        if let summary {
+            ScrollView {
+                VStack(alignment: .leading, spacing: 14) {
+                    HStack(alignment: .firstTextBaseline) {
+                        Text(meetingInfo.topic.isEmpty ? summary.title : meetingInfo.topic)
+                            .font(.title3.weight(.semibold))
+                            .textSelection(.enabled)
+                        Spacer()
+                        Button(L10n.text(.summaryViewEditInfo, language: language)) {
+                            showingSummarySheet = true
+                        }
+                    }
+                    if !meetingInfo.participants.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                        Text(L10n.format(.summaryViewParticipants, language: language,
+                                         meetingInfo.participants))
+                            .font(.callout)
+                            .foregroundStyle(.secondary)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
+                    Text(L10n.format(.summaryViewStart, language: language,
+                                     summaryStartDate))
+                        .font(.callout)
+                        .foregroundStyle(.secondary)
+                    if !meetingInfo.notes.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                        Text(L10n.format(.summaryViewNotes, language: language,
+                                         meetingInfo.notes))
+                            .font(.callout)
+                            .foregroundStyle(.secondary)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
+                    Divider()
+                    Text(summary.text)
+                        .font(.body)
+                        .lineSpacing(3)
+                        .textSelection(.enabled)
+                        .fixedSize(horizontal: false, vertical: true)
+                    Text(L10n.format(.summaryViewGeneratedWith, language: language,
+                                     summary.model, summary.promptName, summary.providerName))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .fixedSize(horizontal: false, vertical: true)
+                    HStack {
+                        Button(L10n.text(.summaryViewRegenerate, language: language)) {
+                            showingSummarySheet = true
+                        }
+                    }
+                }
+                .padding(22)
+                .frame(maxWidth: 820, alignment: .leading)
+            }
+        } else if transcript != nil {
+            ContentUnavailableView {
+                Label(L10n.text(.summaryViewEmptyTitle, language: language), systemImage: "sparkles")
+            } description: {
+                Text(L10n.text(.summaryViewEmptyMessage, language: language))
+            } actions: {
+                Button(L10n.text(.summaryViewGenerate, language: language)) {
+                    showingSummarySheet = true
+                }
+                .buttonStyle(.borderedProminent)
+            }
+        } else {
+            ContentUnavailableView {
+                Label(L10n.text(.summaryViewNoTranscriptTitle, language: language), systemImage: "text.bubble")
+            } description: {
+                Text(L10n.text(.summaryViewNoTranscriptMessage, language: language))
+            }
+        }
+    }
+
+    private var currentMarkdown: String? {
+        switch mode {
+        case .transcript: return library.markdown(for: recording)
+        case .summary: return library.summaryMarkdown(for: recording)
+        }
+    }
+
+    private var summaryStartDate: String {
+        let formatter = DateFormatter()
+        formatter.locale = language.locale
+        formatter.dateStyle = .medium
+        formatter.timeStyle = .short
+        return formatter.string(from: meetingInfo.startDate)
+    }
+
     private func export() {
         let panel = NSSavePanel()
-        panel.nameFieldStringValue = recording.url.deletingPathExtension().lastPathComponent + ".md"
+        let suffix = mode == .summary
+            ? " " + L10n.text(.summaryViewExportSuffix, language: language) : ""
+        panel.nameFieldStringValue = recording.url.deletingPathExtension().lastPathComponent
+            + suffix + ".md"
         panel.allowedContentTypes = [.init(filenameExtension: "md") ?? .plainText, .plainText]
         if panel.runModal() == .OK, let url = panel.url {
-            try? library.markdown(for: recording)?.write(to: url, atomically: true, encoding: .utf8)
+            try? currentMarkdown?.write(to: url, atomically: true, encoding: .utf8)
         }
     }
 }

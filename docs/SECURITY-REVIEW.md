@@ -41,6 +41,9 @@ kernel itself.
 - Each optional transcription API key is a separate generic-password item in the macOS Keychain, never in
   `UserDefaults`, source files or logs. It is sent only to its provider as a Bearer token and is removed
   when the field is cleared and saved.
+- Summary providers use separate Keychain items and a separate `URLSession`. A summary request is sent
+  only after the user presses **Generate**; Check service sends no transcript. Meeting metadata and
+  summary records are stored as local JSON/Markdown files under `Incontri` and `Riassunti`.
 - The **Check service** button sends one user-initiated `GET <baseURL>/models` with the draft key. It
   sends no audio and does not save the settings.
 - The only optional persistence is `SMAppService.mainApp`, used by “Open at login”. It has both
