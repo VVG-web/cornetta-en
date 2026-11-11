@@ -162,6 +162,7 @@ struct SummarySettingsView: View {
                             .textFieldStyle(.roundedBorder)
                             .frame(width: 440)
                             .font(.system(.body, design: .monospaced))
+                            .help(L10n.text(.summarySettingsBaseURLHelp, language: language))
                     }
                     GridRow {
                         Text(L10n.text(.summarySettingsModel, language: language))
@@ -404,13 +405,13 @@ struct SummarySettingsView: View {
         case .modelAvailable(let model):
             return L10n.format(.transcriptionSettingsCheckModelAvailable, language: language, model)
         case .modelNotListed(let model):
-            return L10n.format(.transcriptionSettingsCheckModelMissing, language: language, model)
+            return L10n.format(.summarySettingsCheckModelMissing, language: language, model)
         case .reachable:
             return L10n.text(.transcriptionSettingsCheckReachable, language: language)
         case .unauthorized(let code):
             return L10n.format(.transcriptionSettingsCheckUnauthorized, language: language, String(code))
-        case .noModelList(let code):
-            return L10n.format(.transcriptionSettingsCheckNoModels, language: language, String(code))
+        case .noModelList:
+            return L10n.text(.summarySettingsCheckNoModels, language: language)
         case .http(let code):
             return L10n.format(.transcriptionSettingsCheckHttp, language: language, String(code))
         case .invalidResponse:

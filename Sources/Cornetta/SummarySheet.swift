@@ -79,11 +79,11 @@ struct SummarySheet: View {
                         }
                         GridRow(alignment: .top) {
                             Text(L10n.text(.summarySheetParticipants, language: language))
-                            TextField(L10n.text(.summarySheetParticipantsPlaceholder, language: language),
-                                      text: $participants, axis: .vertical)
-                                .textFieldStyle(.roundedBorder)
+                            MeetingTextEditor(
+                                placeholder: L10n.text(.summarySheetParticipantsPlaceholder,
+                                                       language: language),
+                                text: $participants, height: 112)
                                 .frame(width: 500)
-                                .lineLimit(2...4)
                         }
                         GridRow {
                             Text(L10n.text(.summarySheetStart, language: language))
@@ -94,11 +94,11 @@ struct SummarySheet: View {
                         }
                         GridRow(alignment: .top) {
                             Text(L10n.text(.summarySheetNotes, language: language))
-                            TextField(L10n.text(.summarySheetNotesPlaceholder, language: language),
-                                      text: $notes, axis: .vertical)
-                                .textFieldStyle(.roundedBorder)
+                            MeetingTextEditor(
+                                placeholder: L10n.text(.summarySheetNotesPlaceholder,
+                                                       language: language),
+                                text: $notes, height: 132)
                                 .frame(width: 500)
-                                .lineLimit(3...6)
                         }
                     }
 
@@ -137,25 +137,7 @@ struct SummarySheet: View {
                             }
                             GridRow {
                                 Text(L10n.text(.summarySheetModel, language: language))
-                                HStack(spacing: 6) {
-                                    TextField(L10n.text(.summarySettingsModelPlaceholder, language: language),
-                                              text: $model)
-                                        .textFieldStyle(.roundedBorder)
-                                        .frame(width: 360)
-                                    if loadingModels {
-                                        ProgressView().controlSize(.small)
-                                    } else if !models.isEmpty {
-                                        Menu {
-                                            ForEach(models, id: \.self) { item in
-                                                Button(item) { model = item }
-                                            }
-                                        } label: {
-                                            Image(systemName: "chevron.down")
-                                        }
-                                        .menuStyle(.borderlessButton)
-                                        .help(L10n.text(.summarySheetAvailableModels, language: language))
-                                    }
-                                }
+                                modelControl
                             }
                             GridRow {
                                 Text(L10n.text(.summarySheetPrompt, language: language))
@@ -223,6 +205,61 @@ struct SummarySheet: View {
             model = models.first ?? provider.model
         }
         loadingModels = false
+    }
+
+    private var modelOptions: [String] {
+        var options = models
+        let current = model.trimmingCharacters(in: .whitespacesAndNewlines)
+        if !current.isEmpty, !options.contains(current) {
+            options.insert(current, at: 0)
+        }
+        return options
+    }
+
+    @ViewBuilder
+    private var modelControl: some View {
+        if loadingModels {
+            HStack(spacing: 8) {
+                ProgressView().controlSize(.small)
+                Text(L10n.text(.summarySheetLoadingModels, language: language))
+                    .foregroundStyle(.secondary)
+            }
+            .frame(width: 360, alignment: .leading)
+        } else if modelOptions.isEmpty {
+            VStack(alignment: .leading, spacing: 3) {
+                HStack(spacing: 6) {
+                    TextField(L10n.text(.summarySettingsModelPlaceholder, language: language),
+                              text: $model)
+                        .textFieldStyle(.roundedBorder)
+                        .frame(width: 360)
+                    Button {
+                        Task { await loadModels(for: provider) }
+                    } label: {
+                        Image(systemName: "arrow.clockwise")
+                    }
+                    .help(L10n.text(.summarySheetReloadModels, language: language))
+                }
+                Text(L10n.text(.summarySheetModelsUnavailable, language: language))
+                    .font(.caption)
+                    .foregroundStyle(.orange)
+            }
+        } else {
+            HStack(spacing: 6) {
+                Picker(L10n.text(.summarySheetModel, language: language), selection: $model) {
+                    ForEach(modelOptions, id: \.self) { item in
+                        Text(item).tag(item)
+                    }
+                }
+                .labelsHidden()
+                .frame(width: 360)
+                Button {
+                    Task { await loadModels(for: provider) }
+                } label: {
+                    Image(systemName: "arrow.clockwise")
+                }
+                .help(L10n.text(.summarySheetReloadModels, language: language))
+            }
+        }
     }
 
     private func saveInfo() {

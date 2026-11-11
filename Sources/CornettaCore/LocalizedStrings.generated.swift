@@ -200,6 +200,8 @@ public enum L10nKey: String, CaseIterable, Sendable {
     case speakerOthers = "speaker.others"
     case speakerRemote = "speaker.remote"
     case speechPreparing = "speech.preparing"
+    case summaryInfoSaveError = "summary.info.saveError"
+    case summaryInfoTitle = "summary.info.title"
     case summaryMarkdownOrigin = "summary.markdown.origin"
     case summarySettingsAddPrompt = "summary.settings.addPrompt"
     case summarySettingsAddProvider = "summary.settings.addProvider"
@@ -207,9 +209,12 @@ public enum L10nKey: String, CaseIterable, Sendable {
     case summarySettingsApiKeyHelp = "summary.settings.apiKeyHelp"
     case summarySettingsApiKeyPlaceholder = "summary.settings.apiKeyPlaceholder"
     case summarySettingsBaseURL = "summary.settings.baseURL"
+    case summarySettingsBaseURLHelp = "summary.settings.baseURLHelp"
     case summarySettingsBaseURLPlaceholder = "summary.settings.baseURLPlaceholder"
     case summarySettingsCheck = "summary.settings.check"
     case summarySettingsCheckHelp = "summary.settings.checkHelp"
+    case summarySettingsCheckModelMissing = "summary.settings.checkModelMissing"
+    case summarySettingsCheckNoModels = "summary.settings.checkNoModels"
     case summarySettingsChecking = "summary.settings.checking"
     case summarySettingsDefaultPrompt = "summary.settings.defaultPrompt"
     case summarySettingsDefaultProvider = "summary.settings.defaultProvider"
@@ -248,6 +253,7 @@ public enum L10nKey: String, CaseIterable, Sendable {
     case summarySheetLoadingModels = "summary.sheet.loadingModels"
     case summarySheetMeetingInfo = "summary.sheet.meetingInfo"
     case summarySheetModel = "summary.sheet.model"
+    case summarySheetModelsUnavailable = "summary.sheet.modelsUnavailable"
     case summarySheetNoProviders = "summary.sheet.noProviders"
     case summarySheetNoTranscript = "summary.sheet.noTranscript"
     case summarySheetNotes = "summary.sheet.notes"
@@ -258,6 +264,7 @@ public enum L10nKey: String, CaseIterable, Sendable {
     case summarySheetPrivacy = "summary.sheet.privacy"
     case summarySheetPrompt = "summary.sheet.prompt"
     case summarySheetProvider = "summary.sheet.provider"
+    case summarySheetReloadModels = "summary.sheet.reloadModels"
     case summarySheetSaveInfo = "summary.sheet.saveInfo"
     case summarySheetSavedInfo = "summary.sheet.savedInfo"
     case summarySheetStart = "summary.sheet.start"
@@ -575,6 +582,8 @@ public enum L10n {
         .speakerOthers: "Altri",
         .speakerRemote: "Interlocutore {0}",
         .speechPreparing: "Preparo il modello della lingua…",
+        .summaryInfoSaveError: "Non riesco a salvare le informazioni sulla riunione.",
+        .summaryInfoTitle: "Informazioni sulla riunione",
         .summaryMarkdownOrigin: "Generato con il modello {0} · prompt «{1}» · {2}",
         .summarySettingsAddPrompt: "Aggiungi prompt…",
         .summarySettingsAddProvider: "Aggiungi provider…",
@@ -582,9 +591,12 @@ public enum L10n {
         .summarySettingsApiKeyHelp: "Resta nel Portachiavi di macOS e viene inviata solo a questo provider.",
         .summarySettingsApiKeyPlaceholder: "Incolla la chiave",
         .summarySettingsBaseURL: "Indirizzo base",
+        .summarySettingsBaseURLHelp: "Se l'indirizzo non ha un percorso, Cornetta usa /v1. Puoi incollare anche l'endpoint completo /v1/chat/completions.",
         .summarySettingsBaseURLPlaceholder: "https://api.example.com/v1",
         .summarySettingsCheck: "Verifica servizio",
         .summarySettingsCheckHelp: "Controlla connessione e modello senza inviare la trascrizione.",
+        .summarySettingsCheckModelMissing: "Il modello configurato non è nell'elenco. Puoi inserirlo manualmente.",
+        .summarySettingsCheckNoModels: "Il provider non espone l'elenco modelli. Inserisci il modello manualmente.",
         .summarySettingsChecking: "Verifico…",
         .summarySettingsDefaultPrompt: "Prompt predefinito",
         .summarySettingsDefaultProvider: "Provider predefinito",
@@ -623,6 +635,7 @@ public enum L10n {
         .summarySheetLoadingModels: "Carico i modelli…",
         .summarySheetMeetingInfo: "Informazioni sulla riunione",
         .summarySheetModel: "Modello",
+        .summarySheetModelsUnavailable: "Elenco modelli non disponibile. Inserisci il modello manualmente.",
         .summarySheetNoProviders: "Aggiungi un provider nelle Impostazioni riassunto.",
         .summarySheetNoTranscript: "Trascrivi prima la registrazione per creare un riassunto.",
         .summarySheetNotes: "Note",
@@ -633,6 +646,7 @@ public enum L10n {
         .summarySheetPrivacy: "Solo quando premi Genera, la trascrizione e le informazioni sulla riunione vengono inviate al provider scelto. La chiave API resta nel Portachiavi.",
         .summarySheetPrompt: "Prompt",
         .summarySheetProvider: "Provider",
+        .summarySheetReloadModels: "Ricarica i modelli",
         .summarySheetSaveInfo: "Salva informazioni",
         .summarySheetSavedInfo: "Informazioni sulla riunione salvate.",
         .summarySheetStart: "Data e ora di inizio",
@@ -949,6 +963,8 @@ public enum L10n {
         .speakerOthers: "Others",
         .speakerRemote: "Speaker {0}",
         .speechPreparing: "Preparing the language model…",
+        .summaryInfoSaveError: "Could not save the meeting information.",
+        .summaryInfoTitle: "Meeting information",
         .summaryMarkdownOrigin: "Generated with model {0} · prompt “{1}” · {2}",
         .summarySettingsAddPrompt: "Add prompt…",
         .summarySettingsAddProvider: "Add provider…",
@@ -956,9 +972,12 @@ public enum L10n {
         .summarySettingsApiKeyHelp: "Stored in the macOS Keychain and sent only to this provider.",
         .summarySettingsApiKeyPlaceholder: "Paste the key",
         .summarySettingsBaseURL: "Base URL",
+        .summarySettingsBaseURLHelp: "If the URL has no path, Cornetta uses /v1. You can also paste the complete /v1/chat/completions endpoint.",
         .summarySettingsBaseURLPlaceholder: "https://api.example.com/v1",
         .summarySettingsCheck: "Check service",
         .summarySettingsCheckHelp: "Checks connectivity and the model without sending the transcript.",
+        .summarySettingsCheckModelMissing: "The configured model is not in the list. You can enter it manually.",
+        .summarySettingsCheckNoModels: "The provider does not expose a model list. Enter the model manually.",
         .summarySettingsChecking: "Checking…",
         .summarySettingsDefaultPrompt: "Default prompt",
         .summarySettingsDefaultProvider: "Default provider",
@@ -997,6 +1016,7 @@ public enum L10n {
         .summarySheetLoadingModels: "Loading models…",
         .summarySheetMeetingInfo: "Meeting information",
         .summarySheetModel: "Model",
+        .summarySheetModelsUnavailable: "Model list unavailable. Enter the model manually.",
         .summarySheetNoProviders: "Add a provider in Summary settings.",
         .summarySheetNoTranscript: "Transcribe the recording before generating a summary.",
         .summarySheetNotes: "Notes",
@@ -1007,6 +1027,7 @@ public enum L10n {
         .summarySheetPrivacy: "Only when you press Generate are the transcript and meeting information sent to the selected provider. The API key stays in the Keychain.",
         .summarySheetPrompt: "Prompt",
         .summarySheetProvider: "Provider",
+        .summarySheetReloadModels: "Reload models",
         .summarySheetSaveInfo: "Save information",
         .summarySheetSavedInfo: "Meeting information saved.",
         .summarySheetStart: "Start date and time",

@@ -48,6 +48,12 @@ public struct SummaryConfig: Equatable, Sendable {
               components.query == nil, components.fragment == nil else { return nil }
         if let port = components.port, !(1...65535).contains(port) { return nil }
         components.scheme = scheme
+        // llama.cpp and most OpenAI-compatible servers expose the API under
+        // /v1. If the user enters only host:port, assume /v1 instead of
+        // producing /chat/completions and /models at the web root.
+        if components.path.isEmpty || components.path == "/" {
+            components.path = "/v1"
+        }
         return components
     }
 

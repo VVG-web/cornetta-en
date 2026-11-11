@@ -98,8 +98,9 @@ enum SummaryService {
     }
 
     static func check(provider: SummaryProvider, apiKey: String) async -> ProviderCheckResult {
-        let config = TranscriptionConfig(baseURL: provider.baseURL, model: provider.model)
-        return await ProviderCheck.run(config: config, apiKey: apiKey)
+        guard let url = provider.config.modelsURL else { return .invalidConfiguration }
+        return await ProviderCheck.run(url: url, model: provider.config.effectiveModel,
+                                       apiKey: apiKey)
     }
 
     private struct Message: Encodable {

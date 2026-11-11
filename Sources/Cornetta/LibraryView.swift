@@ -297,6 +297,7 @@ struct RecordingDetail: View {
     @State private var copied = false
     @State private var mode: DetailMode = .transcript
     @State private var showingSummarySheet = false
+    @State private var showingMeetingEditor = false
     @Environment(\.appLanguage) private var language
 
     private var transcript: Transcript? { library.transcripts[recording.id] }
@@ -339,6 +340,10 @@ struct RecordingDetail: View {
                 mode = .summary
             }
             .localizedRoot()
+        }
+        .sheet(isPresented: $showingMeetingEditor) {
+            MeetingInfoEditor(recording: recording, library: library)
+                .localizedRoot()
         }
         .alert(L10n.text(.libraryTagsLoadError, language: language), isPresented: $tagLoadFailed) {
             Button(L10n.text(.commonClose, language: language)) {}
@@ -389,6 +394,9 @@ struct RecordingDetail: View {
                     NSWorkspace.shared.activateFileViewerSelecting([recording.url])
                 }
                 Button(L10n.text(.libraryTagsEdit, language: language)) { openTagEditor() }
+                Button(L10n.text(.summaryViewEditInfo, language: language)) {
+                    showingMeetingEditor = true
+                }
                 if transcript != nil {
                     Button(L10n.text(.summaryViewGenerate, language: language)) {
                         showingSummarySheet = true
@@ -531,7 +539,7 @@ struct RecordingDetail: View {
                             .textSelection(.enabled)
                         Spacer()
                         Button(L10n.text(.summaryViewEditInfo, language: language)) {
-                            showingSummarySheet = true
+                            showingMeetingEditor = true
                         }
                     }
                     if !meetingInfo.participants.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
@@ -578,10 +586,15 @@ struct RecordingDetail: View {
             } description: {
                 Text(L10n.text(.summaryViewEmptyMessage, language: language))
             } actions: {
-                Button(L10n.text(.summaryViewGenerate, language: language)) {
-                    showingSummarySheet = true
+                HStack {
+                    Button(L10n.text(.summaryViewEditInfo, language: language)) {
+                        showingMeetingEditor = true
+                    }
+                    Button(L10n.text(.summaryViewGenerate, language: language)) {
+                        showingSummarySheet = true
+                    }
+                    .buttonStyle(.borderedProminent)
                 }
-                .buttonStyle(.borderedProminent)
             }
         } else {
             ContentUnavailableView {

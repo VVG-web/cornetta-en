@@ -164,15 +164,20 @@
 "Ferma e salva il video" = "Ferma e salva il video";
 "Voce" = "Voce";
 "Preparo il modello della lingua…" = "Preparo il modello della lingua…";
+"Non riesco a salvare le informazioni sulla riunione." = "Non riesco a salvare le informazioni sulla riunione.";
+"Informazioni sulla riunione" = "Informazioni sulla riunione";
 "Aggiungi prompt…" = "Aggiungi prompt…";
 "Aggiungi provider…" = "Aggiungi provider…";
 "Chiave API (facoltativa)" = "Chiave API (facoltativa)";
 "Resta nel Portachiavi di macOS e viene inviata solo a questo provider." = "Resta nel Portachiavi di macOS e viene inviata solo a questo provider.";
 "Incolla la chiave" = "Incolla la chiave";
 "Indirizzo base" = "Indirizzo base";
+"Se l'indirizzo non ha un percorso, Cornetta usa /v1. Puoi incollare anche l'endpoint completo /v1/chat/completions." = "Se l'indirizzo non ha un percorso, Cornetta usa /v1. Puoi incollare anche l'endpoint completo /v1/chat/completions.";
 "https://api.example.com/v1" = "https://api.example.com/v1";
 "Verifica servizio" = "Verifica servizio";
 "Controlla connessione e modello senza inviare la trascrizione." = "Controlla connessione e modello senza inviare la trascrizione.";
+"Il modello configurato non è nell'elenco. Puoi inserirlo manualmente." = "Il modello configurato non è nell'elenco. Puoi inserirlo manualmente.";
+"Il provider non espone l'elenco modelli. Inserisci il modello manualmente." = "Il provider non espone l'elenco modelli. Inserisci il modello manualmente.";
 "Verifico…" = "Verifico…";
 "Prompt predefinito" = "Prompt predefinito";
 "Provider predefinito" = "Provider predefinito";
@@ -209,7 +214,7 @@
 "Genero…" = "Genero…";
 "Modello linguistico" = "Modello linguistico";
 "Carico i modelli…" = "Carico i modelli…";
-"Informazioni sulla riunione" = "Informazioni sulla riunione";
+"Elenco modelli non disponibile. Inserisci il modello manualmente." = "Elenco modelli non disponibile. Inserisci il modello manualmente.";
 "Aggiungi un provider nelle Impostazioni riassunto." = "Aggiungi un provider nelle Impostazioni riassunto.";
 "Trascrivi prima la registrazione per creare un riassunto." = "Trascrivi prima la registrazione per creare un riassunto.";
 "Note" = "Note";
@@ -218,6 +223,7 @@
 "Partecipanti" = "Partecipanti";
 "Nomi o ruoli, uno per riga" = "Nomi o ruoli, uno per riga";
 "Solo quando premi Genera, la trascrizione e le informazioni sulla riunione vengono inviate al provider scelto. La chiave API resta nel Portachiavi." = "Solo quando premi Genera, la trascrizione e le informazioni sulla riunione vengono inviate al provider scelto. La chiave API resta nel Portachiavi.";
+"Ricarica i modelli" = "Ricarica i modelli";
 "Salva informazioni" = "Salva informazioni";
 "Informazioni sulla riunione salvate." = "Informazioni sulla riunione salvate.";
 "Data e ora di inizio" = "Data e ora di inizio";

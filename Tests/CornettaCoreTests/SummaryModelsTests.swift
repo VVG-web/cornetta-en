@@ -18,6 +18,11 @@ struct SummaryModelsTests {
                                      model: "chat-1")
         #expect(complete.chatCompletionsURL?.absoluteString
                 == "https://api.example.com/v1/chat/completions")
+        #expect(complete.modelsURL?.absoluteString == "https://api.example.com/v1/models")
+        let hostOnly = SummaryConfig(baseURL: "http://127.0.0.1:8081", model: "chat-1")
+        #expect(hostOnly.chatCompletionsURL?.absoluteString
+                == "http://127.0.0.1:8081/v1/chat/completions")
+        #expect(hostOnly.modelsURL?.absoluteString == "http://127.0.0.1:8081/v1/models")
         #expect(!SummaryConfig(baseURL: "ftp://api.example.com/v1").isConfigured)
     }
 

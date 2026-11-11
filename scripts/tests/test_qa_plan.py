@@ -14,16 +14,17 @@ class ReleaseQAPlanTests(unittest.TestCase):
 
     def test_plan_has_every_test_case_and_scenario(self):
         text = self.plan()
-        self.assertEqual({f"TC-{n:02d}" for n in range(1, 22)},
+        self.assertEqual({f"TC-{n:02d}" for n in range(1, 23)},
                          set(re.findall(r"\bTC-\d{2}\b", text)))
-        self.assertEqual({f"TS-{n:02d}" for n in range(1, 22)},
+        self.assertEqual({f"TS-{n:02d}" for n in range(1, 23)},
                          set(re.findall(r"\bTS-\d{2}\b", text)))
 
     def test_plan_covers_every_reported_bug_and_requirement(self):
         text = self.plan().lower()
         for phrase in ("menu", "english", "italian", "speech.framework", "ats",
                        "transcription", "privacy", "feed", "kext", "history", "credential",
-                       "tag", "panel", "diarization", "summary", "prompt"):
+                       "tag", "panel", "diarization", "summary", "prompt", "base url",
+                       "model selector", "meeting editor"):
             self.assertIn(phrase, text)
 
     def test_automated_checks_reference_existing_files(self):

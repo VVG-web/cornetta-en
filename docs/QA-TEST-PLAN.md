@@ -39,6 +39,7 @@ subset is relevant, set it to the completed IDs instead of `all`; the script rej
 | TC-19 | Floating recording, suggestion and notice panels size themselves to their SwiftUI content, including the Feedback button and long update messages | manual TS-19, release screenshots |
 | TC-20 | Per-provider diarization settings survive old provider JSON; server speaker labels become readable Speaker N labels; the owner track remains You | `Tests/CornettaCoreTests/TranscriptionProvidersTests.swift`, `Tests/CornettaCoreTests/TranscriptTests.swift` |
 | TC-21 | Summary providers, unique default prompt, prompt variable rendering, meeting metadata and summary provenance round-trip through separate files | `Tests/CornettaCoreTests/SummaryModelsTests.swift` |
+| TC-22 | Summary base URLs accept a host, host with port, `/v1` and a complete chat-completions endpoint; check and model loading use `/v1/models`; one model selector; meeting information opens independently with multi-line participants and notes | `Tests/CornettaCoreTests/SummaryModelsTests.swift` |
 
 ## Manual test scenarios
 
@@ -251,6 +252,22 @@ blocks the release until it is fixed and all affected scenarios are repeated.
    saved defaults.
 6. Verify both English and Italian interfaces. All labels, tabs, empty states and errors must be
    localized.
+
+### TS-22: Summary URLs, model selector and independent meeting editor
+
+1. Add a local OpenAI-compatible provider using only `host:port`, for example
+   `http://127.0.0.1:8081`. Run **Check service**. Expected: the URL is accepted, `/v1/models`
+   is queried and the model list appears. Repeat with `/v1` and with the complete
+   `/v1/chat/completions` endpoint.
+2. If the provider does not expose a model list, expected: the window explains that models are
+   unavailable and shows a manual model field plus refresh, not two competing selectors.
+3. Open the summary window. Expected: exactly one model selector, preselected from the provider
+   default or loaded list. Switching providers reloads it once and does not leave a stale duplicate.
+4. In **Recordings and transcripts**, open **Summary** and press **Edit information** without
+   generating a summary. Expected: the meeting editor opens, saves topic, participants, date/time and
+   notes, and the Summary tab reflects the saved values.
+5. Expected: participants and notes show at least five lines and scroll internally for longer text.
+   Verify English and Italian.
 
 ## Sign-off
 

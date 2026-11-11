@@ -17,6 +17,10 @@ enum ProviderCheckResult: Equatable {
 enum ProviderCheck {
     static func run(config: TranscriptionConfig, apiKey: String) async -> ProviderCheckResult {
         guard config.isConfigured, let url = config.modelsURL else { return .invalidConfiguration }
+        return await run(url: url, model: config.effectiveModel, apiKey: apiKey)
+    }
+
+    static func run(url: URL, model: String, apiKey: String) async -> ProviderCheckResult {
         var request = URLRequest(url: url)
         request.httpMethod = "GET"
         request.setValue("application/json", forHTTPHeaderField: "Accept")
@@ -37,7 +41,6 @@ enum ProviderCheck {
             }
             guard (200..<300).contains(http.statusCode) else { return .http(http.statusCode) }
             guard let ids = TranscriptionModelList.ids(from: data) else { return .invalidResponse }
-            let model = config.effectiveModel
             if model.isEmpty { return .reachable }
             return ids.contains(model) ? .modelAvailable(model) : .modelNotListed(model)
         } catch {

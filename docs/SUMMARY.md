@@ -17,8 +17,11 @@ Each provider is an OpenAI-compatible chat-completions endpoint:
 - optional API key in the macOS Keychain;
 - one provider can be marked as the default.
 
-Cornetta appends `/chat/completions` to the base URL. **Check service** sends
-`GET <baseURL>/models` with the draft API key and never sends the transcript.
+If the base URL has no path, Cornetta assumes `/v1`. It accepts both a base URL
+such as `http://host:8081` and the complete
+`http://host:8081/v1/chat/completions` endpoint. **Check service** sends
+`GET /v1/models` (or the matching path) with the draft API key and never sends
+the transcript.
 
 ### Prompt templates
 
@@ -55,6 +58,10 @@ the audio Artist tag and the start date from the recording date. The user can
 edit all fields. The file is created or updated only when the user saves the
 information or generates a summary.
 
+The fields can be opened independently from the Summary tab with **Edit
+information**, without opening or starting a summary. Participants and notes use
+multi-line editors with at least five visible lines and internal scrolling.
+
 ## Summary window and view
 
 In **Recordings and transcripts**, a segmented control under the recording
@@ -64,11 +71,13 @@ Press **Generate summary** to open the summary window. The window contains the
 editable meeting information and three selectors:
 
 - provider;
-- model;
+- one model selector;
 - prompt.
 
 The provider and prompt defaults are preselected. Switching the provider loads
-its `/models` list when available, while the model field remains editable.
+its model list once, with a refresh button. If a provider does not expose a model
+list, Cornetta says so and leaves a manual model field instead of showing two
+competing selectors.
 Per-run selections do not change the defaults in Summary settings.
 
 The generated summary is shown in the Summary tab with the model, prompt name
