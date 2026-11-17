@@ -28,10 +28,11 @@ enum SummaryServiceError: LocalizedError {
 }
 
 /// OpenAI-compatible chat-completions client. It only runs when the user presses
-/// Generate, and it sends the transcript plus meeting metadata to one provider.
+/// Generate, and it sends the structured meeting and audio-tag context plus the
+/// transcript to one provider.
 enum SummaryService {
     static func summarize(provider: SummaryProvider, model: String,
-                          prompt: SummaryPrompt, meeting: MeetingInfo,
+                          prompt: SummaryPrompt, meeting: MeetingInfo, tags: RecordingTags,
                           transcript: Transcript, language: AppLanguage,
                           apiKey: String) async throws -> String {
         let config = provider.config
@@ -45,6 +46,7 @@ enum SummaryService {
             model: model,
             messages: [Message(role: "user",
                                content: prompt.rendered(meeting: meeting,
+                                                        tags: tags,
                                                         transcript: transcript.plainText(language: language),
                                                         language: language))],
             temperature: 0.2)

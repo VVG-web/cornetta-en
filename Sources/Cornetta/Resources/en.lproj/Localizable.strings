@@ -204,7 +204,7 @@
 "Testo del prompt" = "Prompt text";
 "I template usano le variabili tra doppie graffe. Un solo template è quello predefinito." = "Templates use double-brace variables. Exactly one template is the default.";
 "Il prompt non può essere vuoto." = "The prompt cannot be empty.";
-"Variabili: {{topic}}, {{participants}}, {{date}}, {{time}}, {{notes}}, {{transcript}}, {{language}}. La trascrizione viene aggiunta anche se manca {{transcript}}." = "Variables: {{topic}}, {{participants}}, {{date}}, {{time}}, {{notes}}, {{transcript}}, {{language}}. The transcript is appended even when {{transcript}} is missing.";
+"Variabili: {{topic}}, {{participants}}, {{date}}, {{time}}, {{notes}}, {{transcript}}, {{language}}. La trascrizione viene aggiunta anche se manca {{transcript}}. Ogni richiesta inizia sempre con tutte le informazioni della riunione e i cinque tag audio." = "Variables: {{topic}}, {{participants}}, {{date}}, {{time}}, {{notes}}, {{transcript}}, {{language}}. The transcript is appended even when {{transcript}} is missing. Every request always starts with all meeting information and the five audio tags.";
 "Nome del prompt" = "Prompt name";
 "Riepilogo riunione" = "Meeting summary";
 "Modelli di prompt" = "Prompt templates";
@@ -227,7 +227,7 @@
 "Apri Impostazioni riassunto…" = "Open Summary settings…";
 "Partecipanti" = "Participants";
 "Nomi o ruoli, uno per riga" = "Names or roles, one per line";
-"Solo quando premi Genera, la trascrizione e le informazioni sulla riunione vengono inviate al provider scelto. La chiave API resta nel Portachiavi." = "Only when you press Generate are the transcript and meeting information sent to the selected provider. The API key stays in the Keychain.";
+"Solo quando premi Genera, la trascrizione, le informazioni sulla riunione e i tag audio vengono inviati al provider scelto. La chiave API resta nel Portachiavi." = "Only when you press Generate are the transcript, meeting information and audio tags sent to the selected provider. The API key stays in the Keychain.";
 "Ricarica i modelli" = "Reload models";
 "Salva informazioni" = "Save information";
 "Informazioni sulla riunione salvate." = "Meeting information saved.";

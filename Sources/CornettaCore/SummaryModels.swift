@@ -163,9 +163,47 @@ public struct SummaryPrompt: Codable, Equatable, Identifiable, Sendable {
 }
 
 public extension SummaryPrompt {
+    /// The complete, structured meeting context that must precede the transcript.
+    ///
+    /// Audio tags live in the `.m4a` and are separate from the editable meeting
+    /// information. Passing both here keeps every recurring request consistent and
+    /// prevents a custom prompt from silently dropping tags it does not mention.
+    static func context(meeting: MeetingInfo, tags: RecordingTags) -> String {
+        let date = DateFormatter()
+        date.locale = Locale(identifier: "en_US_POSIX")
+        date.dateFormat = "yyyy-MM-dd"
+        let time = DateFormatter()
+        time.locale = Locale(identifier: "en_US_POSIX")
+        time.dateFormat = "HH:mm"
+        let iso = ISO8601DateFormatter()
+        iso.timeZone = .current
+        func value(_ text: String) -> String {
+            let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
+            return trimmed.isEmpty ? "(not provided)" : trimmed
+        }
+        return """
+        Meeting information:
+        Topic: \(value(meeting.topic))
+        Participants: \(value(meeting.participants))
+        Start date: \(date.string(from: meeting.startDate))
+        Start time: \(time.string(from: meeting.startDate))
+        Start date and time (ISO 8601): \(iso.string(from: meeting.startDate))
+        Notes: \(value(meeting.notes))
+
+        Audio tags:
+        Title: \(value(tags.title))
+        Artist: \(value(tags.artist))
+        Album: \(value(tags.album))
+        Date: \(value(tags.date))
+        Comment: \(value(tags.comment))
+        """
+    }
+
     /// Replaces the documented variables and guarantees that the transcript is
-    /// present even when a custom prompt forgot the placeholder.
-    func rendered(meeting: MeetingInfo, transcript: String, language: AppLanguage) -> String {
+    /// present even when a custom prompt forgot the placeholder. The full meeting
+    /// context always starts the message, before the prompt and the transcript.
+    func rendered(meeting: MeetingInfo, tags: RecordingTags,
+                  transcript: String, language: AppLanguage) -> String {
         let date = DateFormatter()
         date.locale = Locale(identifier: "en_US_POSIX")
         date.dateFormat = "yyyy-MM-dd"
@@ -173,6 +211,7 @@ public extension SummaryPrompt {
         time.locale = Locale(identifier: "en_US_POSIX")
         time.dateFormat = "HH:mm"
         let languageName = language == .english ? "English" : "Italian"
+        let context = SummaryPrompt.context(meeting: meeting, tags: tags)
         var rendered = body
             .replacingOccurrences(of: "{{topic}}", with: meeting.topic)
             .replacingOccurrences(of: "{{participants}}", with: meeting.participants)
@@ -182,9 +221,9 @@ public extension SummaryPrompt {
             .replacingOccurrences(of: "{{language}}", with: languageName)
             .replacingOccurrences(of: "{{transcript}}", with: transcript)
         if !body.contains("{{transcript}}") {
-            rendered += "\n\n" + transcript
+            rendered += "\n\nTranscript:\n" + transcript
         }
-        return rendered
+        return context + "\n\n" + rendered
     }
 }
 
@@ -256,11 +295,7 @@ public enum SummaryPromptCatalog {
     }
 
     private static let builtinEnglish = """
-    You are a precise meeting summarizer. Use only the meeting information and the transcript.
-    Meeting topic: {{topic}}
-    Participants: {{participants}}
-    Start: {{date}} {{time}}
-    User notes: {{notes}}
+    You are a precise meeting summarizer. Use only the meeting information, the audio tags and the transcript.
     Transcript:
     {{transcript}}
 
@@ -273,11 +308,7 @@ public enum SummaryPromptCatalog {
     """
 
     private static let builtinItalian = """
-    Sei un sintetizzatore preciso di riunioni. Usa solo le informazioni della riunione e la trascrizione.
-    Tema: {{topic}}
-    Partecipanti: {{participants}}
-    Inizio: {{date}} {{time}}
-    Note dell'utente: {{notes}}
+    Sei un sintetizzatore preciso di riunioni. Usa solo le informazioni della riunione, i tag audio e la trascrizione.
     Trascrizione:
     {{transcript}}
 

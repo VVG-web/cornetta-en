@@ -42,6 +42,7 @@ subset is relevant, set it to the completed IDs instead of `all`; the script rej
 | TC-22 | Summary base URLs accept a host, host with port, `/v1` and a complete chat-completions endpoint; check and model loading use `/v1/models`; one model selector; meeting information opens independently with multi-line participants and notes | `Tests/CornettaCoreTests/SummaryModelsTests.swift` |
 | TC-23 | Summary settings load the provider model list for a default-model picker with a manual fallback; the summary reader parses Markdown blocks, offers Read and Code views and copies the raw summary | `Tests/CornettaCoreTests/SummaryMarkdownTests.swift` |
 | TC-24 | Summary settings keep Close and Save 24 points from the content bottom, the prompt editor expands with the window, and the measurement tools report the same geometry | manual TS-24, `scripts/ui_probe.swift`, `scripts/ui_grid.py` |
+| TC-25 | Every summary request sends a structured context block before the transcript with topic, participants, start date/time, notes and the five audio tags, including for custom prompts without `{{transcript}}` | `Tests/CornettaCoreTests/SummaryModelsTests.swift` |
 
 ## Manual test scenarios
 
@@ -299,6 +300,23 @@ blocks the release until it is fixed and all affected scenarios are repeated.
    `python3 scripts/ui_grid.py shot.png --scale 2 --content-top 28`. Expected: the measured
    `blank_bottom_points` matches the probe within 1 point.
 5. Verify English and Italian.
+
+### TS-25: Complete metadata before the transcript
+
+1. Set all five audio tags on a recording: title, artist, album, date and comment. Fill topic,
+   participants, start date/time and notes in the summary window.
+2. Start a local OpenAI-compatible endpoint that records the request body, select it as the summary
+   provider, and press **Generate**. A custom prompt that mentions only `{{topic}}` is a useful
+   stress case.
+3. Expected: the user message starts with `Meeting information:` and contains topic, participants,
+   start date, start time, ISO 8601 date and time, and notes. It contains `Audio tags:` with title,
+   artist, album, date and comment.
+4. Expected: the whole context block appears before the prompt instructions, before `Transcript:`
+   and before the first transcript line. No tag or meeting field is missing, even when the prompt
+   does not name it.
+5. Clear album, date and comment and generate again. Expected: the block still lists the fields and
+   marks each empty value `(not provided)`.
+6. Restore the user preferences and remove the temporary provider after the test.
 
 ## Sign-off
 

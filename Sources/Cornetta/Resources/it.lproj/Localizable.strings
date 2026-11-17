@@ -204,7 +204,7 @@
 "Testo del prompt" = "Testo del prompt";
 "I template usano le variabili tra doppie graffe. Un solo template è quello predefinito." = "I template usano le variabili tra doppie graffe. Un solo template è quello predefinito.";
 "Il prompt non può essere vuoto." = "Il prompt non può essere vuoto.";
-"Variabili: {{topic}}, {{participants}}, {{date}}, {{time}}, {{notes}}, {{transcript}}, {{language}}. La trascrizione viene aggiunta anche se manca {{transcript}}." = "Variabili: {{topic}}, {{participants}}, {{date}}, {{time}}, {{notes}}, {{transcript}}, {{language}}. La trascrizione viene aggiunta anche se manca {{transcript}}.";
+"Variabili: {{topic}}, {{participants}}, {{date}}, {{time}}, {{notes}}, {{transcript}}, {{language}}. La trascrizione viene aggiunta anche se manca {{transcript}}. Ogni richiesta inizia sempre con tutte le informazioni della riunione e i cinque tag audio." = "Variabili: {{topic}}, {{participants}}, {{date}}, {{time}}, {{notes}}, {{transcript}}, {{language}}. La trascrizione viene aggiunta anche se manca {{transcript}}. Ogni richiesta inizia sempre con tutte le informazioni della riunione e i cinque tag audio.";
 "Nome del prompt" = "Nome del prompt";
 "Riepilogo riunione" = "Riepilogo riunione";
 "Modelli di prompt" = "Modelli di prompt";
@@ -227,7 +227,7 @@
 "Apri Impostazioni riassunto…" = "Apri Impostazioni riassunto…";
 "Partecipanti" = "Partecipanti";
 "Nomi o ruoli, uno per riga" = "Nomi o ruoli, uno per riga";
-"Solo quando premi Genera, la trascrizione e le informazioni sulla riunione vengono inviate al provider scelto. La chiave API resta nel Portachiavi." = "Solo quando premi Genera, la trascrizione e le informazioni sulla riunione vengono inviate al provider scelto. La chiave API resta nel Portachiavi.";
+"Solo quando premi Genera, la trascrizione, le informazioni sulla riunione e i tag audio vengono inviati al provider scelto. La chiave API resta nel Portachiavi." = "Solo quando premi Genera, la trascrizione, le informazioni sulla riunione e i tag audio vengono inviati al provider scelto. La chiave API resta nel Portachiavi.";
 "Ricarica i modelli" = "Ricarica i modelli";
 "Salva informazioni" = "Salva informazioni";
 "Informazioni sulla riunione salvate." = "Informazioni sulla riunione salvate.";

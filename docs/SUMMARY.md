@@ -42,6 +42,16 @@ default. A template can use:
 - `{{language}}`
 
 If a custom template omits `{{transcript}}`, Cornetta appends the transcript.
+Every request starts with a structured context block containing all available
+metadata:
+
+- meeting topic, participants, start date, start time and user notes;
+- audio tags title, artist, album, date and comment.
+
+The block precedes the prompt and the transcript and is added for built-in and
+custom templates, so a prompt that mentions only `{{topic}}` still sends the
+audio tags and every other field. Empty fields are marked `(not provided)`.
+
 The built-in default template is created in the current interface language.
 Changing the default prompt does not change existing summaries.
 
@@ -103,8 +113,8 @@ clipboard.
 ## Privacy boundary
 
 - A summary request starts only from **Generate**.
-- The selected provider receives the transcript, the meeting information and
-  the prompt. No other recording or contact data is sent.
+- The selected provider receives the transcript, the structured meeting and
+  audio-tag context, and the prompt. No other recording or contact data is sent.
 - The API key stays in the macOS Keychain and is sent only to that provider.
 - Check service sends no transcript and no audio.
 - There is no background request, no automatic summary and no telemetry.

@@ -568,8 +568,9 @@ final class Library: ObservableObject {
         try saveMeetingInfo(meetingInfo, for: recording)
         let language = Localization.shared.language
         let apiKey = SummaryProviderCatalog.apiKey(for: provider)
+        let audioTags = (try? await tags(for: recording)) ?? recording.tags
         let text = try await SummaryService.summarize(provider: provider, model: model,
-                                                      prompt: prompt, meeting: meetingInfo,
+                                                      prompt: prompt, meeting: meetingInfo, tags: audioTags,
                                                       transcript: transcript, language: language,
                                                       apiKey: apiKey)
         let title = meetingInfo.topic.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty

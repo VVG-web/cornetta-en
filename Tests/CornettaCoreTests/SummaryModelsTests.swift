@@ -64,12 +64,83 @@ struct SummaryModelsTests {
                                                                hour: 0, minute: 0)) ?? .distantPast
         let info = MeetingInfo(topic: "Planning", participants: "Alice, Bob",
                                startDate: start, notes: "Bring numbers")
+        let tags = RecordingTags(title: "Weekly planning", artist: "Alice, Bob",
+                                 album: "Operations", date: "2026-11-17",
+                                 comment: "Budget review")
         let prompt = SummaryPrompt(name: "Test",
                                    body: "{{topic}}|{{participants}}|{{date}}|{{time}}|{{notes}}|{{language}}")
-        let rendered = prompt.rendered(meeting: info, transcript: "You: Hello", language: .english)
+        let rendered = prompt.rendered(meeting: info, tags: tags,
+                                       transcript: "You: Hello", language: .english)
         #expect(rendered.contains("Planning|Alice, Bob|1970-01-01|00:00|Bring numbers|English"))
         #expect(rendered.contains("You: Hello"))
         #expect(!rendered.contains("{{"))
+    }
+
+    @Test func promptIncludesEveryTagAndMeetingFieldBeforeTranscript() throws {
+        let start = Calendar.current.date(from: DateComponents(year: 2026, month: 11, day: 17,
+                                                               hour: 9, minute: 30)) ?? .distantPast
+        let info = MeetingInfo(topic: "Quarterly planning", participants: "Alice, Bob",
+                               startDate: start, notes: "Review the budget\nConfirm owners")
+        let tags = RecordingTags(title: "Quarterly planning", artist: "Alice and Bob",
+                                 album: "Operations", date: "2026-11-17",
+                                 comment: "Recorded in the small room")
+        let prompt = SummaryPrompt(name: "Custom",
+                                   body: "Summarize this meeting.\nTranscript:\n{{transcript}}\nKeep it short.")
+        let rendered = prompt.rendered(meeting: info, tags: tags,
+                                       transcript: "You: Hello", language: .english)
+
+        let expected = [
+            "Meeting information:",
+            "Topic: Quarterly planning",
+            "Participants: Alice, Bob",
+            "Start date: 2026-11-17",
+            "Start time: 09:30",
+            "Start date and time (ISO 8601): ",
+            "Notes: Review the budget\nConfirm owners",
+            "Audio tags:",
+            "Title: Quarterly planning",
+            "Artist: Alice and Bob",
+            "Album: Operations",
+            "Date: 2026-11-17",
+            "Comment: Recorded in the small room",
+            "Transcript:",
+            "You: Hello",
+        ]
+        for line in expected {
+            #expect(rendered.contains(line), "Missing prompt line: \(line)")
+        }
+
+        let context = try #require(rendered.range(of: "Meeting information:"))
+        let audioTags = try #require(rendered.range(of: "Audio tags:"))
+        let instructions = try #require(rendered.range(of: "Summarize this meeting."))
+        let transcript = try #require(rendered.range(of: "Transcript:"))
+        let firstLine = try #require(rendered.range(of: "You: Hello"))
+        #expect(context.lowerBound < audioTags.lowerBound)
+        #expect(audioTags.lowerBound < instructions.lowerBound)
+        #expect(instructions.lowerBound < transcript.lowerBound)
+        #expect(transcript.lowerBound < firstLine.lowerBound)
+        #expect(!rendered.contains("{{"))
+    }
+
+    @Test func promptWithoutTranscriptPlaceholderStillGetsContextFirst() throws {
+        let info = MeetingInfo(topic: "Planning", participants: "Alice",
+                               startDate: Date(timeIntervalSince1970: 1_700_000_000),
+                               notes: "")
+        let tags = RecordingTags(title: "Planning", artist: "Alice", album: "",
+                                 date: "", comment: "")
+        let prompt = SummaryPrompt(name: "No transcript variable",
+                                   body: "Summarize the discussion.")
+        let rendered = prompt.rendered(meeting: info, tags: tags,
+                                       transcript: "You: Only this line", language: .italian)
+
+        let context = try #require(rendered.range(of: "Meeting information:"))
+        let transcript = try #require(rendered.range(of: "You: Only this line"))
+        #expect(context.lowerBound < transcript.lowerBound)
+        #expect(rendered.contains("Album: (not provided)"))
+        #expect(rendered.contains("Date: (not provided)"))
+        #expect(rendered.contains("Comment: (not provided)"))
+        #expect(rendered.contains("Notes: (not provided)"))
+        #expect(rendered.contains("Transcript:"))
     }
 
     @Test func meetingAndSummaryStoreRoundTrip() throws {
